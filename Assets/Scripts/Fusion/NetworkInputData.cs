@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using Fusion;
 using UnityEngine;
 
+
+public enum InputButton {
+    Jump,
+}
 public struct NetworkInputData : INetworkInput
 {
-    // movement
-    public Vector3 direction;
-
-    // bullet function
-    public const byte MOUSEBUTTON0 = 1;
-    public NetworkButtons buttons;
+    public NetworkButtons Buttons;
+    public Vector2 Direction;
+    public Vector2 LookDelta;
 }

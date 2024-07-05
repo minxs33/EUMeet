@@ -6,7 +6,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
+public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
 {
 
     private NetworkRunner _runner;
@@ -93,36 +93,9 @@ public class BasicSpawner : MonoBehaviour, INetworkRunnerCallbacks
         
     }
 
-    private bool _mouseButton0;
-    void Update()
-    {
-        _mouseButton0 = _mouseButton0 | Input.GetMouseButtonDown(0);
-    }
-
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
-        var data = new NetworkInputData();
-
-        if(Input.GetKey(KeyCode.W)){
-            data.direction += Vector3.forward;
-        }
-
-        if(Input.GetKey(KeyCode.S)){
-            data.direction += Vector3.back;
-        }
-
-        if(Input.GetKey(KeyCode.A)){
-            data.direction += Vector3.left;
-        }
-
-        if(Input.GetKey(KeyCode.D)){
-            data.direction += Vector3.right;
-        }
-        // add structure
-        data.buttons.Set(NetworkInputData.MOUSEBUTTON0, _mouseButton0);
-        _mouseButton0 = false;
-
-        input.Set(data); //passing to host
+        
     }
 
     public void OnInputMissing(NetworkRunner runner, PlayerRef player, NetworkInput input)
