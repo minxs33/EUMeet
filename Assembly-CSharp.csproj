@@ -96,6 +96,7 @@
     <Compile Include="Assets\Scripts\Manager\AuthManager.cs" />
     <Compile Include="Assets\Scripts\CameraFollow.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\MediaPlayer\MediaPlayerExample.cs" />
+    <Compile Include="Assets\Scripts\Manager\Events\UIEvents.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\Plugin\PluginSceneSample.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Tools\Logger.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Home.cs" />
@@ -104,7 +105,6 @@
     <Compile Include="Assets\Scripts\Manager\Events\LevelEvents.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\JsonResponseEvents.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\CustomRenderAudio\CustomRenderAudio.cs" />
-    <Compile Include="Assets\Scripts\AuthSceneInit.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\MediaRecorder\MediaRecorder.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\SpatialAudioWithMediaPlayer\SpatialAudioWithMediaPlayer.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\StartLocalVideoTranscoder\StartLocalVideoTranscoder.cs" />

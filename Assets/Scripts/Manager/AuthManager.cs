@@ -55,10 +55,8 @@ public class AuthManager : MonoBehaviour
                     // GameEventsManager.instance.jsonResponseEvents.JsonValidationResponse(responseText);
 
                     JObject jObjectParse = JObject.Parse(responseText);
-                    // GameEventsManager.instance.levelEvents.LevelLoadWithTextParams("Authenticate", jObjectParse);
                 }else{
                     JObject jObjectParse = JObject.Parse(responseText);
-                    // GameEventsManager.instance.levelEvents.LevelLoadWithTextParams("Authenticate", jObjectParse);
                 }
                 
             }

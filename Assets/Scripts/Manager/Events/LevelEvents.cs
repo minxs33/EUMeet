@@ -8,9 +8,4 @@ public class LevelEvents
         onLevelLoad?.Invoke(sceneName);
     }
 
-    public event Action<String, JObject> onLevelLoadWithTextParams;
-    public void LevelLoadWithTextParams(string sceneName, JObject text) {
-        onLevelLoadWithTextParams?.Invoke(sceneName, text);
-    }
-
 }
