@@ -71,6 +71,8 @@
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\StartDirectCdnStreaming\StartDirectCdnStreaming.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\VoiceChanger\VoiceChanger.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\AudioMixing\AudioMixing.cs" />
+    <Compile Include="Assets\Scripts\Manager\UIManager.cs" />
+    <Compile Include="Assets\Scripts\Manager\Events\AuthEvents.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\StreamMessage\StreamMessage.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\AppIdInput\AppIdInput.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\CustomCaptureAudio\CustomCaptureAudio.cs" />
@@ -80,6 +82,7 @@
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Tools\UIElementDragger.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\MediaPlayerWithCustomDataProvider\MediaPlayerWithCustomDataProviderExample.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Basic\JoinChannelAudio\JoinChannelAudio.cs" />
+    <Compile Include="Assets\Scripts\Manager\JsonResponseManager.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\ProcessAudioRawData\ProcessAudioRawData.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\JoinChannelVideoToken\JoinChannelVideoToken.cs" />
     <Compile Include="Assets\Scripts\Fusion\BasicSpawner.cs" />
@@ -90,19 +93,25 @@
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\JoinChannelWithUserAccount\JoinChannelWithUserAccount.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\AudioSpectrum\AudioSpectrum.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\SetEncryption\EncryptionSample.cs" />
+    <Compile Include="Assets\Scripts\Manager\AuthManager.cs" />
     <Compile Include="Assets\Scripts\CameraFollow.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\MediaPlayer\MediaPlayerExample.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\Plugin\PluginSceneSample.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Tools\Logger.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Home.cs" />
+    <Compile Include="Assets\Scripts\Manager\LevelManager.cs" />
     <Compile Include="Assets\Scripts\Agora\JoinChannelAudio.cs" />
+    <Compile Include="Assets\Scripts\Manager\Events\LevelEvents.cs" />
+    <Compile Include="Assets\Scripts\Manager\Events\JsonResponseEvents.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\CustomRenderAudio\CustomRenderAudio.cs" />
+    <Compile Include="Assets\Scripts\AuthSceneInit.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\MediaRecorder\MediaRecorder.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\SpatialAudioWithMediaPlayer\SpatialAudioWithMediaPlayer.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\StartLocalVideoTranscoder\StartLocalVideoTranscoder.cs" />
     <Compile Include="Assets\Scripts\Fusion\Player.cs" />
     <Compile Include="Assets\Scripts\Fusion\NetworkInputData.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\StartRhythmPlayer\StartRhythmPlayer.cs" />
+    <Compile Include="Assets\Scripts\Manager\Events\GameEventsManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Shaders\TMPro.cginc" />
@@ -570,6 +579,10 @@
     </Reference>
     <Reference Include="Fusion.Runtime">
       <HintPath>Assets\Photon\Fusion\Assemblies\Fusion.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Library\PackageCache\jillejr.newtonsoft.json-for-unity@f2c6cb0981\Plugins\Newtonsoft.Json Editor\Newtonsoft.Json.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
