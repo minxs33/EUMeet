@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 public class AuthManager : MonoBehaviour
 {
@@ -45,18 +46,19 @@ public class AuthManager : MonoBehaviour
         {
             if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
             {
-                Debug.Log($"Network or protocol error: {www.error}");
+                // Debug.Log($"Network or protocol error: {www.error}");
                 string responseText = www.downloadHandler.text;
                 Debug.Log($"Response text: {responseText}");
-
-                if (www.responseCode == 422)
+                
+                try
                 {
-                    Debug.Log($"Validation error response: {responseText}");
-                    // GameEventsManager.instance.jsonResponseEvents.JsonValidationResponse(responseText);
-
-                    JObject jObjectParse = JObject.Parse(responseText);
-                }else{
-                    JObject jObjectParse = JObject.Parse(responseText);
+                    JObject error = JObject.Parse(responseText);
+                    Debug.Log($"{error}");
+                    GameEventsManager.instance.UIEvents.RegisterError(error);
+                }
+                catch (JsonReaderException ex)
+                {
+                    Debug.LogError($"Failed to parse response text as JSON: {ex.Message}\nResponse text: {responseText}");
                 }
                 
             }

@@ -138,10 +138,10 @@
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Native\AgoraMediaBaseNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\AgoraUtil.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMediaPlayer.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\FaceInfoObserverNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\VideoEncodedFrameObserverNative.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\RtcEngineEventHandlerNative.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\FaceInfoObserverNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\AgoraCallbackObject.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\RtcEngineEventHandlerNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\MusicPlayerImpl.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Native\AgoraRtcApiNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\VideoDeviceManagerImpl.cs" />

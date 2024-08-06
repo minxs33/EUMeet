@@ -9,6 +9,7 @@ public class GameEventsManager : MonoBehaviour
     public AuthEvents authEvents;
     public JsonResponseEvents jsonResponseEvents;
     public LevelEvents levelEvents;
+    public UIEvents UIEvents;
 
     private void Awake() {
         if (instance == null) {
@@ -22,5 +23,6 @@ public class GameEventsManager : MonoBehaviour
         authEvents = new AuthEvents();
         jsonResponseEvents = new JsonResponseEvents();
         levelEvents = new LevelEvents();
+        UIEvents = new UIEvents();
     }
 }

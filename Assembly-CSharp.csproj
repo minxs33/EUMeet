@@ -71,7 +71,6 @@
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\StartDirectCdnStreaming\StartDirectCdnStreaming.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\VoiceChanger\VoiceChanger.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\AudioMixing\AudioMixing.cs" />
-    <Compile Include="Assets\Scripts\Manager\UIManager.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\AuthEvents.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\StreamMessage\StreamMessage.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\AppIdInput\AppIdInput.cs" />
@@ -86,7 +85,6 @@
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\ProcessAudioRawData\ProcessAudioRawData.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\JoinChannelVideoToken\JoinChannelVideoToken.cs" />
     <Compile Include="Assets\Scripts\Fusion\BasicSpawner.cs" />
-    <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\Metadata\MetadataSample.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Tools\RingBuffer.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\ChannelMediaRelay\ChannelMediaRelay.cs" />
@@ -102,6 +100,7 @@
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Home.cs" />
     <Compile Include="Assets\Scripts\Manager\LevelManager.cs" />
     <Compile Include="Assets\Scripts\Agora\JoinChannelAudio.cs" />
+    <Compile Include="Assets\Scripts\Manager\UIManager\AuthUIManager.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\LevelEvents.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\JsonResponseEvents.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\CustomRenderAudio\CustomRenderAudio.cs" />
