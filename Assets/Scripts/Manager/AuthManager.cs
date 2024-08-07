@@ -9,20 +9,14 @@ using Newtonsoft.Json;
 
 public class AuthManager : MonoBehaviour
 {
-    public TMP_InputField nameInputField;
-    public TMP_InputField emailInputField;
-    public TMP_InputField passwordInputField;
-    public Button registerButton;
     public static AuthManager Instance { get; private set; }
 
     private void OnEnable() {
         GameEventsManager.instance.authEvents.onRegister += Register;
-        registerButton.onClick.AddListener(() => GameEventsManager.instance.authEvents.Register(nameInputField.text, emailInputField.text, passwordInputField.text));
     }
 
     private void OnDisable() {
         GameEventsManager.instance.authEvents.onRegister -= Register;
-        registerButton.onClick.RemoveListener(() => GameEventsManager.instance.authEvents.Register(nameInputField.text, emailInputField.text, passwordInputField.text));
     }
     
     public void Register(string name, string email, string password) {

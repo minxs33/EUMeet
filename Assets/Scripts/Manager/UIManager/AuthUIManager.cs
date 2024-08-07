@@ -1,27 +1,33 @@
-using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-using Unity.VisualScripting;
-using Unity.VisualScripting.Antlr3.Runtime.Misc;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.UI;
 
 public class AuthUIManager : MonoBehaviour
 {
-    [SerializeField] 
-    private GameObject registerErrorPanel;
+    public TMP_InputField nameInputField;
+    public TMP_InputField emailInputField;
+    public TMP_InputField passwordInputField;
+    public Button registerButton;
+
+    [SerializeField] private GameObject registerErrorPanel;
     public static AuthUIManager Instance { get; private set; }
 
     private void OnEnable() {
         GameEventsManager.instance.UIEvents.onRegisterError += RegisterError;
+        registerButton.onClick.AddListener(()=> GameEventsManager.instance.authEvents.Register(nameInputField.text, emailInputField.text, passwordInputField.text));
     }
 
     private void OnDisable() {
         GameEventsManager.instance.UIEvents.onRegisterError -= RegisterError;
+        registerButton.onClick.RemoveListener(()=> GameEventsManager.instance.authEvents.Register(nameInputField.text, emailInputField.text, passwordInputField.text));
     }
 
     public void RegisterError(JObject error) {
         registerErrorPanel.SetActive(false);
-        var errorText = registerErrorPanel.transform.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+        var errorText = registerErrorPanel.transform.GetComponentInChildren<TextMeshProUGUI>();
         errorText.text = "";
 
         if (error.TryGetValue("errors", out JToken errorsToken)) {
@@ -29,11 +35,8 @@ public class AuthUIManager : MonoBehaviour
             foreach (var errorPair in errors) {
                 JArray errorMessages = (JArray)errorPair.Value;
                 for (int i = 0; i < errorMessages.Count; i++) {
-                    if (i > 0) {
-                        errorText.text += $", {errorMessages[i]}";
-                    } else {
-                        errorText.text += $"{errorMessages[i]}";
-                    }
+                    errorText.text += $"{errorMessages[i]}";
+                    
                 }
             }
         }

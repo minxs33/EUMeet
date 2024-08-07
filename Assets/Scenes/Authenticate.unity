@@ -759,7 +759,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &496645926
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1912,7 +1912,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2588bd8f5ff9d2d4ba771924a7c2ff87, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  registerErrorPanel: {fileID: 1646034150}
+  nameInputField: {fileID: 1822720997}
+  emailInputField: {fileID: 754466505}
+  passwordInputField: {fileID: 1070669399}
+  registerButton: {fileID: 1797601311}
 --- !u!1 &1591583684
 GameObject:
   m_ObjectHideFlags: 0
@@ -2092,7 +2095,7 @@ MonoBehaviour:
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 1
-  m_HorizontalAlignment: 16
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -2972,10 +2975,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a7d0c1cfc468f04faddc1b462d48be5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nameInputField: {fileID: 1822720997}
-  emailInputField: {fileID: 754466505}
-  passwordInputField: {fileID: 1070669399}
-  registerButton: {fileID: 1797601311}
 --- !u!1 &1969378634
 GameObject:
   m_ObjectHideFlags: 0
