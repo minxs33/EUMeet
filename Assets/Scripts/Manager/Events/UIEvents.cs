@@ -8,4 +8,10 @@ public class UIEvents
     public void RegisterError(JObject error) {
         onRegisterError?.Invoke(error);
     }
+
+    public event Action<JObject> onLoginError;
+
+    public void LoginError(JObject error) {
+        onRegisterError?.Invoke(error);
+    }
 }

@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\StartRtmpStreamWithTranscoding\StartRtmpStreamWithTranscoding.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Tools\PermissionHelper.cs" />
+    <Compile Include="Assets\Scripts\Manager\PlayerPrefsManager.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\MusicPlayer\MusicPlayerExample.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\SpatialAudioWithUsers\SpatialAudioWithUsers.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\API-Example\Examples\Advanced\StartDirectCdnStreaming\StartDirectCdnStreaming.cs" />

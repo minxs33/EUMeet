@@ -26,6 +26,12 @@ public class AuthUIManager : MonoBehaviour
     [SerializeField] private Button registerButton;
     [SerializeField] private GameObject registerErrorPanel;
 
+    [Header("Login Form UI")]
+    public TMP_InputField loginEmailInputField;
+    public TMP_InputField loginPasswordInputField;
+    [SerializeField] private Button loginButton;
+    [SerializeField] private GameObject loginErrorPanel;
+
 
     public static AuthUIManager Instance { get; private set; }
 
@@ -38,6 +44,10 @@ public class AuthUIManager : MonoBehaviour
         // Register UI
         GameEventsManager.instance.UIEvents.onRegisterError += RegisterError;
         registerButton.onClick.AddListener(()=> GameEventsManager.instance.authEvents.Register(nameInputField.text, emailInputField.text, passwordInputField.text));
+
+        // Login UI
+        GameEventsManager.instance.UIEvents.onLoginError += LoginError;
+        loginButton.onClick.AddListener(()=> GameEventsManager.instance.authEvents.Login(loginEmailInputField.text, loginPasswordInputField.text));
     }
 
     private void OnDisable() {
@@ -141,5 +151,23 @@ public class AuthUIManager : MonoBehaviour
 
         registerErrorPanel.SetActive(true);
     }
+
+    private void LoginError(JObject error) {
+    loginErrorPanel.SetActive(false); // Assuming you have a panel for login errors similar to register errors
+    var errorText = loginErrorPanel.transform.GetComponentInChildren<TextMeshProUGUI>();
+    errorText.text = "";
+
+    if (error.TryGetValue("errors", out JToken errorsToken)) {
+        JObject errors = (JObject)errorsToken;
+        foreach (var errorPair in errors) {
+            JArray errorMessages = (JArray)errorPair.Value;
+            for (int i = 0; i < errorMessages.Count; i++) {
+                errorText.text += $"{errorMessages[i]}";
+            }
+        }
+    }
+
+    loginErrorPanel.SetActive(true);
+}
 
 }

@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json.Linq;
 
 public class AuthEvents
 {
@@ -15,5 +16,15 @@ public class AuthEvents
     public event Action onRegisterFailed;
     public void RegisterFailed() {
         onRegisterFailed?.Invoke();
+    }
+
+    public event Action<String,String> onLogin;
+    public void Login(String email,String password) {
+        onLogin?.Invoke(email,password);
+    }
+
+    public event Action<JObject> onAuthenticate;
+    public void Authenticate(JObject response) {
+        onAuthenticate?.Invoke(response);
     }
 }

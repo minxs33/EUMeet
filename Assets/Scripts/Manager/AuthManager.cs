@@ -13,10 +13,12 @@ public class AuthManager : MonoBehaviour
 
     private void OnEnable() {
         GameEventsManager.instance.authEvents.onRegister += Register;
+        GameEventsManager.instance.authEvents.onLogin += Login;
     }
 
     private void OnDisable() {
         GameEventsManager.instance.authEvents.onRegister -= Register;
+        GameEventsManager.instance.authEvents.onLogin -= Login;
     }
     
     public void Register(string name, string email, string password) {
@@ -59,7 +61,9 @@ public class AuthManager : MonoBehaviour
             else if (www.result == UnityWebRequest.Result.Success)
             {
                 Debug.Log($"Success: {www.downloadHandler.text}");
-                GameEventsManager.instance.authEvents.RegisterSuccess();
+                var response = JObject.Parse(www.downloadHandler.text);
+                GameEventsManager.instance.authEvents.Authenticate(response);
+                GameEventsManager.instance.levelEvents.LevelLoad("Lobby");
             }
             else
             {
@@ -76,4 +80,63 @@ public class AuthManager : MonoBehaviour
             www.Dispose();
         }
     }
+    
+    public void Login(string email, string password)
+{
+    List<IMultipartFormSection> formData = new List<IMultipartFormSection>
+    {
+        new MultipartFormDataSection("email", email),
+        new MultipartFormDataSection("password", password)
+    };
+    
+    StartCoroutine(LoginRoutine(formData));
+}
+
+public IEnumerator LoginRoutine(List<IMultipartFormSection> formData)
+{
+    UnityWebRequest www = UnityWebRequest.Post("http://172.29.174.196/login", formData);
+
+    yield return www.SendWebRequest();
+
+    try
+    {
+        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+        {
+            string responseText = www.downloadHandler.text;
+            Debug.Log($"Response text: {responseText}");
+
+            try
+            {
+                JObject error = JObject.Parse(responseText);
+                Debug.Log($"{error}");
+                GameEventsManager.instance.UIEvents.LoginError(error);
+            }
+            catch (JsonReaderException ex)
+            {
+                Debug.LogError($"Failed to parse response text as JSON: {ex.Message}\nResponse text: {responseText}");
+            }
+        }
+        else if (www.result == UnityWebRequest.Result.Success)
+        {
+            Debug.Log($"Success: {www.downloadHandler.text}");
+            var response = JObject.Parse(www.downloadHandler.text);
+            GameEventsManager.instance.authEvents.Authenticate(response);
+            GameEventsManager.instance.levelEvents.LevelLoad("Lobby");
+        }
+        else
+        {
+            Debug.LogError($"Unexpected result: {www.result}");
+            Application.Quit();
+        }
+    }
+    catch (System.Exception ex)
+    {
+        Debug.LogError($"Exception caught: {ex.Message}\n{ex.StackTrace}");
+    }
+    finally
+    {
+        www.Dispose();
+    }
+}
+
 }
