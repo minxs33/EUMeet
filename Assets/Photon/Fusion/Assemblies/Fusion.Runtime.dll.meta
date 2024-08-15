@@ -6,10 +6,12 @@ PluginImporter:
   iconMap: {}
   executionOrder:
     Fusion.HitboxRoot: -2000
+    Fusion.NetworkEvents: 5100
     Fusion.NetworkMecanimAnimator: 600
     Fusion.NetworkObject: 5000
-    Fusion.NetworkTransform: -1400
     Fusion.NetworkObjectInactivityGuard: -10000
+    Fusion.NetworkObjectPrefabData: 5200
+    Fusion.NetworkTransform: -1400
   defineConstraints: []
   isPreloaded: 0
   isOverridable: 0

@@ -15,7 +15,16 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
     private Dictionary<PlayerRef, NetworkObject> spawnedPlayers = new Dictionary<PlayerRef, NetworkObject>();
     // host
 
-    private void Awake() {
+    // private void Awake() {
+    //     if(SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
+    //     {
+    //         GameStart(GameMode.Host);
+    //     }else{
+    //         GameStart(GameMode.Client);
+    //     }
+    // }
+
+    private void Start(){
         if(SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
         {
             GameStart(GameMode.Host);
@@ -30,11 +39,13 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
         _runner.ProvideInput = true;
         
         // Scene Info
-        var scene = SceneRef.FromIndex(SceneManager.GetActiveScene().buildIndex);
+        var scene = SceneRef.FromIndex(SceneManager.GetSceneByBuildIndex(1).buildIndex);
         var sceneInfo = new NetworkSceneInfo();
+
+        Debug.Log(scene);
         if(scene.IsValid)
         {
-            sceneInfo.AddSceneRef(scene, LoadSceneMode.Additive);
+            sceneInfo.AddSceneRef(scene, LoadSceneMode.Single);
         }
 
         // Create Lobby Session
@@ -48,6 +59,7 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnConnectedToServer(NetworkRunner runner)
     {
+        // masuk channel RTC lobby
         // if(Application.isBatchMode){
         //     Application.targetFrameRate = 30;
         //     GameStart(GameMode.Host);

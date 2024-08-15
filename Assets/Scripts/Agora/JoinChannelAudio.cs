@@ -11,7 +11,7 @@ public class JoinChannelAudio : MonoBehaviour
 {
     private string _appID = "aaee4ec8cfeb477380c9ec3f477894e7";
     private string _channelName = "Lobby";
-    private string _token = "c04e354eb8fb4b96abf5eaccfc2616e8";
+    private string _token;
     internal IRtcEngine RtcEngine;
     
     #if (UNITY_2018_3_OR_NEWER && UNITY_ANDROID)
@@ -43,8 +43,6 @@ public class JoinChannelAudio : MonoBehaviour
 
         RtcEngine.Initialize(context);
     }
-
-
 
     private void SetupUI()
     {
@@ -86,6 +84,7 @@ public class JoinChannelAudio : MonoBehaviour
 
     void Start()
     {
+        _token = PlayerPrefs.GetString("token");
         SetupAudioSDKEngine();
         InitEventHandler();
         SetupUI();

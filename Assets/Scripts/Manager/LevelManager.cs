@@ -17,6 +17,12 @@ public class LevelManager : MonoBehaviour
         GameEventsManager.instance.levelEvents.onLevelLoad -= LoadScene;
     }
 
+    private void Start() {
+        if(SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null){
+            LoadScene("Lobby");
+        }
+    }
+
     public async void LoadScene(string sceneName) {
         var scene = SceneManager.LoadSceneAsync(sceneName);
         scene.allowSceneActivation = false;

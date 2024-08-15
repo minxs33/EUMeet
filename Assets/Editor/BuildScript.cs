@@ -7,7 +7,10 @@ public class BuildScript
     [System.Obsolete]
     public static void BuildHeadless()
     {
-        string[] scenes = { "Assets/Scenes/HostRunner.unity" };
+        string[] scenes = { 
+            "Assets/Scenes/Authenticate.unity",
+            "Assets/Scenes/Lobby.unity" 
+            };
         string buildPath = "Builds/Headless/Server.x86_64";
         
         // Ensure the build directory exists
