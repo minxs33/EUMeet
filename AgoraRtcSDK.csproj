@@ -28,7 +28,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>Temp\bin\Debug\</OutputPath>
-    <DefineConstants>UNITY_2022_3_35;UNITY_2022_3;UNITY_2022;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;UNITY_2020_1_OR_NEWER;UNITY_2020_2_OR_NEWER;UNITY_2020_3_OR_NEWER;UNITY_2021_1_OR_NEWER;UNITY_2021_2_OR_NEWER;UNITY_2021_3_OR_NEWER;UNITY_2022_1_OR_NEWER;UNITY_2022_2_OR_NEWER;UNITY_2022_3_OR_NEWER;PLATFORM_ARCH_64;UNITY_64;UNITY_INCLUDE_TESTS;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_VIRTUALTEXTURING;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_EDITOR_GAME_SERVICES;ENABLE_UNITY_GAME_SERVICES_ANALYTICS_SUPPORT;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_GENERATE_NATIVE_PLUGINS_FOR_ASSEMBLIES_API;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;ENABLE_MANAGED_UNITYTLS;INCLUDE_DYNAMIC_GI;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_VIDEO;ENABLE_ACCELERATOR_CLIENT_DEBUGGING;ENABLE_NAVIGATION_PACKAGE_DEBUG_VISUALIZATION;ENABLE_NAVIGATION_HEIGHTMESH_RUNTIME_SUPPORT;ENABLE_NAVIGATION_UI_REQUIRES_PACKAGE;PLATFORM_STANDALONE;TEXTCORE_1_0_OR_NEWER;PLATFORM_STANDALONE_LINUX;UNITY_STANDALONE_LINUX;UNITY_STANDALONE;UNITY_STANDALONE_LINUX_API;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_CLUSTER_SYNC;ENABLE_CLUSTERINPUT;ENABLE_SPATIALTRACKING;ENABLE_MODULAR_UNITYENGINE_ASSEMBLIES;ENABLE_MONO;NET_STANDARD_2_0;NET_STANDARD;NET_STANDARD_2_1;NETSTANDARD;NETSTANDARD2_1;ENABLE_PROFILER;UNITY_SERVER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_UNITY_COLLECTIONS_CHECKS;ENABLE_BURST_AOT;UNITY_TEAM_LICENSE;UNITY_PRO_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_INPUT_SYSTEM;ENABLE_LEGACY_INPUT_MANAGER;TEXTCORE_FONT_ENGINE_1_5_OR_NEWER;FUSION_WEAVER;FUSION2;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER</DefineConstants>
+    <DefineConstants>UNITY_2022_3_35;UNITY_2022_3;UNITY_2022;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;UNITY_2020_1_OR_NEWER;UNITY_2020_2_OR_NEWER;UNITY_2020_3_OR_NEWER;UNITY_2021_1_OR_NEWER;UNITY_2021_2_OR_NEWER;UNITY_2021_3_OR_NEWER;UNITY_2022_1_OR_NEWER;UNITY_2022_2_OR_NEWER;UNITY_2022_3_OR_NEWER;PLATFORM_ARCH_64;UNITY_64;UNITY_INCLUDE_TESTS;ENABLE_AR;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_EVENT_QUEUE;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_TEXTURE_STREAMING;ENABLE_VIRTUALTEXTURING;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_VR;ENABLE_WEBCAM;ENABLE_UNITYWEBREQUEST;ENABLE_WWW;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_USE_WEBREQUEST;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_EDITOR_GAME_SERVICES;ENABLE_UNITY_GAME_SERVICES_ANALYTICS_SUPPORT;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_HUB_LICENSE;ENABLE_WEBSOCKET_CLIENT;ENABLE_GENERATE_NATIVE_PLUGINS_FOR_ASSEMBLIES_API;ENABLE_DIRECTOR_AUDIO;ENABLE_DIRECTOR_TEXTURE;ENABLE_MANAGED_JOBS;ENABLE_MANAGED_TRANSFORM_JOBS;ENABLE_MANAGED_ANIMATION_JOBS;ENABLE_MANAGED_AUDIO_JOBS;ENABLE_MANAGED_UNITYTLS;INCLUDE_DYNAMIC_GI;ENABLE_SCRIPTING_GC_WBARRIERS;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;ENABLE_VIDEO;ENABLE_ACCELERATOR_CLIENT_DEBUGGING;ENABLE_NAVIGATION_PACKAGE_DEBUG_VISUALIZATION;ENABLE_NAVIGATION_HEIGHTMESH_RUNTIME_SUPPORT;ENABLE_NAVIGATION_UI_REQUIRES_PACKAGE;PLATFORM_STANDALONE;TEXTCORE_1_0_OR_NEWER;PLATFORM_STANDALONE_WIN;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_NVIDIA;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_OUT_OF_PROCESS_CRASH_HANDLER;ENABLE_CLUSTER_SYNC;ENABLE_CLUSTERINPUT;PLATFORM_UPDATES_TIME_OUTSIDE_OF_PLAYER_LOOP;GFXDEVICE_WAITFOREVENT_MESSAGEPUMP;PLATFORM_INITIALIZES_MEMORY_MANAGER_EXPLICITLY;ENABLE_MONO;NET_STANDARD_2_0;NET_STANDARD;NET_STANDARD_2_1;NETSTANDARD;NETSTANDARD2_1;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_UNITY_COLLECTIONS_CHECKS;ENABLE_BURST_AOT;UNITY_TEAM_LICENSE;UNITY_PRO_LICENSE;ENABLE_CUSTOM_RENDER_TEXTURE;ENABLE_DIRECTOR;ENABLE_LOCALIZATION;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_TILEMAP;ENABLE_TIMELINE;ENABLE_INPUT_SYSTEM;ENABLE_LEGACY_INPUT_MANAGER;TEXTCORE_FONT_ENGINE_1_5_OR_NEWER;FUSION_WEAVER;FUSION2;CSHARP_7_OR_LATER;CSHARP_7_3_OR_NEWER</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <NoWarn>0169;USG0001</NoWarn>
@@ -55,120 +55,120 @@
     <UnityProjectGeneratorVersion>2.0.22</UnityProjectGeneratorVersion>
     <UnityProjectGeneratorStyle>SDK</UnityProjectGeneratorStyle>
     <UnityProjectType>Game:1</UnityProjectType>
-    <UnityBuildTarget>StandaloneLinux64:24</UnityBuildTarget>
+    <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2022.3.35f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="C:\Users\ACER NITRO\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.0.2\Analyzers\Microsoft.Unity.Analyzers.dll" />
+    <Analyzer Include="C:\Users\ACER NITRO\.vscode\extensions\visualstudiotoolsforunity.vstuc-1.0.3\Analyzers\Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="D:\Application\2022.3.35f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="D:\Application\2022.3.35f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\Netstandard15Polyfill.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IVideoDeviceManager.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\MusicContentCenter.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Event\RtcEngineEventHandler.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\AudioEncodedFrameObserverNative.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\MediaPlayerCacheManager.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\MediaPlayerSourceObserverNative.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMediaPlayerSourceObserver.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Native\AgoraEventType.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\VideoFrameObserverNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Native\AgoraApiType.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\MediaPlayerCustomDataProviderNative.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\ParserToken.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraRtcEngine.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\AgoraOptional.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\VideoRender\VideoSurface.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\AgoraGameObject.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMetadataObserver.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraRhythmPlayer.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMusicPlayer.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IFaceInfoObserver.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraH265Transcoder.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\MusicContentCenterImpl.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IH265TranscoderObserver.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraMediaPlayerTypes.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMediaRecorderObserver.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraMediaBase.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\AudioDeviceManager.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\ILocalSpatialAudioEngine.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\VideoRender\TextureManagerYUV.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\MediaRecorder.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\H265Transcoder.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMusicContentCenter.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\JsonException.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\VideoRender\TextureManager.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\H265TranscoderObserverNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\MediaPlayerAudioSpectrumObserverNative.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IAudioEncodedFrameObserver.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IAudioDeviceManager.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMediaRecorder.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\VideoDeviceManager.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\Base.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IH265Transcoder.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\Lexer.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IAudioSpectrumObserver.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraLog.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IVideoEncodedFrameObserver.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraRtcEngineEx.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\MediaPlayerImpl.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\IJsonWrapper.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IRtcEngineEx.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\MediaPlayerCacheManagerImpl.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\AgoraCallbackQueue.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IVideoFrameObserver.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMediaPlayerCacheManager.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\JsonWriter.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMusicContentCenterEventHandler.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\AudioFrameObserverNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\MediaRecorderObserverNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\MusicPlayer.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\MetaDataObserverNative.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\VideoRender\VideoSurfaceYUVA.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\SpatialAudioEngineImpl.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Event\MediaRecorderObserver.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMediaPlayerCustomDataProvider.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraBase.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Event\MediaPlayerSourceObserver.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraMusicContentCenter.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IRtcEngineEventHandler.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IAudioFrameObserver.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\MediaPlayer.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Native\AgoraMediaBaseNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\AgoraUtil.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMediaPlayer.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\VideoEncodedFrameObserverNative.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\FaceInfoObserverNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\AgoraCallbackObject.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\JsonData.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\H265TranscoderImpl.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\AudioPcmFrameSinkNative.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IVideoFrameMetaInfo.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\MediaRecorderImpl.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\AgoraLog.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\JsonMockWrapper.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IRtcEngine.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\VideoRender\VideoRender.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\Netstandard15Polyfill.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\MediaPlayerCacheManager.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\MediaPlayerSourceObserverNative.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMediaPlayerSourceObserver.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Native\AgoraEventType.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\MediaPlayerCustomDataProviderNative.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\ParserToken.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraRtcEngine.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\AgoraOptional.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMusicPlayer.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IH265TranscoderObserver.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraMediaBase.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\AudioDeviceManager.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\VideoRender\TextureManager.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMusicContentCenter.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IAudioEncodedFrameObserver.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\VideoDeviceManager.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IAudioSpectrumObserver.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\MediaPlayerImpl.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\AgoraCallbackQueue.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\JsonWriter.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\AudioFrameObserverNative.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\VideoRender\VideoSurfaceYUVA.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\SpatialAudioEngineImpl.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMediaPlayerCustomDataProvider.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraBase.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Event\MediaPlayerSourceObserver.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\MediaPlayer.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\FaceInfoObserverNative.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\VideoEncodedFrameObserverNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\RtcEngineEventHandlerNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\MusicPlayerImpl.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Native\AgoraRtcApiNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\VideoDeviceManagerImpl.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\MusicContentCenterEventHandlerNative.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\JsonData.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\ObsoleteMethodWarning.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\AudioSpectrumObserverNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\RtcEngineImpl.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraMediaEngine.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\JsonReader.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\H265TranscoderImpl.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\VideoRender\TextureManagerYUVA.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\AudioPcmFrameSinkNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\AudioDeviceManagerImpl.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IVideoFrameMetaInfo.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\JsonMapper.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Impl\MediaRecorderImpl.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\VideoFrameMetaInfo.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\RtcEngine.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\LocalSpatialAudioEngine.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraSpatialAudio.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\AgoraLog.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IAudioPcmFrameSink.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\VideoRender\VideoSurfaceYUV.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\JsonMockWrapper.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IRtcEngine.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\VideoRender\VideoRender.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\AgoraRtcSDK.asmdef" />
@@ -180,6 +180,10 @@
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>D:\Application\2022.3.35f1\Editor\Data\Managed\UnityEngine\UnityEngine.AIModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.ARModule">
+      <HintPath>D:\Application\2022.3.35f1\Editor\Data\Managed\UnityEngine\UnityEngine.ARModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.AccessibilityModule">

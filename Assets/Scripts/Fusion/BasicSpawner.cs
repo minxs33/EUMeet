@@ -13,16 +13,6 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
     [SerializeField] private NetworkPrefabRef playerPrefab;
 
     private Dictionary<PlayerRef, NetworkObject> spawnedPlayers = new Dictionary<PlayerRef, NetworkObject>();
-    // host
-
-    // private void Awake() {
-    //     if(SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
-    //     {
-    //         GameStart(GameMode.Host);
-    //     }else{
-    //         GameStart(GameMode.Client);
-    //     }
-    // }
 
     private void Start(){
         if(SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)
@@ -34,11 +24,10 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
     }
     async void GameStart(GameMode mode)
     {
-        // Creating a network runner and user is giving the input
-        _runner = gameObject.AddComponent<NetworkRunner>();
+        // Getting a network runner and user is giving the input
+        _runner = gameObject.GetComponent<NetworkRunner>();
         _runner.ProvideInput = true;
         
-        // Scene Info
         var scene = SceneRef.FromIndex(SceneManager.GetSceneByBuildIndex(1).buildIndex);
         var sceneInfo = new NetworkSceneInfo();
 
@@ -55,6 +44,7 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
             Scene=scene,
             SceneManager = gameObject.AddComponent<NetworkSceneManagerDefault>(),
         });
+
     }
 
     public void OnConnectedToServer(NetworkRunner runner)
@@ -136,6 +126,7 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
                 spawnedPlayers.Add(player, networkObject);
             }else{
                 Debug.Log("This is a headless server, no player is instantiated");
+                GameEventsManager.instance.voiceEvents.PlayerJoined();
             }
         }
         
