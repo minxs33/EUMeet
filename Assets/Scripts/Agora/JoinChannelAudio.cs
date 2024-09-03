@@ -44,13 +44,6 @@ public class JoinChannelAudio : MonoBehaviour
         RtcEngine.Initialize(context);
     }
 
-    private void SetupUI()
-    {
-        GameObject go = GameObject.Find("Leave");
-        go.GetComponent<Button>().onClick.AddListener(Leave);
-        go = GameObject.Find("Join");
-        go.GetComponent<Button>().onClick.AddListener(Join);
-    }
 
     private void InitEventHandler()
     {
@@ -87,7 +80,6 @@ public class JoinChannelAudio : MonoBehaviour
         _token = PlayerPrefs.GetString("token");
         SetupAudioSDKEngine();
         InitEventHandler();
-        SetupUI();
     }
 
     void Update(){

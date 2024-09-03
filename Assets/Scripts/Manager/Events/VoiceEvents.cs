@@ -1,12 +1,18 @@
 using System;
-using UnityEngine;
 
-public class VoiceEvents : MonoBehaviour
+public class VoiceEvents
 {
-    public event Action OnPlayerJoined;
+    public event Action OnUnMuteVoice;
 
-    public void PlayerJoined()
+    public void UnMute()
     {
-        OnPlayerJoined?.Invoke();
+        OnUnMuteVoice?.Invoke();
+    }
+
+    public event Action OnMuteVoice;
+
+    public void Mute()
+    {
+        OnMuteVoice?.Invoke();
     }
 }

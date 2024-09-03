@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameEventsManager : MonoBehaviour
 {
@@ -13,18 +15,18 @@ public class GameEventsManager : MonoBehaviour
     public VoiceEvents voiceEvents;
 
     private void Awake() {
-        if (instance == null) {
+    if (instance == null) {
             instance = this;
             DontDestroyOnLoad(gameObject);
+
+            authEvents = new AuthEvents();
+            jsonResponseEvents = new JsonResponseEvents();
+            levelEvents = new LevelEvents();
+            UIEvents = new UIEvents();
+            voiceEvents = new VoiceEvents();
         } else {
             Destroy(gameObject);
         }
-
-        // Initialize Events
-        authEvents = new AuthEvents();
-        jsonResponseEvents = new JsonResponseEvents();
-        levelEvents = new LevelEvents();
-        UIEvents = new UIEvents();
-        voiceEvents = new VoiceEvents();
     }
+
 }

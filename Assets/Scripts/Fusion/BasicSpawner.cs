@@ -126,7 +126,7 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
                 spawnedPlayers.Add(player, networkObject);
             }else{
                 Debug.Log("This is a headless server, no player is instantiated");
-                GameEventsManager.instance.voiceEvents.PlayerJoined();
+                GameEventsManager.instance.voiceEvents.Mute();
             }
         }
         

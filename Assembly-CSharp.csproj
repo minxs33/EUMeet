@@ -172,7 +172,7 @@
     <None Include="Assets\Photon\Fusion\Plugins\NanoSockets\Metro\x64\libnanosockets.dll" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\Photon\Fusion\Plugins\NanoSockets\Metro\x86\libnanosockets.dll" />
-    <None Include="Assets\Material\Poly Etereo\Polygon Materials - LITE\Use SRP(URP).txt" />
+    <None Include="Assets\Resources\Material\Poly Etereo\Polygon Materials - LITE\Use SRP(URP).txt" />
     <None Include="Assets\Photon\Fusion\Assemblies\Fusion.Realtime.xml" />
     <None Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Plugins\x86\libaosl.dll" />
     <None Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Resources\Unlit-RendererShader601WithAlpha.shader" />
