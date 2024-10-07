@@ -3,6 +3,13 @@ using Newtonsoft.Json.Linq;
 
 public class UIEvents
 {
+
+    public event Action<Boolean> onToggleOverlay;
+
+    public void ToggleOverlay(Boolean state)
+    {
+        onToggleOverlay?.Invoke(state);
+    }
     public event Action<JObject> onRegisterError;
 
     public void RegisterError(JObject error) {

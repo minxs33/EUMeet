@@ -72,6 +72,7 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 
 # Assets example
-/[Aa]ssets/[Aa]gora-[Rr][Tt][Cc]-[Pp]lugin/[Aa][Pp][Ii]-[Ee][Xx][Aa][Mm][Pp][Ll][Ee]/*
+# /[Aa]ssets/[Aa]gora-[Rr][Tt][Cc]-[Pp]lugin/[Aa][Pp][Ii]-[Ee][Xx][Aa][Mm][Pp][Ll][Ee]/*
+/[Aa]ssets/[Aa]gora-[Rr][Tt][Cc]-[Pp]lugin/*
 /[Aa]ssets/[Pp]hoton/[Ff]usion[Dd]emos/*
 /[Aa]ssets/[Pp]hoton/[Pp]hoton[Vv]oice[Dd]emos/*

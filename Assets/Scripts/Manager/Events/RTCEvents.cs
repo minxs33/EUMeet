@@ -1,6 +1,7 @@
 using System;
+using UnityEngine;
 
-public class VoiceEvents
+public class RTCEvents
 {
     public event Action OnUnMuteVoice;
 
@@ -14,5 +15,12 @@ public class VoiceEvents
     public void Mute()
     {
         OnMuteVoice?.Invoke();
+    }
+
+    public event Action<int> OnWebCamSelected;
+
+    public void WebCamSelected(int webCamIndex)
+    {
+        OnWebCamSelected?.Invoke(webCamIndex);
     }
 }

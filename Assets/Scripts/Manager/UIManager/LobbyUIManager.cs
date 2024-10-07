@@ -1,23 +1,54 @@
 using System;
 using Fusion;
-using Photon.Voice.Unity;
-using Unity.VisualScripting;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class LobbyUIManager : MonoBehaviour
 {
-    public static LobbyUIManager instance { get; private set; }
+    public static LobbyUIManager Instance { get; private set; }
 
-    [SerializeField] public Button _toggleMuteButton;
+    [SerializeField] private Button _toggleMuteButton;
     bool _isMuted = true;
+    // Overlay
+    [SerializeField] private GameObject _overlay;
+    // Camera Source
+    [SerializeField] private TMP_Dropdown _webCamDropdown;
+    private WebCamDevice[] _webCamDevices;
 
     private void OnEnable() {
         _toggleMuteButton.onClick.AddListener(ToggleMute);
+        GameEventsManager.instance.UIEvents.onToggleOverlay += ToggleOverlay;
     }
 
     private void OnDisable() {
         _toggleMuteButton.onClick.RemoveListener(ToggleMute);
+        GameEventsManager.instance.UIEvents.onToggleOverlay -= ToggleOverlay;
+    }
+
+    private void Start(){
+        _webCamDevices = WebCamTexture.devices;
+        _webCamDropdown.ClearOptions();
+        foreach (var device in _webCamDevices)
+        {
+            _webCamDropdown.options.Add(new TMP_Dropdown.OptionData(device.name));
+        }
+
+        _webCamDropdown.onValueChanged.AddListener(OnWebcamSelected);
+    }
+
+    private void OnWebcamSelected(int index)
+    {
+        GameEventsManager.instance.RTCEvents.WebCamSelected(index);
+    }
+
+    private void ToggleOverlay(Boolean state)
+    {
+        if(state){
+            _overlay.SetActive(true);
+        } else {
+            _overlay.SetActive(false);
+        }
     }
 
     private void ToggleMute(){
@@ -32,7 +63,7 @@ public class LobbyUIManager : MonoBehaviour
         }
 
         if (_isMuted) {
-            GameEventsManager.instance.voiceEvents?.UnMute();
+            GameEventsManager.instance.RTCEvents?.UnMute();
             _isMuted = false;
 
             foreach(var s in _sprites){
@@ -41,7 +72,7 @@ public class LobbyUIManager : MonoBehaviour
                 }
             }
         } else {
-            GameEventsManager.instance.voiceEvents?.Mute();
+            GameEventsManager.instance.RTCEvents?.Mute();
             _isMuted = true;
 
             foreach(var s in _sprites){

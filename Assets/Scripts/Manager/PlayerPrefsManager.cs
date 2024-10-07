@@ -20,7 +20,7 @@ public class PlayerPrefsManager : MonoBehaviour
         return;
     }
 
-    PlayerPrefs.SetString("token", token["uid"].ToString());
+    PlayerPrefs.SetInt("uid", token["uid"].Value<int>());
     PlayerPrefs.SetString("name", token["name"].ToString());
 }
 }

@@ -1497,6 +1497,103 @@ When a user switches user roles after joining a channel, a successful method cal
 */
 - (int)setBeautyEffectOptions:(BOOL)enable options:(AgoraBeautyOptions* _Nullable)options sourceType:(AgoraMediaSourceType)sourceType NS_SWIFT_NAME(setBeautyEffectOptions(_:options:sourceType:));
 
+/** Enables/Disables face shape and sets the beauty options.
+
+@note Call this method after calling the [enableVideo]([AgoraRtcEngineKit enableVideo]) method.
+
+@param enable Sets whether or not to enable face shape:
+
+- `YES`: Enable face shape.
+- `NO`: Disable face shape.
+@param options Sets the face shape beauty option. See AgoraFaceShapeBeautyOptions.
+
+@return * 0: Success.
+* < 0: Failure.
+*/
+- (int)setFaceShapeBeautyOptions:(BOOL)enable options:(AgoraFaceShapeBeautyOptions* _Nullable)options NS_SWIFT_NAME(setFaceShapeBeautyOptions(_:options:));
+
+/** Enables/Disables face shape and sets the beauty options.
+
+@note Call this method after calling the [enableVideo]([AgoraRtcEngineKit enableVideo]) method.
+
+@param enable Sets whether or not to enable face shape:
+
+- `YES`: Enable face shape.
+- `NO`: Disable face shape.
+@param options Sets the face shape style option. See AgoraFaceShapeBeautyOptions.
+@param sourceType The source type of the extension, e.g. AgoraMediaSourceTypePrimaryCamera. See AgoraMediaSourceType.
+
+@return * 0: Success.
+* < 0: Failure.
+*/
+- (int)setFaceShapeBeautyOptions:(BOOL)enable options:(AgoraFaceShapeBeautyOptions* _Nullable)options sourceType:(AgoraMediaSourceType)sourceType NS_SWIFT_NAME(setFaceShapeBeautyOptions(_:options:sourceType:));
+
+/** Gets the face shape  beauty options.
+
+@note Call this method after calling the [enableVideo]([AgoraRtcEngineKit enableVideo]) method.
+
+@return * 0: Success.
+* < 0: Failure.
+*/
+- (AgoraFaceShapeBeautyOptions * _Nullable)getFaceShapeBeautyOptions NS_SWIFT_NAME(getFaceShapeBeautyOptions());
+
+/** Gets the face shape  beauty options.
+
+@note Call this method after calling the [enableVideo]([AgoraRtcEngineKit enableVideo]) method.
+
+@param sourceType The source type of the extension, e.g. AgoraMediaSourceTypePrimaryCamera. See AgoraMediaSourceType.
+
+@return * 0: Success.
+* < 0: Failure.
+*/
+- (AgoraFaceShapeBeautyOptions * _Nullable)getFaceShapeBeautyOptions:(AgoraMediaSourceType)sourceType NS_SWIFT_NAME(getFaceShapeBeautyOptions(_:));
+
+/** Sets the face shape area options.
+
+@note Call this method after calling the [setFaceShapeBeautyOptions]([AgoraRtcEngineKit setFaceShapeBeautyOptions]) method.
+
+@param options Sets the face shape area option. See AgoraFaceShapeAreaOptions..
+
+@return * 0: Success.
+* < 0: Failure.
+*/
+- (int)setFaceShapeAreaOptions:(AgoraFaceShapeAreaOptions* _Nullable)options NS_SWIFT_NAME(setFaceShapeAreaOptions(_:));
+
+/** Sets the face shape area options.
+
+@note Call this method after calling the [setFaceShapeBeautyOptions]([AgoraRtcEngineKit setFaceShapeBeautyOptions]) method.
+
+@param options Sets the face shape area option. See AgoraFaceShapeAreaOptions.
+@param sourceType The source type of the extension, e.g. AgoraMediaSourceTypePrimaryCamera. See AgoraMediaSourceType.
+
+@return * 0: Success.
+* < 0: Failure.
+*/
+- (int)setFaceShapeAreaOptions:(AgoraFaceShapeAreaOptions* _Nullable)options sourceType:(AgoraMediaSourceType)sourceType NS_SWIFT_NAME(setFaceShapeAreaOptions(_:sourceType:));
+
+/** Gets the face shape area options.
+
+@note Call this method after calling the [enableVideo]([AgoraRtcEngineKit enableVideo]) method.
+
+@param area Sets the face shape area. See AgoraFaceShapeArea.
+
+@return * 0: Success.
+* < 0: Failure.
+*/
+- (AgoraFaceShapeAreaOptions * _Nullable)getFaceShapeAreaOptions:(AgoraFaceShapeArea) area NS_SWIFT_NAME(getFaceShapeAreaOptions(_:));
+
+/** Gets the face shape area options.
+
+@note Call this method after calling the [enableVideo]([AgoraRtcEngineKit enableVideo]) method.
+
+@param area Sets the face shape area. See AgoraFaceShapeArea.
+@param sourceType The source type of the extension, e.g. AgoraMediaSourceTypePrimaryCamera. See AgoraMediaSourceType.
+
+@return * 0: Success.
+* < 0: Failure.
+*/
+- (AgoraFaceShapeAreaOptions * _Nullable)getFaceShapeAreaOptions:(AgoraFaceShapeArea) area sourceType:(AgoraMediaSourceType)sourceType NS_SWIFT_NAME(getFaceShapeAreaOptions(_:sourceType:));
+
 /** Sets video noise reduction.
 
 @since v4.0.0
@@ -2509,6 +2606,19 @@ You can call this method to enable the color enhancement feature and set the opt
  */
 - (int)setHeadphoneEQParameters:(int)lowGain highGain:(int)highGain NS_SWIFT_NAME(setHeadphoneEQParameters(_:highGain:));
 
+/** Enables or disables the voice AI tuner.
+ *
+ * @param enabled Determines whether to enable the voice AI tuner:
+ * - true: Enable the voice AI tuner
+ * - false: (default) Disable the voice AI tuner.
+ *
+ * @param type. The options for SDK voice AI tuner types. See #VOICE_AI_TUNER_TYPE.
+ * @return
+ * - 0: Success.
+ * - < 0: Failure.
+ */
+- (int)enableVoiceAITuner:(bool)enabled type:(AgoraVoiceAITunerType)type NS_SWIFT_NAME(enableVoiceAITuner(_:type:));
+
 #pragma mark Sound Position Indication
 /**-----------------------------------------------------------------------------
  * @name Sound Position Indication
@@ -2924,40 +3034,12 @@ This method requires hardware support.
  * -----------------------------------------------------------------------------
  */
 
-/** Launches an audio call test to determine whether the audio devices (for example, headset and speaker) and the network connection are working properly.
 
- In the test, the user first speaks, and the recording is played back in 10 seconds. If the user can hear the recording in 10 seconds, it indicates that the audio devices and network connection work properly.
-
- @note  After calling this method, always call stopEchoTest to end the test, otherwise the application will not be able to run the next echo test, nor can it call the `joinChannelByToken` method to start a new call.
-
- @param successBlock Callback on successfully starting the echo test. See JoinSuccessBlock in `joinChannelByToken` for a description of the callback parameters.
-
- @return * 0: Success.
-* <0: Failure.
- For example, AgoraErrorCodeRefused(-5)：Failed to launch the echo test.
- */
-- (int)startEchoTest:(void(^ _Nullable)(NSString * _Nonnull channel, NSUInteger uid, NSInteger elapsed))successBlock NS_SWIFT_NAME(startEchoTest(_:));
-
-/** Starts an audio call test.
-
-  This method starts an audio call test to determine whether the audio devices (for example, headset and speaker) and the network connection are working properly.
-  In the audio call test, you record your voice. If the recording plays back within the set time interval, the audio devices and the network connection are working properly.
-
-  @note
+/** Starts an audio/video call loop test.
+ @note
   - Call this method before joining a channel.
   - After calling this method, call the stopEchoTest method to end the test. Otherwise, the app cannot run the next echo test, or join a channel.
   - In the live interactive streaming profile, only a host can call this method.
-
-  @param interval The time interval (s) between when you speak and when the recording plays back.
-  @param successBlock The SDK triggers the `successBlock` callback if this method call is successful.
-
-  @return * 0: Success.
-  * < 0: Failure.
-*/
-- (int)startEchoTestWithInterval:(NSInteger)interval
-                  successBlock:(void(^ _Nullable)(NSString * _Nonnull channel, NSUInteger uid, NSInteger elapsed))successBlock NS_SWIFT_NAME(startEchoTest(withInterval:successBlock:));
-
-/** Starts an audio/video call loop test.
 
  @param config The configuration for audio/video echo test.
 
@@ -3102,6 +3184,22 @@ This method requires hardware support.
  */
 - (int)setDualStreamMode:(AgoraSimulcastStreamMode)mode
             streamConfig:(AgoraSimulcastStreamConfig* _Nonnull)streamConfig NS_SWIFT_NAME(setDualStreamMode(_:streamConfig:));
+
+/**
+ * Sets the multi-layer video stream configuration.
+ *
+ * If multi-layer is configured, the subscriber can choose to receive the coresponding layer
+ * of video stream using {@link setRemoteVideoStreamType setRemoteVideoStreamType}.
+ *
+ * @param simulcastConfig
+ * - The configuration for multi-layer video stream. It includes seven layers, ranging from
+ *   STREAM_LAYER_1 to STREAM_LOW. A maximum of 3 layers can be enabled simultaneously.
+ * @return
+ * - 0: Success.
+ * - < 0: Failure.
+ * @technical preview
+ */
+- (int)setSimulcastConfig:(AgoraSimulcastConfig* _Nonnull)simulcastConfig NS_SWIFT_NAME(setSimulcastConfig(_:));
 
 /**
  * Sets the default stream type of the remote video if the remote user has
@@ -3269,24 +3367,6 @@ This method requires hardware support.
 - (int)setHighPriorityUserList:(NSArray <NSNumber *> *_Nullable)uidList
                         option:(AgoraStreamFallbackOptions)option;
 
-#pragma mark Video Quality Control
-
-/**-----------------------------------------------------------------------------
- * @name Video Quality Control
- * -----------------------------------------------------------------------------
- */
-
-/** Sets the video quality preferences.
-
- @param preferFrameRateOverImageQuality The video preference to be set:
-
- * YES: Frame rate over image quality
- * NO: Image quality over frame rate (default)
-
- @return * 0: Success.
-* <0: Failure.
- */
-- (int)setVideoQualityParameters:(BOOL)preferFrameRateOverImageQuality NS_SWIFT_NAME(setVideoQualityParameters(_:));
 
 #pragma mark External Media Source
 
@@ -5448,54 +5528,6 @@ description:(NSString * _Nullable)description NS_SWIFT_NAME(rate(_:rating:descri
 
 /**
  * @deprecated
- * To set whether to receive remote audio streams by default, call \ref muteAllRemoteAudioStreams: muteAllRemoteAudioStreams before calling `joinChannelByToken`.
- *
- * Determines whether to receive all remote audio streams by default.
- *
- * @param mute Whether to receive remote audio streams by default:
- * - `YES`: Do not receive any remote audio stream by default.
- * - `NO`: (Default) Receive remote audio streams by default.
- *
- * @return
- * - 0: Success.
- * - <0: Failure.
- */
-- (int)setDefaultMuteAllRemoteAudioStreams:(BOOL)mute NS_SWIFT_NAME(setDefaultMuteAllRemoteAudioStreams(_:)) __deprecated;
-
-/**
- * @deprecated
- * To set whether to receive remote audio streams by default, call \ref muteAllRemoteAudioStreams: muteAllRemoteAudioStreams before calling `joinChannelByToken`.
- *
- * Determines whether to receive all remote audio streams by default.
- *
- * @param mute Whether to receive remote audio streams by default:
- * - `YES`: Do not receive any remote audio stream by default.
- * - `NO`: (Default) Receive remote audio streams by default.
- *
- * @return
- * - 0: Success.
- * - <0: Failure.
- */
-- (int)setDefaultMuteAllRemoteAudioStreams:(BOOL)mute NS_SWIFT_NAME(setDefaultMuteAllRemoteAudioStreams(_:)) __deprecated;
-
-/**
- * @deprecated
- * To set whether to receive remote video streams by default, call \ref muteAllRemoteVideoStreams: muteAllRemoteVideoStreams before calling `joinChannelByToken`.
- *
- * Determines whether to receive all remote video streams by default.
- *
- * @param mute Whether to receive remote video streams by default:
- * - `YES`: Do not receive any remote video stream by default.
- * - `NO`: (Default) Receive remote video streams by default.
- *
- * @return
- * - 0: Success.
- * - < 0: Failure.
- */
-- (int)setDefaultMuteAllRemoteVideoStreams:(BOOL)mute NS_SWIFT_NAME(setDefaultMuteAllRemoteVideoStreams(_:)) __deprecated;
-
-/**
- * @deprecated
  */
 - (int)setLocalVideoMirrorMode:(AgoraVideoMirrorMode)mode NS_SWIFT_NAME(setLocalVideoMirrorMode(_:)) __deprecated;
 
@@ -5729,25 +5761,6 @@ description:(NSString * _Nullable)description NS_SWIFT_NAME(rate(_:rating:descri
                                           stereo:(BOOL)stereo
                                      fullBitrate:(BOOL)fullBitrate NS_SWIFT_NAME(setHighQualityAudioParametersWithFullband(_:stereo:fullBitrate:)) __deprecated_msg("use setAudioProfile:scenario: instead.");
 
-/** Sets the video encoding profile.
- @deprecated From v2.3
-
- Each profile includes a set of parameters, such as the resolution, frame rate, and bitrate. When the camera does not support the specified resolution, the SDK chooses a suitable camera resolution, while the encoder resolution is the one specified by [setVideoProfile](setVideoProfile:swapWidthAndHeight:).
-
- @note * Always set the video profile after calling the enableVideo method.
- * Always set the video profile before calling the `joinChannelByToken` or startPreview method.
-
- @param profile            Enumeration definition about the video resolution, fps, and maximum kbit/s. See AgoraVideoProfile.
- @param swapWidthAndHeight The width and height of the output video is consistent with that of the video profile you set. This parameter sets whether to swap the width and height of the stream:
-
- * YES: Swap the width and height. After that the video will be in the portrait mode, that is, width < height.
- * NO: (Default) Do not swap the width and height, and the video remains in the landscape mode, that is, width > height.
-
- @return * 0: Success.
-* <0: Failure.
- */
-- (int)setVideoProfile:(AgoraVideoProfile)profile
-    swapWidthAndHeight:(BOOL)swapWidthAndHeight NS_SWIFT_NAME(setVideoProfile(_:swapWidthAndHeight:)) __deprecated_msg("use setVideoEncoderConfiguration: instead.");
 
 /**
  * Sets the audio parameters and application scenarios.
@@ -5858,38 +5871,6 @@ description:(NSString * _Nullable)description NS_SWIFT_NAME(rate(_:rating:descri
  */
 + (NSString * _Nonnull)getMediaEngineVersion NS_SWIFT_NAME(getMediaEngineVersion()) __deprecated;
 
-/** Sets the built-in encryption mode.
- @deprecated
-
- The Agora Native SDK supports built-in encryption. Call this API to set the encryption mode.
- All users in the same channel must use the same encryption mode and password. Refer to information related to the encryption algorithm on the differences between encryption modes.
- Call [setEncryptionSecret](setEncryptionSecret:) to enable the built-in encryption function before calling this API.
-
- @note  Do not use this function together with CDN.
-
- @param encryptionMode Sets the encryption mode.
- - "sm4-128-ecb": 128-bit SM4 encryption, ECB mode.
-
- @return * 0: Success.
-* <0: Failure.
- */
-- (int)setEncryptionMode:(NSString * _Nullable)encryptionMode NS_SWIFT_NAME(setEncryptionMode(_:)) __deprecated_msg("use enableEncryption: instead.");
-
-/** Enables built-in encryption.
- @deprecated
-
- Use this method to specify an encryption password to enable built-in encryption before joining a channel.
- All users in a channel must set the same encryption password.
- The encryption password is automatically cleared once a user has left the channel.
- If the encryption password is not specified or set to empty, the encryption function will be disabled.
-
- @note  Do not use this function together with CDN.
-
- @param secret Encryption password
- @return * 0: Success.
-* <0: Failure.
- */
-- (int)setEncryptionSecret:(NSString * _Nullable)secret NS_SWIFT_NAME(setEncryptionSecret(_:)) __deprecated_msg("use enableEncryption: instead.");
 
 /** Sets the video encoding profile manually.
  @deprecated From v2.3

@@ -71,6 +71,8 @@ class IRtmService;
 
 namespace base {
 class IServiceObserver;
+class ISyncClient;
+struct SyncConfig;
 
 /**
  * The global configurations for \ref agora::base::IAgoraService "AgoraService".
@@ -972,6 +974,32 @@ class IAgoraService {
    * - A null pointer: Failure.
    */
   virtual agora_refptr<rtc::IConfigCenter> getConfigCenter() = 0;
+
+  /**
+   * Get the \ref agora::rtc::ISyncClient "ISyncClient" object and return the pointer.
+   *
+   * @return
+   * - The pointer to \ref rtc::ISyncClient "ISyncClient": Success.
+   * - A null pointer: Failure.
+   */
+  virtual agora_refptr<base::ISyncClient> createSyncClient(const base::SyncConfig& config) = 0;
+
+  /**
+   * Set the logWriter for the sdk log.
+   * @param logWriter the log writer 
+   * @return
+   * - 0: Success.
+   * - < 0: Failure.
+   */
+  virtual int32_t setLogWriter(agora::commons::ILogWriter* logWriter) = 0;
+
+  /**
+   * Release logWriter for the sdk log.
+   * @return
+   * -The pointer to \ref agora::commons::ILogWriter
+   * - A null pointer: Failure.
+   */
+  virtual agora::commons::ILogWriter* releaseLogWriter() = 0;
       
  protected:
   virtual ~IAgoraService() {}

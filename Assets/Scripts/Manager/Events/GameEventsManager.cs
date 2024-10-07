@@ -12,10 +12,10 @@ public class GameEventsManager : MonoBehaviour
     public JsonResponseEvents jsonResponseEvents;
     public LevelEvents levelEvents;
     public UIEvents UIEvents;
-    public VoiceEvents voiceEvents;
+    public RTCEvents RTCEvents;
 
     private void Awake() {
-    if (instance == null) {
+        if(instance == null){
             instance = this;
             DontDestroyOnLoad(gameObject);
 
@@ -23,8 +23,8 @@ public class GameEventsManager : MonoBehaviour
             jsonResponseEvents = new JsonResponseEvents();
             levelEvents = new LevelEvents();
             UIEvents = new UIEvents();
-            voiceEvents = new VoiceEvents();
-        } else {
+            RTCEvents = new RTCEvents();
+        } else if(instance != this) {
             Destroy(gameObject);
         }
     }

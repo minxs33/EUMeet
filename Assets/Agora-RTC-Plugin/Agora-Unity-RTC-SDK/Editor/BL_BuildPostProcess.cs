@@ -113,9 +113,9 @@ namespace Agora.Rtm
         plist.ReadFromString(File.ReadAllText(pListPath));
         PlistElementDict rootDic = plist.root;
 #if AGORA_RTC
-        
+        var cameraPermission = "NSCameraUsageDescription";
         var micPermission = "NSMicrophoneUsageDescription";
-        
+        rootDic.SetString(cameraPermission, "Video need to use camera");
         rootDic.SetString(micPermission, "Voice call need to user mic");
 #endif
         File.WriteAllText(pListPath, plist.WriteToString());

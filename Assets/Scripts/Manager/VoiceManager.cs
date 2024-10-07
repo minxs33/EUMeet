@@ -12,13 +12,13 @@ public class VoiceManager : MonoBehaviour
     [SerializeField] GameObject _runnerGameObject;
     
     private void OnEnable() {
-        GameEventsManager.instance.voiceEvents.OnUnMuteVoice += UnMute;
-        GameEventsManager.instance.voiceEvents.OnMuteVoice += Mute;
+        GameEventsManager.instance.RTCEvents.OnUnMuteVoice += UnMute;
+        GameEventsManager.instance.RTCEvents.OnMuteVoice += Mute;
     }
 
     private void OnDisable() {
-        GameEventsManager.instance.voiceEvents.OnUnMuteVoice -= UnMute;
-        GameEventsManager.instance.voiceEvents.OnMuteVoice -= Mute;
+        GameEventsManager.instance.RTCEvents.OnUnMuteVoice -= UnMute;
+        GameEventsManager.instance.RTCEvents.OnMuteVoice -= Mute;
     }
 
     private void Mute()

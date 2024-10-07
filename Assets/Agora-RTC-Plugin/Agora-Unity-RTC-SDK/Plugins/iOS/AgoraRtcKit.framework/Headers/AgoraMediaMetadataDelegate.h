@@ -6,6 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "AgoraObjects.h"
 
 /** The definition of AgoraMediaMetadataDelegate.
 @note  Implement the callback in this protocol in the critical thread. We recommend avoiding any time-consuming operation in the critical thread.
@@ -14,11 +15,17 @@
 @required
 
 /** Occurs when the local user receives the metadata.
- @param data The received metadata.
- @param uid The ID of the user who sends the metadata.
- @param timestamp The NTP timestamp (ms) when the metadata is sent.
- @note If the receiver is audience, the receiver cannot get the NTP timestamp (ms) from `timestamp`.
+ * 
+ * @param metadata The received metadata. See \ref AgoraMetadata.
  */
-- (void)receiveMetadata:(NSData * _Nonnull)data fromUser:(NSInteger)uid atTimestamp:(NSTimeInterval)timestamp NS_SWIFT_NAME(receiveMetadata(_:fromUser:atTimestamp:));
+- (void)didMetadataReceived:(AgoraMetadata * _Nonnull)metadata NS_SWIFT_NAME(didMetadataReceived(_:));
 
+@optional
+/* Unavailable Delegate Methods */
+#if TARGET_OS_IPHONE
+- (void)receiveMetadata:(NSData * _Nonnull)data fromUser:(NSInteger)uid atTimestamp:(NSTimeInterval)timestamp NS_SWIFT_NAME(receiveMetadata(_:fromUser:atTimestamp:)) __attribute__((availability(ios,deprecated=7_0,message="Use didMetadataReceived: instead.")));
+#endif
+#if (!(TARGET_OS_IPHONE) && (TARGET_OS_MAC))
+- (void)receiveMetadata:(NSData * _Nonnull)data fromUser:(NSInteger)uid atTimestamp:(NSTimeInterval)timestamp NS_SWIFT_NAME(receiveMetadata(_:fromUser:atTimestamp:)) __attribute__((availability(macos,deprecated=10_9,message="Use didMetadataReceived: instead.")));
+#endif
 @end

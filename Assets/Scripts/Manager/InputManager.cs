@@ -28,9 +28,11 @@ public class InputManager : SimulationBehaviour, IBeforeUpdate, INetworkRunnerCa
            if(Cursor.lockState == CursorLockMode.Locked){
                Cursor.lockState = CursorLockMode.None;
                Cursor.visible = true;
+               GameEventsManager.instance.UIEvents.ToggleOverlay(true);
            } else {
                Cursor.lockState = CursorLockMode.Locked;
                Cursor.visible = false;
+               GameEventsManager.instance.UIEvents.ToggleOverlay(false);
            }
         }
 

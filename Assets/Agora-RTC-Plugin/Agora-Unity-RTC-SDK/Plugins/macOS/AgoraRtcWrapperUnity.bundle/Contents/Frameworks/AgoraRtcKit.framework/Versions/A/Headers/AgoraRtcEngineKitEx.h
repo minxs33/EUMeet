@@ -311,6 +311,23 @@ NS_ASSUME_NONNULL_BEGIN
               streamConfig:(AgoraSimulcastStreamConfig*)streamConfig
                 connection:(AgoraRtcConnection* _Nonnull)connection NS_SWIFT_NAME(setDualStreamModeEx(_:streamConfig:connection:));
 
+/**
+ * Set the multi-layer video stream configuration.
+ *
+ * If multi-layer is configed, the subscriber can choose to receive the coresponding layer
+ * of video stream using {@link setRemoteVideoStreamType setRemoteVideoStreamType}.
+ *
+ * @param simulcastConfig
+ * - The configuration for multi-layer video stream. It includes seven layers, ranging from
+ *   STREAM_LAYER_1 to STREAM_LOW. A maximum of 3 layers can be enabled simultaneously.
+ * @param connection The RtcConnection object.
+ * @return
+ * - 0: Success.
+ * - < 0: Failure.
+ * @technical preview
+ */
+- (int)setSimulcastConfigEx:(AgoraSimulcastConfig*)simulcastConfig
+                 connection:(AgoraRtcConnection* _Nonnull)connection NS_SWIFT_NAME(setDualStreamModeEx(_:connection:));
 
 /**
  * Sets the remote video stream type.

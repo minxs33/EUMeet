@@ -421,16 +421,12 @@ __attribute__((visibility("default"))) @interface AgoraRtcChannelMediaOptions : 
 @property(assign, nonatomic) BOOL publishLipSyncTrack;
 /**
  * Determines whether to subscribe all remote audio streams automatically.
- * This property replaces calling \ref AgoraRtcEngineKit.setDefaultMuteAllRemoteAudioStreams: setDefaultMuteAllRemoteAudioStreams
- * before joining a channel.
  * - `YES`: (Default) Subscribe all remote audio streams automatically.
  * - `NO`: Do not subscribe any remote audio stream automatically.
  */
 @property(assign, nonatomic) BOOL autoSubscribeAudio;
 /**
  * Determines whether to subscribe all remote video streams automatically.
- * This property replaces calling \ref AgoraRtcEngineKit.setDefaultMuteAllRemoteVideoStreams: setDefaultMuteAllRemoteVideoStreams
- * before joining a channel.
  * - `YES`: (Default) Subscribe all remote video streams automatically.
  * - `NO`: Do not subscribe any remote video stream automatically.
  */
@@ -514,6 +510,11 @@ __attribute__((visibility("default"))) @interface AgoraRtcChannelMediaOptions : 
  * - `NO`: Do not filter this audio stream.
  */
 @property(assign, nonatomic) BOOL isAudioFilterable;
+
+/** Provides the technical preview functionalities or special customizations by configuring the SDK with JSON options.
+ *  @technical preview
+ */
+@property(copy, nonatomic) NSString * _Nullable parameters;
 
 @end
 
@@ -1150,6 +1151,12 @@ __attribute__((visibility("default"))) @interface AgoraAdvancedVideoOptions : NS
 
 /** The video compression preference. */
 @property(assign, nonatomic) AgoraCompressionPreference compressionPreference;
+
+/**
+ * Whether to encode and send the alpha data to the remote when alpha data is present.
+ * The default value is false.
+ */
+@property(assign, nonatomic) BOOL encodeAlpha;
 
 @end
 
@@ -1807,9 +1814,18 @@ __attribute__((visibility("default"))) @interface AgoraVideoFrame : NSObject
  *  Indicates the alpha channel of current frame, which is consistent with the dimension of the video frame.
  *  The value range of each pixel is [0,255], where 0 represents the background; 255 represents the foreground.
  *  The default value is nill.
- *  @technical preview
  */
 @property(strong, nonatomic) NSData *_Nullable alphaBuf;
+/**
+ *  The relative position between alphabuffer and the frame.
+ *  0: Normal frame;
+ *  1: Alphabuffer is above the frame;
+ *  2: Alphabuffer is below the frame;
+ *  3: Alphabuffer is on the left of frame;
+ *  4: Alphabuffer is on the right of frame;
+ *  The default value is 0.
+ */
+@property(assign, nonatomic) AgoraAlphaStitchMode alphaStitchMode;
 
 /** (Optional) Specifies the number of pixels trimmed from the left, which is set as 0 by default.
  */
@@ -1868,7 +1884,6 @@ __attribute__((visibility("default"))) @interface AgoraVideoFrame : NSObject
  */
 
 /** If data format is BGRA or RGBA and alphaBuf is nill, it is required to call fillAlphaData to fill alphaBuf.
- *  @technical preview
  */
 - (void)fillAlphaData;
 @end
@@ -2200,6 +2215,16 @@ __attribute__((visibility("default"))) @interface AgoraOutputVideoFrame : NSObje
  *  Pixl value is between 0-255, 0 represents totally background, 255 represents totally foreground.
  */
 @property (nonatomic, assign) uint8_t* _Nullable alphaBuffer;
+/**
+ *  The relative position between alphabuffer and the frame.
+ *  0: Normal frame;
+ *  1: Alphabuffer is above the frame;
+ *  2: Alphabuffer is below the frame;
+ *  3: Alphabuffer is on the left of frame;
+ *  4: Alphabuffer is on the right of frame;
+ *  The default value is 0.
+ */
+@property (nonatomic, assign) AgoraAlphaStitchMode alphaStitchMode;
 
 /**
  *  The metadata information for FaceCapture and LipSync, such as blendshapes, rotation, and translation, whose key is KEY_FACE_CAPTURE.
@@ -2411,6 +2436,62 @@ The default value is 0.1. The value ranges from 0.0 (original) to 1.0. This para
 The default value is 0.1. The value ranges from 0.0 (original) to 1.0.
 */
 @property(nonatomic, assign) float sharpnessLevel;
+
+@end
+
+/** Face shape area options in [setFaceShapeAreaOptions]([AgoraRtcEngineKit setFaceShapeAreaOptions:]).
+ 
+This structure defines options for facial adjustments on different facial areas.
+*/
+__attribute__((visibility("default"))) @interface AgoraFaceShapeAreaOptions : NSObject
+/** The specific facial area to be adjusted.
+
+[AgoraFaceShapeArea](AgoraFaceShapeArea), used with the shapeIntensity property:
+
+- -1: (Default) Inavlid area.
+- 0: Head Scale.
+- 1: Forehead.
+- 2: Face Contour.
+- 3: Face Length.
+- 4: Face Width.
+- 5: Cheekbone.
+- 6: Cheek.
+- 7: Chin.
+- 8: Eye Scale.
+- 9: Nose Length.
+- 10: Nose Width.
+- 11: Mouth Scale.
+*/
+@property(nonatomic, assign) AgoraFaceShapeArea shapeArea;
+/** The intensity of the pinching effect applied to the specified facial area.
+ 
+For the following area values: #AgoraFaceShapeAreaForehead, #AgoraFaceShapeAreaFaceLength, #AgoraFaceShapeAreaChin, #AgoraFaceShapeAreaNoseLength, #AgoraFaceShapeAreaNoseWidth, #AgoraFaceShapeAreaMouthScale, the value ranges from -100 to 100.
+The default value is 0. The greater the absolute value, the stronger the intensity applied to the specified facial area, and negative values indicate the opposite direction.
+
+For enumeration values other than the above, the value ranges from 0 to 100. The default value is 0. The greater the value, the stronger the intensity applied to the specified facial area.
+*/
+@property(nonatomic, assign) int shapeIntensity;
+
+@end
+
+/** The face shape beauty options in [setFaceShapeBeautyOptions]([AgoraRtcEngineKit setFaceShapeBeautyOptions:options:]).
+ 
+This structure defines options for facial adjustments of different facial styles.
+*/
+__attribute__((visibility("default"))) @interface AgoraFaceShapeBeautyOptions: NSObject
+/** The face shape style.
+
+[AgoraFaceShapeStyle](AgoraFaceShapeStyle), used with the styleIntensity property:
+
+- 0: (Default) Female face shape style.
+- 1: Male face shape style.
+*/
+@property(nonatomic, assign) AgoraFaceShapeStyle shapeStyle;
+/** The intensity of the pinching effect applied to the specified facial style.
+
+The default value is 0. The value ranges from 0 (original) to 100.
+ */
+@property(nonatomic, assign) int styleIntensity;
 
 @end
 
@@ -2858,6 +2939,32 @@ __attribute__((visibility("default"))) @interface AgoraSimulcastStreamConfig: NS
   */
  @property (assign, nonatomic) CGSize dimensions;
  @end
+
+__attribute__((visibility("default"))) @interface AgoraStreamLayerConfig: NSObject
+/**
+ * The video frame dimension. The default value is 0.
+ */
+ @property (assign, nonatomic) CGSize dimensions;
+/**
+ * The capture frame rate (fps) of the local video. The default value is 0.
+ */
+ @property (assign, nonatomic) int framerate;
+/**
+ * Whether to enable the corresponding layer of video stream. The default value is false.
+ */
+ @property (assign, nonatomic) BOOL enable;
+@end
+
+/**
+ * The configuration of the multi-layer video stream.
+ */
+__attribute__((visibility("default"))) @interface AgoraSimulcastConfig: NSObject
+/**
+ * The array of AgoraStreamLayerConfig, which contains AgoraStreamLayerCountMax layers of video stream at most.
+ */
+ @property (copy, nonatomic) NSArray<AgoraStreamLayerConfig*>* _Nonnull configs;
+
+@end
 
 /** The AgoraMediaStreamInfo class, reporting the whole detailed information of
  the media stream.
@@ -3479,4 +3586,27 @@ NS_SWIFT_NAME(AgoraVideoRenderingTracingInfo) __attribute__((visibility("default
  */
 @property (assign, nonatomic) NSInteger remoteJoined2PacketReceived NS_SWIFT_NAME(remoteJoined2PacketReceived);
 
+@end
+
+/**
+ * The AgoraMetadata class, which reports the metadata of the received video frame.
+ */
+NS_SWIFT_NAME(AgoraMetadata) __attribute__((visibility("default"))) @interface AgoraMetadata : NSObject
+/**
+ * The channel ID of the metadata.
+ */
+@property (copy, nonatomic) NSString* _Nonnull channelId NS_SWIFT_NAME(channelId);
+/**
+ * The User ID that sent the metadata.
+ */
+@property (assign, nonatomic) NSInteger uid NS_SWIFT_NAME(uid);
+/**
+ * The received metadata.
+ */
+@property (strong, nonatomic) NSData* _Nonnull data NS_SWIFT_NAME(data);
+/**
+ * The NTP timestamp (ms) when the metadata is sent.
+ * @note If the receiver is audience, the receiver cannot get the NTP timestamp (ms).
+ */
+@property (assign, nonatomic) NSTimeInterval timestamp NS_SWIFT_NAME(timestamp);
 @end

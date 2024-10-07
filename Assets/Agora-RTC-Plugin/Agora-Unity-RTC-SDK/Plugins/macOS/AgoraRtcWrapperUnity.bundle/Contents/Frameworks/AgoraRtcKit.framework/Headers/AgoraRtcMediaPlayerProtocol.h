@@ -401,22 +401,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (int)setAudioDualMonoMode:(AgoraAudioDualMonoMode)mode NS_SWIFT_NAME(setAudioDualMonoMode(_:));
 
 /**
- * @deprecated
- * Open media file or stream with custom soucrce.
- * The custom data source provides a data stream input callback, and the player will continue to call back this interface, requesting the user to fill in the data that needs to be played.
- *
- * @param startPos Set the starting position for playback, in seconds.
- * @param onReadDataCallback  The player requests to read the data callback , see `AgoraRtcMediaPlayerOnReadCallback`
- * @param onSeekCallback  The Player seek event callback, see `AgoraRtcMediaPlayerOnSeekCallback`
- * @return
- * - 0: Success.
- * - < 0: Failure.
- */
-- (int)openWithCustomSourceAtStartPos:(NSInteger)startPos
-                 withPlayerOnReadData:(AgoraRtcMediaPlayerCustomSourceOnReadCallback)onReadDataCallback
-                      andPlayerOnSeek:(AgoraRtcMediaPlayerCustomSourceOnSeekCallback)onSeekCallback NS_SWIFT_NAME(openWithCustomSourceAtStartPos(_:withPlayerOnReadData:andPlayerOnSeek:)) __deprecated;
-
-/**
   * Set spatial audio params for the music file. It can be called after the media player
   * was created.
   *

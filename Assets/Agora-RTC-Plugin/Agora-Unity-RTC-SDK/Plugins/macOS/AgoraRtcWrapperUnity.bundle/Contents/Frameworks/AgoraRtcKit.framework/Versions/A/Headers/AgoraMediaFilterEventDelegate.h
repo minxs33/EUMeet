@@ -8,23 +8,45 @@
 
 #import <Foundation/Foundation.h>
 
+/** 
+ * The definition of extension context types.
+ */
+@interface AgoraExtensionContext : NSObject
+/** 
+ * Whether the uid is valid.
+ * - YES: The uid is valid.
+ * - NO: The uid is invalid.
+ */
+@property (assign, nonatomic) BOOL isValid;
+/**
+ * The ID of the user.
+ * A uid of 0 indicates the local user, and a uid greater than 0 represents a remote user.
+ */
+@property (assign, nonatomic) NSUInteger uid;
+/**
+ * The provider name of the current extension.
+ */
+@property (copy, nonatomic) NSString * _Nullable providerName;
+/** 
+ * The extension name of the current extension.
+ */
+@property (copy, nonatomic) NSString * _Nullable extensionName;
+@end
+
 @protocol AgoraMediaFilterEventDelegate <NSObject>
 @optional
 /* Meida filter(audio filter or video filter) event callback
- */
-- (void)onEvent:(NSString * __nullable)provider
-      extension:(NSString * __nullable)extension
+ */ 
+- (void)onEventWithContext:(AgoraExtensionContext * __nonnull)context
             key:(NSString * __nullable)key
-          value:(NSString * __nullable)value NS_SWIFT_NAME(onEvent(_:extension:key:value:));
+          value:(NSString * __nullable)value NS_SWIFT_NAME(onEventWithContext(_:key:value:));
 
-- (void)onExtensionStopped:(NSString * __nullable)provider
-                 extension:(NSString * __nullable)extension NS_SWIFT_NAME(onExtensionStopped(_:extension:));
+- (void)onExtensionStartedWithContext:(AgoraExtensionContext * __nonnull)context NS_SWIFT_NAME(onExtensionStartedWithContext(_:));
 
-- (void)onExtensionStarted:(NSString * __nullable)provider
-                 extension:(NSString * __nullable)extension NS_SWIFT_NAME(onExtensionStarted(_:extension:));
-
-- (void)onExtensionError:(NSString * __nullable)provider
-                 extension:(NSString * __nullable)extension
-                     error:(int)error
-                   message:(NSString * __nullable)message NS_SWIFT_NAME(onExtensionError(_:extension:error:message:));
+- (void)onExtensionStoppedWithContext:(AgoraExtensionContext * __nonnull)context NS_SWIFT_NAME(onExtensionStoppedWithContext(_:));
+ 
+- (void)onExtensionErrorWithContext:(AgoraExtensionContext * __nonnull)context
+                   error:(int)error
+                 message:(NSString * __nullable)message NS_SWIFT_NAME(onExtensionErrorWithContext(_:error:message:));
+ 
 @end

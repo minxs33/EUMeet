@@ -122,11 +122,11 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
                 Vector3 playerPos = new Vector3(player.RawEncoded % runner.Config.Simulation.PlayerCount * 3f,1f,0f);
 
                 NetworkObject networkObject = runner.Spawn(playerPrefab, playerPos, Quaternion.identity, player);
-
+                
                 spawnedPlayers.Add(player, networkObject);
             }else{
-                Debug.Log("This is a headless server, no player is instantiated");
-                GameEventsManager.instance.voiceEvents.Mute();
+                Debug.Log("This is the client, no player is instantiated");
+                GameEventsManager.instance.RTCEvents.Mute();
             }
         }
         

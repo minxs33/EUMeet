@@ -812,10 +812,22 @@ typedef NS_ENUM(NSInteger, AgoraUploadErrorReason) {
 
 /** Video stream type */
 typedef NS_ENUM(NSInteger, AgoraVideoStreamType) {
-    /** High-video stream */
+    /** 0: The high-quality video stream, which has the highest resolution and bitrate. */
     AgoraVideoStreamTypeHigh = 0,
-    /** Low-video stream */
+    /** 1: The low-quality video stream, which has the lowest resolution and bitrate */
     AgoraVideoStreamTypeLow = 1,
+    /** 4: The video stream of layer_1, which has a lower resolution and bitrate than VIDEO_STREAM_HIGH */
+    AgoraVideoStreamTypeLayer1 = 4,
+    /** 5: The video stream of layer_2, which has a lower resolution and bitrate than VIDEO_STREAM_LAYER_1 */
+    AgoraVideoStreamTypeLayer2 = 5,
+    /** 6: The video stream of layer_3, which has a lower resolution and bitrate than VIDEO_STREAM_LAYER_2. */
+    AgoraVideoStreamTypeLayer3 = 6,
+    /** 7: The video stream of layer_4, which has a lower resolution and bitrate than VIDEO_STREAM_LAYER_3. */
+    AgoraVideoStreamTypeLayer4 = 7,
+    /** 8: The video stream of layer_5, which has a lower resolution and bitrate than VIDEO_STREAM_LAYER_4 */
+    AgoraVideoStreamTypeLayer5 = 8,
+    /** 9: The video stream of layer_6, which has a lower resolution and bitrate than VIDEO_STREAM_LAYER_5 */
+    AgoraVideoStreamTypeLayer6 = 9,
 };
 
 /**  Quality change of the local video in terms of target frame rate and target bit rate since last count. */
@@ -947,6 +959,9 @@ typedef NS_ENUM(NSUInteger, AgoraLocalVideoStreamReason) {
 
   /** 27: The window is recovered from miniminzed */
   AgoraLocalVideoStreamReasonScreenCaptureRecoverFromMinimized = 27,
+
+   /** 30: The shared display has been disconnected */
+  AgoraLocalVideoStreamReasonScreenCaptureDisplayDisconnected = 30,
 };
 
 /** The state of the remote video. */
@@ -1201,22 +1216,37 @@ typedef NS_ENUM(NSUInteger, AgoraAudioRemoteReason) {
 
 /** Stream fallback option */
 typedef NS_ENUM(NSInteger, AgoraStreamFallbackOptions) {
-    /** 
-     * No fallback operation for the stream when the network condition is poor. The stream quality cannot be guaranteed.
+    /**
+     * No fallback operation to a lower resolution stream when the network
+     * condition is poor. Fallback to Scalable Video Coding (e.g. SVC)
+     * is still possible, but the resolution remains in high stream.
+     * The stream quality cannot be guaranteed.
      */
     AgoraStreamFallbackOptionDisabled = 0,
-    /** 
-     * Default option.
-     * Under poor network conditions, the SDK will send or receive AgoraVideoStreamTypeLow.
-     * You can only set this option in [setRemoteSubscribeFallbackOption]([AgoraRtcEngineKit setRemoteSubscribeFallbackOption:]).
+    /**
+     * (Default) Under poor network conditions, the receiver SDK will receive
+     * agora::rtc::VIDEO_STREAM_LOW. You can only set this option in
+     * [setRemoteSubscribeFallbackOption]([AgoraRtcEngineKit setRemoteSubscribeFallbackOption:]).
      * Nothing happens when you set this in [setLocalPublishFallbackOption]([AgoraRtcEngineKit setLocalPublishFallbackOption:]).
      */
     AgoraStreamFallbackOptionVideoStreamLow = 1,
-    /** 
-     * Under poor network conditions, the SDK may receive AgoraVideoStreamTypeLow first.
-     * But if the network still does not allow displaying the video, the SDK will send or receive audio only.
+    /**
+     * Under poor network conditions, the SDK may receive agora::rtc::VIDEO_STREAM_LOW first,
+     * then agora::rtc::VIDEO_STREAM_LAYER_1 to agora::rtc::VIDEO_STREAM_LAYER_6 if the related layer exists.
+     * If the network still does not allow displaying the video, the SDK will receive audio only.
      */
     AgoraStreamFallbackOptionAudioOnly = 2,
+    /** 3~8: If the receiver SDK uses [setRemoteSubscribeFallbackOption]([AgoraRtcEngineKit setRemoteSubscribeFallbackOption:])，
+     * it will receive one of the streams from agora::rtc::VIDEO_STREAM_LAYER_1 to agora::rtc::VIDEO_STREAM_LAYER_6 orderly
+     * if the related layer exists when the network condition is poor. The lower bound of fallback depends on
+     * the AgoraStreamFallbackOptionVideoStreamLayerX.
+     */
+    AgoraStreamFallbackOptionVideoStreamLayer1 = 3,
+    AgoraStreamFallbackOptionVideoStreamLayer2 = 4,
+    AgoraStreamFallbackOptionVideoStreamLayer3 = 5,
+    AgoraStreamFallbackOptionVideoStreamLayer4 = 6,
+    AgoraStreamFallbackOptionVideoStreamLayer5 = 7,
+    AgoraStreamFallbackOptionVideoStreamLayer6 = 8,
 };
 
 /** Audio sampling rate */
@@ -1715,6 +1745,29 @@ typedef NS_ENUM(NSInteger, AgoraHeadphoneEQPreset){
   AgoraAudioHeadphoneEQPresetInear = 0x04000002
 };
 
+typedef NS_ENUM(NSInteger, AgoraVoiceAITunerType){
+  /** Uncle, deep and magnetic male voice. */
+  AgoraVoiceAITunerMatureMale,
+  /** Fresh male, refreshing and sweet male voice. */
+  AgoraVoiceAITunerFreshMale,
+  /** Big sister, deep and charming female voice. */
+  AgoraVoiceAITunerElegantFemale,
+  /** Lolita, high-pitched and cute female voice. */
+  AgoraVoiceAITunerSweetFemale,
+  /** Warm man singing, warm and melodic male voice that is suitable for male lyrical songs. */
+  AgoraVoiceAITunerWarmMaleSinging,
+  /** Gentle female singing, soft and delicate female voice that is suitable for female lyrical songs. */
+  AgoraVoiceAITunerGentleFemaleSinging,
+  /** Smoky uncle singing, unique husky male voice that is suitable for rock or blues songs. */
+  AgoraVoiceAITunerHuskyMaleSinging,
+  /** Warm big sister singing, warm and mature female voice that is suitable for emotionally powerful songs. */
+  AgoraVoiceAITunerWarmElegantFemaleSinging,
+  /** Forceful male singing, strong and powerful male voice that is suitable for passionate songs. */
+  AgoraVoiceAITunerPowerfulMaleSinging,
+  /** Dreamy female singing, dreamlike and soft female voice that is suitable for airy and dream-like songs. */
+  AgoraVoiceAITunerDreamyFemaleSinging,
+};
+
 /** Audio session restriction */
 typedef NS_OPTIONS(NSUInteger, AgoraAudioSessionOperationRestriction) {
     /** No restriction, the SDK has full control on the audio session operations. */
@@ -1922,6 +1975,50 @@ typedef NS_ENUM(NSUInteger, AgoraLighteningContrastLevel) {
   AgoraLighteningContrastNormal = 1,
   /** High contrast level. */
   AgoraLighteningContrastHigh = 2,
+};
+
+/** The specific facial area to be adjusted.
+ 
+ @technical preview
+ */
+typedef NS_ENUM(NSInteger, AgoraFaceShapeArea) {
+  /** (Default) Invalid area. */
+  AgoraFaceShapeAreaNone = -1,
+  /** Head Scale, reduces the size of head. */
+  AgoraFaceShapeAreaHeadScale = 0,
+  /** Forehead, adjusts the size of forehead. */
+  AgoraFaceShapeAreaForehead = 1,
+  /** Face Contour, slims the facial contour. */
+  AgoraFaceShapeAreaFaceContour = 2,
+  /** Face Length, adjusts the length of face. */
+  AgoraFaceShapeAreaFaceLength = 3,
+  /** Face Width, narrows the width of face. */
+  AgoraFaceShapeAreaFaceWidth = 4,
+  /** Cheekbone, adjusts the size of cheekbone. */
+  AgoraFaceShapeAreaCheekbone = 5,
+  /** Cheek, adjusts the size of cheek. */
+  AgoraFaceShapeAreaCheek = 6,
+  /** Chin, adjusts the length of chin. */
+  AgoraFaceShapeAreaChin = 7,
+  /** Eye Scale, adjusts the size of eyes. */
+  AgoraFaceShapeAreaEyeScale = 8,
+  /** Nose Length, adjusts the length of nose. */
+  AgoraFaceShapeAreaNoseLength = 9,
+  /** Nose Width, adjusts the width of nose. */
+  AgoraFaceShapeAreaNoseWidth = 10,
+  /** Mouth Scale, adjusts the size of mouth. */
+  AgoraFaceShapeAreaMouthScale = 11,
+};
+
+/** The face shape style.
+ 
+ @technical preview
+ */
+typedef NS_ENUM(NSUInteger, AgoraFaceShapeStyle) {
+  /** (Default) Female face shape style. */
+  AgoraFaceShapeStyleFemale = 0,
+  /** Male face shape style. */
+  AgoraFaceShapeStyleMale = 1,
 };
 
 /** The video noise reduction mode.
@@ -2248,6 +2345,10 @@ typedef NS_ENUM(NSUInteger, AgoraAreaCodeType) {
    */
   AgoraAreaCodeTypeIN = 0x20,
   /**
+   * Russia
+   */
+  AgoraAreaCodeTypeRU = 0x1000,
+  /**
    * (Default) Global.
    */
   AgoraAreaCodeTypeGlobal = 0xFFFFFFFF
@@ -2538,6 +2639,9 @@ typedef NS_ENUM(NSInteger, AgoraApplicationScenarioType) {
   /*  1: Meeting Scenario. This scenario is used to optimize the video experience in meeting application, where each participant subscribes multiple broadcasters.
   */
   AgoraApplicationMeetingScenario = 1,
+  /*  2: Video Call Scenario. This scenario is used to optimize the video experience in video application, like 1v1 video call.
+  */
+  AgoraApplication1V1Scenario = 2,
 };
 
 /**
@@ -2733,6 +2837,44 @@ typedef NS_ENUM(NSInteger, AgoraSimulcastStreamMode) {
   /** 1 : always enable simulcast stream
    */
   AgoraEnableSimulcastStream = 1,
+};
+
+/**
+ * The index of multi-layer video stream
+ */
+typedef NS_ENUM(NSInteger, AgoraStreamLayerIndex) {
+  /**
+   * 0: video stream index of layer_1
+   */
+  AgoraStreamLayer1 = 0,
+  /**
+   * 1: video stream index of layer_2
+   */
+  AgoraStreamLayer2 = 1,
+  /**
+   * 2: video stream index of layer_3
+   */
+  AgoraStreamLayer3 = 2,
+  /**
+   * 3: video stream index of layer_4
+   */
+  AgoraStreamLayer4 = 3,
+  /**
+   * 4: video stream index of layer_5
+   */
+  AgoraStreamLayer5 = 4,
+  /**
+   * 5: video stream index of layer_6
+   */
+  AgoraStreamLayer6 = 5,
+  /**
+   * 6: video stream index of low
+   */
+  AgoraStreamLow = 6,
+  /**
+   * 7: max count of video stream layers
+   */
+  AgoraStreamLayerCountMax = 7,
 };
 
 /**
@@ -3454,4 +3596,30 @@ typedef NS_ENUM(NSInteger, AgoraH265TranscodeResult) {
 typedef NS_ENUM(NSUInteger, AgoraFeatureType) {
   AgoraVideoPreprocessVirtualBackground = 1,
   AgoraVideoPreprocessBeauty = 2,
+};
+
+/**
+ *  The relative position between alphabuffer and the frame.
+ */
+typedef NS_ENUM(NSUInteger, AgoraAlphaStitchMode) {
+    /**
+     * 0: Normal frame without alphabuffer stitched
+     */
+    AgoraNoAlphaStitch = 0,
+    /**
+     * 1: Alphabuffer is above the frame
+     */
+    AgoraAlphaStitchUp = 1,
+    /**
+     * 2: Alphabuffer is below the frame
+     */
+    AgoraAlphaStitchBelow = 2,
+    /**
+     * 3: Alphabuffer is on the left of frame
+     */
+    AgoraAlphaStitchLeft = 3,
+    /**
+     * 4: Alphabuffer is on the right of frame
+     */
+    AgoraAlphaStitchRight = 4,
 };
