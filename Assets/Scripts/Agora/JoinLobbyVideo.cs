@@ -32,10 +32,14 @@ public class JoinLobbyVideo : MonoBehaviour
 
     private void OnEnable() {
         GameEventsManager.instance.RTCEvents.OnWebCamSelected += ChangeWebcam;
+        GameEventsManager.instance.RTCEvents.OnUnMuteVideo += StartPushingFrame;
+        GameEventsManager.instance.RTCEvents.OnMuteVideo += StopPushingFrame;
     }
 
     private void OnDisable() {
         GameEventsManager.instance.RTCEvents.OnWebCamSelected -= ChangeWebcam;
+        GameEventsManager.instance.RTCEvents.OnUnMuteVideo -= StartPushingFrame;
+        GameEventsManager.instance.RTCEvents.OnMuteVideo -= StopPushingFrame;
     }
 
     void Start()
@@ -212,19 +216,21 @@ public class JoinLobbyVideo : MonoBehaviour
         _webCamTexture.requestedWidth = 640;
         _webCamTexture.requestedHeight = 480;
         _webCamTexture.requestedFPS = 30;
-        _webCamTexture.Play();
         Debug.Log("Webcam selected: " + _webCamTexture.deviceName);
-
-        StartPushingFrame();
+        if(isPushingFrames){
+            StartPushingFrame();
+        }
     }
 
     private void StartPushingFrame(){
         isPushingFrames = true;
+        _webCamTexture.Play();
         StartCoroutine(PushFrames());
     }
 
     private void StopPushingFrame(){
         isPushingFrames = false;
+        _webCamTexture.Stop();
         StopCoroutine(PushFrames());
     }
 
@@ -232,8 +238,8 @@ public class JoinLobbyVideo : MonoBehaviour
     {
        while (isPushingFrames)
         {
-            PushVideoToAgora(_webCamTexture);  // Push the frame to Agora
-            yield return new WaitForSeconds(1f / 30f);  // Wait for 30 FPS
+            PushVideoToAgora(_webCamTexture);
+            yield return new WaitForSeconds(1f / 30f);
         }
     }
 
@@ -269,7 +275,6 @@ public class JoinLobbyVideo : MonoBehaviour
                 stride = width,
                 height = height,
                 timestamp = (long)(Time.time * 1000),
-                // Ignoring texture-related fields since we're using raw data
                 eglContext = IntPtr.Zero,
                 eglType = 0,
                 textureId = 0,
@@ -291,6 +296,7 @@ public class JoinLobbyVideo : MonoBehaviour
         else
         {
             Debug.LogError("WebCamTexture is not playing or is null");
+            // give feedback texture
         }
         
     }

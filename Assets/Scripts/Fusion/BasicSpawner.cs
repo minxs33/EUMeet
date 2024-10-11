@@ -126,7 +126,7 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
                 spawnedPlayers.Add(player, networkObject);
             }else{
                 Debug.Log("This is the client, no player is instantiated");
-                GameEventsManager.instance.RTCEvents.Mute();
+                GameEventsManager.instance.RTCEvents.MuteVoice();
             }
         }
         

@@ -8,8 +8,14 @@ using UnityEngine;
 public class VoiceManager : MonoBehaviour
 {
     public static VoiceManager instance { get; private set; }
+    private Recorder _recorder;
     
     [SerializeField] GameObject _runnerGameObject;
+
+    private void Start(){
+        _recorder = _runnerGameObject.GetComponentInChildren<Recorder>();
+        Mute();
+    }
     
     private void OnEnable() {
         GameEventsManager.instance.RTCEvents.OnUnMuteVoice += UnMute;
@@ -23,14 +29,12 @@ public class VoiceManager : MonoBehaviour
 
     private void Mute()
     {
-        Recorder _recorder = _runnerGameObject.GetComponentInChildren<Recorder>();
         _recorder.TransmitEnabled = false;
         Debug.Log("Mute");
     }
 
     private void UnMute()
     {
-        Recorder _recorder = _runnerGameObject.GetComponentInChildren<Recorder>();
         _recorder.TransmitEnabled = true;
         Debug.Log("UnMute");
     }

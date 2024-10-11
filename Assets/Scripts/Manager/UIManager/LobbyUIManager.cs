@@ -1,5 +1,4 @@
 using System;
-using Fusion;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,8 +7,10 @@ public class LobbyUIManager : MonoBehaviour
 {
     public static LobbyUIManager Instance { get; private set; }
 
-    [SerializeField] private Button _toggleMuteButton;
-    bool _isMuted = true;
+    [SerializeField] private Button _toggleAudioMuteButton;
+    [SerializeField] private Button _toggleVideoMuteButton;
+    bool _isVoiceMuted = true;
+    bool _isVideoMuted = true;
     // Overlay
     [SerializeField] private GameObject _overlay;
     // Camera Source
@@ -17,12 +18,14 @@ public class LobbyUIManager : MonoBehaviour
     private WebCamDevice[] _webCamDevices;
 
     private void OnEnable() {
-        _toggleMuteButton.onClick.AddListener(ToggleMute);
+        _toggleAudioMuteButton.onClick.AddListener(ToggleVoice);
+        _toggleVideoMuteButton.onClick.AddListener(ToggleVideo);
         GameEventsManager.instance.UIEvents.onToggleOverlay += ToggleOverlay;
     }
 
     private void OnDisable() {
-        _toggleMuteButton.onClick.RemoveListener(ToggleMute);
+        _toggleAudioMuteButton.onClick.RemoveListener(ToggleVoice);
+        _toggleVideoMuteButton.onClick.RemoveListener(ToggleVideo);
         GameEventsManager.instance.UIEvents.onToggleOverlay -= ToggleOverlay;
     }
 
@@ -51,37 +54,52 @@ public class LobbyUIManager : MonoBehaviour
         }
     }
 
-    private void ToggleMute(){
-        Transform _button = _toggleMuteButton.GetComponentInChildren<Transform>();
+    private void ToggleVoice(){
+        Transform _button = _toggleAudioMuteButton.GetComponentInChildren<Transform>();
         GameObject _buttonChild = _button.Find("Icon").gameObject;
         Image _buttonImage = _buttonChild.GetComponentInChildren<Image>();
-        Sprite[] _sprites = Resources.LoadAll<Sprite>("Icons/mic");
         
         if (_buttonImage == null) {
             Debug.LogError("Button Image component is missing.");
             return;
         }
 
-        if (_isMuted) {
-            GameEventsManager.instance.RTCEvents?.UnMute();
-            _isMuted = false;
+        if (_isVoiceMuted) {
+            GameEventsManager.instance.RTCEvents?.UnMuteVoice();
+            _isVoiceMuted = false;
+            _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Mic Icon");
+            _buttonImage.color = new Color(0, 0, 0, 255);
 
-            foreach(var s in _sprites){
-                if(s.name == "mic_0"){
-                    _buttonImage.sprite = s;
-                }
-            }
         } else {
-            GameEventsManager.instance.RTCEvents?.Mute();
-            _isMuted = true;
+            GameEventsManager.instance.RTCEvents?.MuteVoice();
+            _isVoiceMuted = true;
 
-            foreach(var s in _sprites){
-                if(s.name == "mic_1"){
-                    _buttonImage.sprite = s;
-                }
-            }
+            _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Mic Off Icon");
+            _buttonImage.color = new Color(225, 22, 22, 255);
         }
 
-        Debug.Log(_isMuted);
+    }
+
+    private void ToggleVideo(){
+        Transform _button = _toggleVideoMuteButton.GetComponentInChildren<Transform>();
+        GameObject _buttonChild = _button.Find("Icon").gameObject;
+        Image _buttonImage = _buttonChild.GetComponentInChildren<Image>();
+
+        if (_buttonImage == null) {
+            Debug.LogError("Button Image component is missing.");
+            return;
+        }
+
+        if (_isVideoMuted) {
+            GameEventsManager.instance.RTCEvents?.UnMuteVideo();
+            _isVideoMuted = false;
+            _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Video Icon");
+            _buttonImage.color = new Color(0, 0, 0, 255);
+        } else {
+            GameEventsManager.instance.RTCEvents?.MuteVideo();
+            _isVideoMuted = true;
+            _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Video Off Icon");
+            _buttonImage.color = new Color(225, 22, 22, 255);
+        }
     }
 }
