@@ -1,24 +1,26 @@
 using System.Collections;
 using UnityEngine;
-using Agora.Rtc;
+#if !UNITY_SERVER
+    using Agora.Rtc;
+#endif
 using UnityEngine.Networking;
 using System;
-using System.Threading.Tasks;
-using System.Threading;
 
-#if (UNITY_2018_3_OR_NEWER && UNITY_ANDROID)
-using UnityEngine.Android;
+#if !UNITY_SERVER
+    #if (UNITY_2018_3_OR_NEWER && UNITY_ANDROID)
+    using UnityEngine.Android;
+    #endif
 #endif
 
 public class JoinLobbyVideo : MonoBehaviour
 {
+    #if !UNITY_SERVER
     public static JoinLobbyVideo Instance { get; private set; }
     private string _appID= "7c7db391e31044c298cce7f4ddcbe940";
     private string _channelName = "lobby";
     private string _token;
-
     internal VideoSurface LocalView;
-    internal VideoSurface RemoteView;
+    // internal VideoSurface RemoteView;
     internal IRtcEngine RtcEngine;
     private WebCamTexture _webCamTexture;
     private WebCamDevice[] _webCamDevices;
@@ -126,9 +128,9 @@ public class JoinLobbyVideo : MonoBehaviour
         GameObject go = GameObject.Find("LocalView");
         LocalView = go.AddComponent<VideoSurface>();
         // go.transform.Rotate(0.0f, 0.0f, -180.0f);
-        go = GameObject.Find("RemoteView");
-        RemoteView = go.AddComponent<VideoSurface>();
-        go.transform.Rotate(0.0f, 0.0f, -180.0f);
+        // go = GameObject.Find("RemoteView");
+        // RemoteView = go.AddComponent<VideoSurface>();
+        // go.transform.Rotate(0.0f, 0.0f, -180.0f);
     }
 
     private void SetupVideoSDKEngine()
@@ -189,7 +191,7 @@ public class JoinLobbyVideo : MonoBehaviour
         RtcEngine.LeaveChannel();
 
         StopPushingFrame();
-        RemoteView.SetEnable(false);
+        // RemoteView.SetEnable(false);
     }
 
     public void ChangeWebcam(int index)
@@ -242,7 +244,6 @@ public class JoinLobbyVideo : MonoBehaviour
             yield return new WaitForSeconds(1f / 30f);
         }
     }
-
 
     private void PushVideoToAgora(WebCamTexture webCamTexture)
     {
@@ -328,9 +329,21 @@ public class JoinLobbyVideo : MonoBehaviour
         public override void OnUserJoined(RtcConnection connection, uint uid, int elapsed)
         {
             // Set remote video display
-            _videoSample.RemoteView.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
+            // _videoSample.RemoteView.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
             // Start video rendering
-            _videoSample.RemoteView.SetEnable(true);
+            // _videoSample.RemoteView.SetEnable(true);
+            PlayerUID[] players = FindObjectsOfType<PlayerUID>();
+            foreach (PlayerUID player in players)
+            {
+                if (player.uid == uid)
+                {
+                    // Assign video surface to this player
+                    VideoSurface playerVideoSurface = player.gameObject.GetComponentInChildren<VideoSurface>();
+                    playerVideoSurface.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
+                    playerVideoSurface.SetEnable(true);
+                    break;
+                }
+            }
             Debug.Log("Remote user joined with uid: " + uid);
         }
 
@@ -340,21 +353,22 @@ public class JoinLobbyVideo : MonoBehaviour
 
             if (state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_DECODING)
             {
-                _videoSample.RemoteView.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
-                _videoSample.RemoteView.SetEnable(true);
+                // _videoSample.RemoteView.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
+                // _videoSample.RemoteView.SetEnable(true);
                 Debug.Log($"Remote video for uid={uid} is now decoding, refreshing view.");
             }
             else if (state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_STOPPED)
             {
-                _videoSample.RemoteView.SetEnable(false);
+                // _videoSample.RemoteView.SetEnable(false);
                 Debug.Log($"Remote video for uid={uid} has stopped.");
             }
         }
 
         public override void OnUserOffline(RtcConnection connection, uint uid, USER_OFFLINE_REASON_TYPE reason)
         {
-            _videoSample.RemoteView.SetEnable(false);
+            // _videoSample.RemoteView.SetEnable(false);
             Debug.Log("Remote user offline");
         }
     }
+#endif
 }

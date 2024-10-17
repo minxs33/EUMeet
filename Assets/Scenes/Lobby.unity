@@ -1188,7 +1188,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &636906588
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1861,6 +1861,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefab:
     RawGuidValue: 0261cb6607d46f0489b46437ed4476ea
+  testPrefab:
+    RawGuidValue: 34a5ab635ba870e49bac433a828a985d
 --- !u!4 &1337006499
 Transform:
   m_ObjectHideFlags: 0
@@ -2167,7 +2169,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1551677339
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2581,7 +2583,6 @@ GameObject:
   - component: {fileID: 1907236770}
   - component: {fileID: 1907236772}
   - component: {fileID: 1907236771}
-  - component: {fileID: 1907236773}
   m_Layer: 5
   m_Name: Video
   m_TagString: Untagged
@@ -2648,18 +2649,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1907236769}
   m_CullTransparentMesh: 1
---- !u!114 &1907236773
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1907236769}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c7cdcd5ed84b0a40b467e500b5be66d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1926514305
 GameObject:
   m_ObjectHideFlags: 0
