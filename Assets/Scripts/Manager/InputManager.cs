@@ -104,9 +104,13 @@ public class InputManager : SimulationBehaviour, IBeforeUpdate, INetworkRunnerCa
 
     public void OnInput(NetworkRunner runner, NetworkInput input)
     {
-        accumulatedInput.Direction.Normalize();
-        accumulatedInput.LookDelta = mouseDeltaAccumulator.ConsumeTickAligned(runner);
-        input.Set(accumulatedInput);
+        if (!Application.isBatchMode)
+        {
+            accumulatedInput.Direction.Normalize();
+            accumulatedInput.LookDelta = mouseDeltaAccumulator.ConsumeTickAligned(runner);
+            input.Set<NetworkInputData>(accumulatedInput);
+        }
+
         resetInput = true;
     }
 

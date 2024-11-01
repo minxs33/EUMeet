@@ -7,10 +7,22 @@ public class BuildScript
     [System.Obsolete]
     public static void BuildHeadless()
     {
-        string[] scenes = { 
+        // Define preprocessor directive for headless build
+        string[] defineSymbols = {
+            "UNITY_SERVER",
+            "FUSION_WEAVER",
+            "FUSION2"
+        };
+        string defineSymbolsString = string.Join(";", defineSymbols);
+
+        // Set the preprocessor directive for Linux builds
+        BuildTargetGroup buildTargetGroup = BuildTargetGroup.Standalone;
+        PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defineSymbolsString);
+
+        string[] scenes = {
             "Assets/Scenes/Authenticate.unity",
-            "Assets/Scenes/Lobby.unity" 
-            };
+            "Assets/Scenes/Lobby.unity"
+        };
         string buildPath = "Builds/Headless/Server.x86_64";
         
         // Ensure the build directory exists
@@ -25,5 +37,8 @@ public class BuildScript
         };
 
         BuildPipeline.BuildPlayer(buildPlayerOptions);
+
+        // Optionally, reset the define symbols after the build
+        PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, "");
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using Fusion;
 using Fusion.Addons.SimpleKCC;
+using TMPro;
 using UnityEngine;
 
 public class Player : NetworkBehaviour
@@ -11,21 +12,21 @@ public class Player : NetworkBehaviour
 
     [SerializeField] private Transform camTarget;
     [SerializeField] private float lookSensitivity = 0.15f;
-    [Networked] private NetworkButtons PreviousButtons {get;set;}
-    [Networked] public uint Uid {get; set;}
+    [SerializeField] private TextMeshPro playerNameText;
+    [SerializeField] private MeshRenderer[] modelParts;
+    
+    [Networked] private NetworkButtons PreviousButtons { get; set; }
+    [Networked] public uint Uid { get; set; }
+    [Networked] public string PlayerName { get; set; }
+    
+    [Networked] private Vector2 NetworkedLookRotation { get; set; }
 
     private InputManager inputManager;
     private Vector2 baseLookRotation;
+    private bool playerNameTextSet = false;
 
-    private ChangeDetector changeDetector;
-
-    public uint SetUID(){
-        this.Uid = (uint)PlayerPrefs.GetInt("uid");
-        return Uid;
-    }
     public override void Spawned()
     {
-        changeDetector = new ChangeDetector();
         kcc.SetGravity(Physics.gravity.y * 2f);
 
         inputManager = Runner.GetComponent<InputManager>();
@@ -33,58 +34,84 @@ public class Player : NetworkBehaviour
 
         if (HasInputAuthority)
         {
+            GameEventsManager.instance.RTCEvents.PlayerJoined();
             CameraFollow.Singleton.SetTarget(camTarget);
+
             // Client requests the server to set the UID
-            Rpc_RequestSetUID(SetUID());
+            foreach (MeshRenderer renderer in modelParts)
+            {
+                renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
+            }
+
+            Uid = (uint)PlayerPrefs.GetInt("uid");
+            PlayerName = PlayerPrefs.GetString("name");
+            Rpc_RequestPlayerPrefs(Uid, PlayerName);
         }
 
-        kcc.Settings.ForcePredictedLookRotation = true;
+        kcc.Settings.ForcePredictedLookRotation = true; 
     }
 
     // Client sends a request to the server to set its UID
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void Rpc_RequestSetUID(uint Uid)
+    public void Rpc_RequestPlayerPrefs(uint uid, string playerName)
     {
-        Rpc_SetUID(Uid); // Server then sets the UID for this player
+        Debug.Log("Requesting PlayerPrefs");
+        Rpc_SetPlayerAttribute(uid, playerName);
     }
 
     // This RPC is executed by the server to update the UID
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void Rpc_SetUID(uint uid)
+    public void Rpc_SetPlayerAttribute(uint uid, string playerName)
     {
         this.Uid = uid;
-        Debug.Log("UID set to: " + uid);
+        this.PlayerName = playerName;
+        this.playerNameText.text = playerName;
+        Debug.Log("UID set to: " + uid + " and Player Name set to: " + playerName);
     }
+
     public override void FixedUpdateNetwork()
     {
-        
-        if(GetInput(out NetworkInputData input)){
+        if (GetInput(out NetworkInputData input))
+        {
+            // Update local rotation and send to network
+            baseLookRotation += input.LookDelta * lookSensitivity;
+            NetworkedLookRotation = baseLookRotation; // Sync look rotation across clients
+            
             kcc.AddLookRotation(input.LookDelta * lookSensitivity);
             UpdateCamTarget();
+
             Vector3 worldDirection = kcc.TransformRotation * new Vector3(input.Direction.x, 0f, input.Direction.y);
             float jump = 0f;
 
-            if(input.Buttons.WasPressed(PreviousButtons,InputButton.Jump) && kcc.IsGrounded){
+            if (input.Buttons.WasPressed(PreviousButtons, InputButton.Jump) && kcc.IsGrounded)
+            {
                 jump = jumpImpluse;
             }
 
             kcc.Move(worldDirection.normalized * speed, jump);
             PreviousButtons = input.Buttons;
-            baseLookRotation = kcc.GetLookRotation();
         }
     }
 
-    public override void Render(){
-        if(kcc.Settings.ForcePredictedLookRotation)
+    public override void Render()
+    {
+        // Apply networked rotation to all clients to ensure synchronization
+        if (!HasInputAuthority)
         {
-            Vector2 predictedLookRotation = baseLookRotation + inputManager.AccumulatedMouseDelta * lookSensitivity;
-            kcc.SetLookRotation(predictedLookRotation);
+            kcc.SetLookRotation(NetworkedLookRotation);
         }
+
+        if (!playerNameTextSet && !string.IsNullOrEmpty(PlayerName))
+        {
+            playerNameText.text = PlayerName;
+            playerNameTextSet = true;
+        }
+
         UpdateCamTarget();
     }
 
-    private void UpdateCamTarget(){
+    private void UpdateCamTarget()
+    {
         camTarget.localRotation = Quaternion.Euler(kcc.GetLookRotation().x, 0f, 0f);
     }
-
 }

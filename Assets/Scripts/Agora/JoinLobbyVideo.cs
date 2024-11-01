@@ -1,60 +1,60 @@
+#if !UNITY_SERVER
+using Agora.Rtc;
 using System.Collections;
 using UnityEngine;
-#if !UNITY_SERVER
-    using Agora.Rtc;
-#endif
 using UnityEngine.Networking;
 using System;
 
-#if !UNITY_SERVER
-    #if (UNITY_2018_3_OR_NEWER && UNITY_ANDROID)
+#if (UNITY_2018_3_OR_NEWER && UNITY_ANDROID)
     using UnityEngine.Android;
-    #endif
 #endif
 
 public class JoinLobbyVideo : MonoBehaviour
 {
-    #if !UNITY_SERVER
+
     public static JoinLobbyVideo Instance { get; private set; }
     private string _appID= "7c7db391e31044c298cce7f4ddcbe940";
     private string _channelName = "lobby";
     private string _token;
-    internal VideoSurface LocalView;
+    [SerializeField] private VideoSurface LocalView;
     // internal VideoSurface RemoteView;
     internal IRtcEngine RtcEngine;
     private WebCamTexture _webCamTexture;
     private WebCamDevice[] _webCamDevices;
     private uint _videoTrackId;
-    private byte[] _videoDatabuffer;
     private bool isPushingFrames;
+    
 
     #if (UNITY_2018_3_OR_NEWER && UNITY_ANDROID)
     private ArrayList permissionList = new ArrayList() { Permission.Camera, Permission.Microphone };
     #endif
 
     private void OnEnable() {
+        GameEventsManager.instance.RTCEvents.OnPlayerJoined += StartRTC;
         GameEventsManager.instance.RTCEvents.OnWebCamSelected += ChangeWebcam;
         GameEventsManager.instance.RTCEvents.OnUnMuteVideo += StartPushingFrame;
         GameEventsManager.instance.RTCEvents.OnMuteVideo += StopPushingFrame;
     }
 
     private void OnDisable() {
+        GameEventsManager.instance.RTCEvents.OnPlayerJoined -= StartRTC;
         GameEventsManager.instance.RTCEvents.OnWebCamSelected -= ChangeWebcam;
         GameEventsManager.instance.RTCEvents.OnUnMuteVideo -= StartPushingFrame;
         GameEventsManager.instance.RTCEvents.OnMuteVideo -= StopPushingFrame;
     }
 
-    void Start()
+    private void StartRTC()
     {
         SetupVideoSDKEngine();
         InitEventHandler();
-        SetupUI();
         StartVideo();
     }
 
     void Update()
     {
-        CheckPermissions();
+        if(RtcEngine != null){
+            CheckPermissions();
+        }
     }
 
     void OnApplicationQuit()
@@ -125,8 +125,8 @@ public class JoinLobbyVideo : MonoBehaviour
 
     private void SetupUI()
     {
-        GameObject go = GameObject.Find("LocalView");
-        LocalView = go.AddComponent<VideoSurface>();
+        // GameObject go = GameObject.Find("LocalView");
+        // LocalView = go.AddComponent<VideoSurface>();
         // go.transform.Rotate(0.0f, 0.0f, -180.0f);
         // go = GameObject.Find("RemoteView");
         // RemoteView = go.AddComponent<VideoSurface>();
@@ -332,15 +332,22 @@ public class JoinLobbyVideo : MonoBehaviour
             // _videoSample.RemoteView.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
             // Start video rendering
             // _videoSample.RemoteView.SetEnable(true);
-            PlayerUID[] players = FindObjectsOfType<PlayerUID>();
-            foreach (PlayerUID player in players)
+            Player[] players = FindObjectsOfType<Player>();
+            foreach (Player player in players)
             {
-                if (player.uid == uid)
+                Debug.Log("Checking player with UID: " + player.Uid);
+                if (player.Uid == uid)
                 {
                     // Assign video surface to this player
+                    Debug.Log("Remote user joined with uid: " + uid);
                     VideoSurface playerVideoSurface = player.gameObject.GetComponentInChildren<VideoSurface>();
-                    playerVideoSurface.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
-                    playerVideoSurface.SetEnable(true);
+                    if(playerVideoSurface != null){
+                        Debug.Log("Setting remote video for player: " + player.PlayerName);
+                        playerVideoSurface.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
+                        playerVideoSurface.SetEnable(true);
+                    }else{
+                        Debug.LogError("VideoSurface not found for player: " + player.PlayerName);
+                    }
                     break;
                 }
             }
@@ -370,5 +377,5 @@ public class JoinLobbyVideo : MonoBehaviour
             Debug.Log("Remote user offline");
         }
     }
-#endif
 }
+#endif

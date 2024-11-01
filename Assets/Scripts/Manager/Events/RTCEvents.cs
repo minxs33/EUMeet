@@ -3,6 +3,21 @@ using UnityEngine;
 
 public class RTCEvents
 {
+
+    public event Action OnPlayerJoined;
+
+    public void PlayerJoined()
+    {
+        OnPlayerJoined?.Invoke();
+    }
+
+    public event Action OnUpdateWebRTCTarget;
+
+    public void UpdateWebRTCTarget()
+    {
+        OnUpdateWebRTCTarget?.Invoke();
+    }
+
     public event Action OnUnMuteVoice;
 
     public void UnMuteVoice()
