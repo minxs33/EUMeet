@@ -123,16 +123,6 @@ public class JoinLobbyVideo : MonoBehaviour
         }
     }
 
-    private void SetupUI()
-    {
-        // GameObject go = GameObject.Find("LocalView");
-        // LocalView = go.AddComponent<VideoSurface>();
-        // go.transform.Rotate(0.0f, 0.0f, -180.0f);
-        // go = GameObject.Find("RemoteView");
-        // RemoteView = go.AddComponent<VideoSurface>();
-        // go.transform.Rotate(0.0f, 0.0f, -180.0f);
-    }
-
     private void SetupVideoSDKEngine()
     {
         try
@@ -142,7 +132,7 @@ public class JoinLobbyVideo : MonoBehaviour
             {
                 appId = _appID,
                 channelProfile = CHANNEL_PROFILE_TYPE.CHANNEL_PROFILE_LIVE_BROADCASTING,
-                audioScenario = AUDIO_SCENARIO_TYPE.AUDIO_SCENARIO_DEFAULT
+                areaCode = AREA_CODE.AREA_CODE_JP,
             };
             RtcEngine.Initialize(context);
             Debug.Log("RtcEngine initialized successfully.");
@@ -181,6 +171,10 @@ public class JoinLobbyVideo : MonoBehaviour
         RtcEngine.JoinChannel(_token, _channelName, uid, options);
     }
 
+    public void StartScreenShare()
+    {
+        
+    }
     public void Leave()
     {
         Debug.Log("Leaving "+_channelName);

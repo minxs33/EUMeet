@@ -9,8 +9,10 @@ public class LobbyUIManager : MonoBehaviour
 
     [SerializeField] private Button _toggleAudioMuteButton;
     [SerializeField] private Button _toggleVideoMuteButton;
+    [SerializeField] private Button _toggleVideoSourceButton;
     bool _isVoiceMuted = true;
     bool _isVideoMuted = true;
+    bool _isVideoSource;
     // Overlay
     [SerializeField] private GameObject _overlay;
     // Camera Source
@@ -20,12 +22,14 @@ public class LobbyUIManager : MonoBehaviour
     private void OnEnable() {
         _toggleAudioMuteButton.onClick.AddListener(ToggleVoice);
         _toggleVideoMuteButton.onClick.AddListener(ToggleVideo);
+        _toggleVideoSourceButton.onClick.AddListener(ToggleVideoDevice);
         GameEventsManager.instance.UIEvents.onToggleOverlay += ToggleOverlay;
     }
 
     private void OnDisable() {
         _toggleAudioMuteButton.onClick.RemoveListener(ToggleVoice);
         _toggleVideoMuteButton.onClick.RemoveListener(ToggleVideo);
+        _toggleVideoSourceButton.onClick.RemoveListener(ToggleVideoDevice);
         GameEventsManager.instance.UIEvents.onToggleOverlay -= ToggleOverlay;
     }
 
@@ -68,14 +72,12 @@ public class LobbyUIManager : MonoBehaviour
             GameEventsManager.instance.RTCEvents?.UnMuteVoice();
             _isVoiceMuted = false;
             _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Mic Icon");
-            _buttonImage.color = new Color(0, 0, 0, 255);
 
         } else {
             GameEventsManager.instance.RTCEvents?.MuteVoice();
             _isVoiceMuted = true;
 
             _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Mic Off Icon");
-            _buttonImage.color = new Color(225, 22, 22, 255);
         }
 
     }
@@ -94,12 +96,14 @@ public class LobbyUIManager : MonoBehaviour
             GameEventsManager.instance.RTCEvents?.UnMuteVideo();
             _isVideoMuted = false;
             _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Video Icon");
-            _buttonImage.color = new Color(0, 0, 0, 255);
         } else {
             GameEventsManager.instance.RTCEvents?.MuteVideo();
             _isVideoMuted = true;
             _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Video Off Icon");
-            _buttonImage.color = new Color(225, 22, 22, 255);
         }
+    }
+
+    public void ToggleVideoDevice(){
+        _webCamDropdown.Show();
     }
 }
