@@ -14,7 +14,7 @@ public class JoinLobbyVideo : MonoBehaviour
 
     public static JoinLobbyVideo Instance { get; private set; }
     private string _appID= "7c7db391e31044c298cce7f4ddcbe940";
-    private string _channelName = "lobby";
+    private string _channelName = "classroom";
     private string _token;
     [SerializeField] private VideoSurface LocalView;
     // internal VideoSurface RemoteView;
@@ -99,6 +99,7 @@ public class JoinLobbyVideo : MonoBehaviour
             if (www.result == UnityWebRequest.Result.Success)
             {
                 _token = www.downloadHandler.text;
+                GameEventsManager.instance.authEvents.SaveToken(_token);
                 Join(_token);
             }
             else
@@ -155,9 +156,9 @@ public class JoinLobbyVideo : MonoBehaviour
     public void Join(string _token)
     {
         uint uid = (uint)PlayerPrefs.GetInt("uid");
-        LocalView.SetEnable(true);
         _videoTrackId = RtcEngine.CreateCustomVideoTrack();
 
+        // video
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.publishMicrophoneTrack.SetValue(false);
         options.publishCameraTrack.SetValue(true);
@@ -168,7 +169,17 @@ public class JoinLobbyVideo : MonoBehaviour
         options.channelProfile.SetValue(CHANNEL_PROFILE_TYPE.CHANNEL_PROFILE_LIVE_BROADCASTING);
         options.clientRoleType.SetValue(CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER);
         
-        RtcEngine.JoinChannel(_token, _channelName, uid, options);
+        var ret = RtcEngine.JoinChannel(_token, _channelName, uid, options);
+
+        if (ret != 0)
+        {
+            Debug.LogError("Failed to join channel: " + ret);
+        }
+        else
+        {
+            Debug.Log("Successfully joined channel: " + _channelName);
+            GameEventsManager.instance.RTCEvents.VideoRTCConnected();
+        }
     }
 
     public void StartScreenShare()
@@ -221,12 +232,14 @@ public class JoinLobbyVideo : MonoBehaviour
     private void StartPushingFrame(){
         isPushingFrames = true;
         _webCamTexture.Play();
+        LocalView.SetEnable(true);
         StartCoroutine(PushFrames());
     }
 
     private void StopPushingFrame(){
         isPushingFrames = false;
-        _webCamTexture.Stop();
+        if(_webCamTexture != null) _webCamTexture.Stop();
+        LocalView.SetEnable(false);
         StopCoroutine(PushFrames());
     }
 

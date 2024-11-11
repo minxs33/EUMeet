@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -6,21 +7,29 @@ public class PlayerPrefsManager : MonoBehaviour
     public static PlayerPrefsManager Instance { get; private set; }
     private void OnEnable() {
         GameEventsManager.instance.authEvents.onAuthenticate += SavePlayerPrefs;
+        GameEventsManager.instance.authEvents.onSaveToken += SaveToken;
     }
+
 
     private void OnDisable() {
         GameEventsManager.instance.authEvents.onAuthenticate -= SavePlayerPrefs;
+        GameEventsManager.instance.authEvents.onSaveToken -= SaveToken;
     }
 
     public void SavePlayerPrefs(JObject token) {
-    Debug.Log($"Token Data: {token.ToString()}");
+        Debug.Log($"Token Data: {token.ToString()}");
 
-    if (token["uid"] == null || token["name"] == null) {
-        Debug.LogError("Token is missing required fields.");
-        return;
+        if (token["uid"] == null || token["name"] == null) {
+            Debug.LogError("Token is missing required fields.");
+            return;
+        }
+
+        PlayerPrefs.SetInt("uid", token["uid"].Value<int>());
+        PlayerPrefs.SetString("name", token["name"].ToString());
     }
 
-    PlayerPrefs.SetInt("uid", token["uid"].Value<int>());
-    PlayerPrefs.SetString("name", token["name"].ToString());
-}
+    private void SaveToken(string token)
+    {
+        PlayerPrefs.SetString("token", token);
+    }
 }

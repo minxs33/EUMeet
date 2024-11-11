@@ -32,6 +32,10 @@ public class AuthUIManager : MonoBehaviour
     [SerializeField] private Button loginButton;
     [SerializeField] private GameObject loginErrorPanel;
 
+    [Header("Auth Debug")]
+    [SerializeField] private Button Player1;
+    [SerializeField] private Button Player2;
+
 
     public static AuthUIManager Instance { get; private set; }
 
@@ -48,6 +52,10 @@ public class AuthUIManager : MonoBehaviour
         // Login UI
         GameEventsManager.instance.UIEvents.onLoginError += LoginError;
         loginButton.onClick.AddListener(()=> GameEventsManager.instance.authEvents.Login(loginEmailInputField.text, loginPasswordInputField.text));
+
+        // Auth Debug
+        Player1.onClick.AddListener(()=> GameEventsManager.instance.authEvents.Login("testing@esaunggul.ac.id", "testing123"));
+        Player2.onClick.AddListener(()=> GameEventsManager.instance.authEvents.Login("testing2@esaunggul.ac.id", "testing123"));
     }
 
     private void OnDisable() {
@@ -59,6 +67,14 @@ public class AuthUIManager : MonoBehaviour
         // Register UI
         GameEventsManager.instance.UIEvents.onRegisterError -= RegisterError;
         registerButton.onClick.RemoveListener(()=> GameEventsManager.instance.authEvents.Register(nameInputField.text, emailInputField.text, passwordInputField.text));
+
+        // Login UI
+        GameEventsManager.instance.UIEvents.onLoginError -= LoginError;
+        loginButton.onClick.RemoveListener(()=> GameEventsManager.instance.authEvents.Login(loginEmailInputField.text, loginPasswordInputField.text));
+
+        // Auth Debug
+        Player1.onClick.RemoveListener(()=> GameEventsManager.instance.authEvents.Login("testing@esaunggul.ac.id", "testing123"));
+        Player2.onClick.RemoveListener(()=> GameEventsManager.instance.authEvents.Login("testing2@esaunggul.ac.id", "testing123"));
     }
     private void OpenLoginPage(){
         StartCoroutine(FadeCanvasGroups(menuPanel.GetComponent<CanvasGroup>(), loginPanel.GetComponent<CanvasGroup>()));

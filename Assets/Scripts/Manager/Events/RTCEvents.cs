@@ -11,6 +11,12 @@ public class RTCEvents
         OnPlayerJoined?.Invoke();
     }
 
+    public event Action OnVideoRTCConnected;
+
+    public void VideoRTCConnected()
+    {
+        OnVideoRTCConnected?.Invoke();
+    }
     public event Action OnUpdateWebRTCTarget;
 
     public void UpdateWebRTCTarget()
@@ -50,4 +56,30 @@ public class RTCEvents
     public void MuteVideo(){
         OnMuteVideo?.Invoke();
     }
+    
+    public event Action<bool> OnToggleSelectCaptureType;
+
+    public void ToggleSelectCaptureType(bool state){
+        OnToggleSelectCaptureType?.Invoke(state);
+    }
+
+    public event Action<bool> OnToggleCaptureSelected;
+
+    public void ToggleCaptureSelected(bool state){
+        OnToggleCaptureSelected?.Invoke(state);
+    }
+    
+    public event Action OnPublishCapture;
+
+    public void PublishCapture(){
+        OnPublishCapture?.Invoke();
+    }
+    
+    public event Action OnUnPublishCapture;
+
+    public void UnPublishCapture(){
+        OnUnPublishCapture?.Invoke();
+    }
+
+
 }

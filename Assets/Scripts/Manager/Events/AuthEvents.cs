@@ -23,6 +23,11 @@ public class AuthEvents
         onLogin?.Invoke(email,password);
     }
 
+    public event Action<String> onSaveToken;
+    public void SaveToken(string token) {
+        onSaveToken?.Invoke(token);
+    }
+
     public event Action<JObject> onAuthenticate;
     public void Authenticate(JObject response) {
         onAuthenticate?.Invoke(response);

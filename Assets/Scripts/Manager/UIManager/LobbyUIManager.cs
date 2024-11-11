@@ -1,5 +1,6 @@
 using System;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,11 +8,22 @@ public class LobbyUIManager : MonoBehaviour
 {
     public static LobbyUIManager Instance { get; private set; }
 
-    [SerializeField] private Button _toggleAudioMuteButton;
+    [Header("Video UI")]
     [SerializeField] private Button _toggleVideoMuteButton;
     [SerializeField] private Button _toggleVideoSourceButton;
+    [SerializeField] private GameObject _localView;
+    [Header("Audio UI")]
+    [SerializeField] private Button _toggleAudioMuteButton;
+    [Header("Share Screen UI")]
+    [SerializeField] private Button _toggleShareScreenButton;
+    [SerializeField] private GameObject _shareScreenModal;
+    [SerializeField] private Button _windowButton;
+    [SerializeField] private Button _screenButton;
+    [SerializeField] private Button _publishButton;
+    [SerializeField] private Button _cancelButton;
     bool _isVoiceMuted = true;
     bool _isVideoMuted = true;
+    bool _isShareScreenModalOpen = false;
     bool _isVideoSource;
     // Overlay
     [SerializeField] private GameObject _overlay;
@@ -20,17 +32,32 @@ public class LobbyUIManager : MonoBehaviour
     private WebCamDevice[] _webCamDevices;
 
     private void OnEnable() {
+        GameEventsManager.instance.UIEvents.onToggleOverlay += ToggleOverlay;
+        // Audio
         _toggleAudioMuteButton.onClick.AddListener(ToggleVoice);
+        // Video
         _toggleVideoMuteButton.onClick.AddListener(ToggleVideo);
         _toggleVideoSourceButton.onClick.AddListener(ToggleVideoDevice);
-        GameEventsManager.instance.UIEvents.onToggleOverlay += ToggleOverlay;
+        _webCamDropdown.onValueChanged.AddListener(OnWebcamSelected);
+        // Share Screen
+        _toggleShareScreenButton.onClick.AddListener(ToggleShareScreen);
+        _windowButton.onClick.AddListener(SelectWindowCapture);
+        _screenButton.onClick.AddListener(SelectScreenCapture);
+        _publishButton.onClick.AddListener(PublishScreenCapture);
+        GameEventsManager.instance.RTCEvents.OnToggleCaptureSelected += ToggleCaptureSelected;
     }
 
     private void OnDisable() {
+        GameEventsManager.instance.UIEvents.onToggleOverlay -= ToggleOverlay;
         _toggleAudioMuteButton.onClick.RemoveListener(ToggleVoice);
         _toggleVideoMuteButton.onClick.RemoveListener(ToggleVideo);
         _toggleVideoSourceButton.onClick.RemoveListener(ToggleVideoDevice);
-        GameEventsManager.instance.UIEvents.onToggleOverlay -= ToggleOverlay;
+        _webCamDropdown.onValueChanged.RemoveListener(OnWebcamSelected);
+        _toggleShareScreenButton.onClick.RemoveListener(ToggleShareScreen);
+        _windowButton.onClick.RemoveListener(SelectWindowCapture);
+        _screenButton.onClick.RemoveListener(SelectScreenCapture);
+        _publishButton.onClick.RemoveListener(PublishScreenCapture);
+        GameEventsManager.instance.RTCEvents.OnToggleCaptureSelected -= ToggleCaptureSelected;
     }
 
     private void Start(){
@@ -40,8 +67,6 @@ public class LobbyUIManager : MonoBehaviour
         {
             _webCamDropdown.options.Add(new TMP_Dropdown.OptionData(device.name));
         }
-
-        _webCamDropdown.onValueChanged.AddListener(OnWebcamSelected);
     }
 
     private void OnWebcamSelected(int index)
@@ -96,14 +121,55 @@ public class LobbyUIManager : MonoBehaviour
             GameEventsManager.instance.RTCEvents?.UnMuteVideo();
             _isVideoMuted = false;
             _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Video Icon");
+            _localView.SetActive(true);
         } else {
             GameEventsManager.instance.RTCEvents?.MuteVideo();
             _isVideoMuted = true;
             _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Video Off Icon");
+            _localView.SetActive(false);
         }
     }
 
     public void ToggleVideoDevice(){
         _webCamDropdown.Show();
     }
+
+    private void ToggleShareScreen(){
+        if(_isShareScreenModalOpen){
+            _shareScreenModal.SetActive(false);
+            _isShareScreenModalOpen = false;
+        } else {
+            _shareScreenModal.SetActive(true);
+            _isShareScreenModalOpen = true;
+        }
+    }
+
+    private void SelectWindowCapture(){
+        GameEventsManager.instance.RTCEvents?.ToggleSelectCaptureType(true);
+        _windowButton.interactable = false;
+        _screenButton.interactable = true;
+    }
+
+    private void SelectScreenCapture(){
+        GameEventsManager.instance.RTCEvents?.ToggleSelectCaptureType(false);
+        _windowButton.interactable = true;
+        _screenButton.interactable = false;
+    }
+
+    private void ToggleCaptureSelected(bool state){
+        if(state){
+            _publishButton.interactable = true;
+        } else {
+            _publishButton.interactable = false;
+        }
+    }
+
+    private void PublishScreenCapture()
+    {
+        GameEventsManager.instance.RTCEvents?.PublishCapture();
+        _publishButton.interactable = false;
+        _shareScreenModal.SetActive(false);
+        _isShareScreenModalOpen = false;
+    }
+
 }
