@@ -1,0 +1,481 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Agora.Rtc;
+using TMPro;
+using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.UI;
+
+#if (UNITY_2018_3_OR_NEWER && UNITY_ANDROID)
+    using UnityEngine.Android;
+#endif
+
+public class ShareScreenRTCManager : MonoBehaviour
+{
+    public static ShareScreenRTCManager Instance { get; private set; }
+    private string _appID= "aaee4ec8cfeb477380c9ec3f477894e7";
+    public string _channelNameScreen = "classroom_screen";
+    internal IRtcEngineEx shareScreenEngine;
+    [SerializeField] private GameObject windowCardPrefab;
+    [SerializeField] private Transform windowCardParent;
+    
+    private ScreenCaptureSourceInfo[] _screenCaptureSourceInfos;
+    private IEnumerable<ScreenCaptureSourceInfo> windowSources;
+    private IEnumerable<ScreenCaptureSourceInfo> screenSources;
+    private ScreenCardID selectedCaptureOptions;
+    private uint _uid = 0;
+
+    private void OnEnable() {
+        // Screen Share
+        GameEventsManager.instance.RTCEvents.OnPlayerJoined += StartRTC;
+        GameEventsManager.instance.RTCEvents.OnToggleSelectCaptureType += SelectCapture;
+        GameEventsManager.instance.RTCEvents.OnPublishCapture += PublishCapture;
+        GameEventsManager.instance.RTCEvents.OnUnPublishCapture += UnPublishCapture;
+    }
+
+    private void OnDisable() {   
+        // Screen Share
+        GameEventsManager.instance.RTCEvents.OnPlayerJoined -= StartRTC;
+        GameEventsManager.instance.RTCEvents.OnToggleSelectCaptureType -= SelectCapture;
+        GameEventsManager.instance.RTCEvents.OnPublishCapture -= PublishCapture;
+        GameEventsManager.instance.RTCEvents.OnUnPublishCapture -= UnPublishCapture;
+    }
+
+    private void StartRTC()
+    {
+        SetupVideoSDKEngine();
+        SetupShareScreenConfig();
+
+        // Request and join screen share channel token with different UID
+        StartCoroutine(GetUserToken(PlayerPrefs.GetInt("uid") + 1, JoinShareScreenChannel));
+    }
+
+    void OnApplicationQuit()
+    {
+        shareScreenEngine.Dispose();
+        shareScreenEngine = null;
+        Leave();
+    }
+
+     public void Leave()
+    {
+        Debug.Log("Leaving "+_channelNameScreen);
+        shareScreenEngine.LeaveChannel();
+        shareScreenEngine.StopScreenCapture();
+        shareScreenEngine.DisableVideo();
+        shareScreenEngine.DisableAudio();
+    }
+
+
+     IEnumerator GetUserToken(int uid, Action<string, int> onTokenRecieved)
+    {
+
+        WWWForm form = new WWWForm();
+        form.AddField("channelName", _channelNameScreen);
+        form.AddField("uid", uid);
+
+        using (UnityWebRequest www = UnityWebRequest.Post("http://172.29.174.196/get-token", form))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                string _token = www.downloadHandler.text;
+                onTokenRecieved?.Invoke(_token, uid);
+            }
+            else
+            {
+                Debug.LogError("Error receiving token: " + www.error);
+            }
+        }
+    }
+
+    private void SetupVideoSDKEngine()
+    {
+        try
+        {
+            shareScreenEngine = Agora.Rtc.RtcEngine.CreateAgoraRtcEngineEx();
+
+            Player[] players = FindObjectsOfType<Player>();
+
+            ShareScreenEventHandler handlerShareScreen = new ShareScreenEventHandler(this);
+            RtcEngineContext context = new RtcEngineContext
+            {
+                appId = _appID,
+                channelProfile = CHANNEL_PROFILE_TYPE.CHANNEL_PROFILE_LIVE_BROADCASTING,
+                audioScenario = AUDIO_SCENARIO_TYPE.AUDIO_SCENARIO_DEFAULT,
+                areaCode = AREA_CODE.AREA_CODE_JP,
+            };
+
+            shareScreenEngine.Initialize(context);
+            shareScreenEngine.InitEventHandler(handlerShareScreen);
+            
+            SenderOptions senderOptions = new SenderOptions();
+            shareScreenEngine.SetExternalVideoSource(true, false, EXTERNAL_VIDEO_SOURCE_TYPE.VIDEO_FRAME, senderOptions);
+            Debug.Log("RtcEngine initialized successfully.");
+
+
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError("Failed to initialize RtcEngine: " + ex.Message);
+        }
+    }
+
+    public void JoinShareScreenChannel(string token, int uid){
+        // Share Screen
+        _uid = (uint)uid;
+        RtcConnection connection = new RtcConnection();
+        connection.channelId = _channelNameScreen;
+        connection.localUid = _uid;
+        
+        var ret = shareScreenEngine.JoinChannelEx(token, connection, null);
+
+        if (ret != 0)
+        {
+            Debug.LogError("Failed to join sharescreen channel: " + ret);
+        }
+        else
+        {
+            SetupScreenCaptureList();
+        }
+    }
+    private void SetupShareScreenConfig(){
+        VideoEncoderConfiguration encoder = new VideoEncoderConfiguration{
+            dimensions = new VideoDimensions(1280, 720),
+            frameRate = 60,
+            bitrate = 5000,
+            orientationMode = ORIENTATION_MODE.ORIENTATION_MODE_ADAPTIVE
+        };
+
+        shareScreenEngine.SetVideoEncoderConfiguration(encoder);
+        shareScreenEngine.EnableAudio();
+        shareScreenEngine.EnableVideo();
+        shareScreenEngine.SetClientRole(CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER);
+    }
+    
+    private void SetupScreenCaptureList(){
+        
+        if (windowCardParent == null || shareScreenEngine == null) return;
+        
+        foreach (Transform child in windowCardParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        SIZE thumbSize = new SIZE
+        {
+            width = 1280,
+            height = 720
+        };
+
+        SIZE iconSize = new SIZE
+        {
+            width = 640,
+            height = 640
+        };
+
+        _screenCaptureSourceInfos = shareScreenEngine.GetScreenCaptureSources(thumbSize, iconSize, true);
+
+        windowSources = _screenCaptureSourceInfos.Where(w => w.type == ScreenCaptureSourceType.ScreenCaptureSourceType_Window);
+        screenSources = _screenCaptureSourceInfos.Where(w => w.type == ScreenCaptureSourceType.ScreenCaptureSourceType_Screen);
+
+        ShowWindows();
+    }
+
+    private void SelectCapture(bool state)
+    {
+        if (state)
+        {
+            ShowWindows();
+        }
+        else
+        {
+            ShowScreens();
+        }
+    }
+
+    private void StartCapture()
+    {
+        if (selectedCaptureOptions == null)
+        {
+            Debug.LogWarning("No capture options selected to publish.");
+            return;
+        }
+
+        #if UNITY_ANDROID || UNITY_IPHONE
+            var parameters2 = new ScreenCaptureParameters2();
+            parameters2.captureAudio = true;
+            parameters2.captureVideo = true;
+            var nRet = RtcEngine.StartScreenCapture(parameters2);
+            Debug.Log("Publishing mobile screen capture: " + nRet);
+        #else
+            shareScreenEngine.StopScreenCapture();
+            
+
+            if (selectedCaptureOptions.type == "ScreenCaptureSourceType_Window")
+            {
+                var nRet = shareScreenEngine.StartScreenCaptureByWindowId(selectedCaptureOptions.sourceId, default(Rectangle),
+                    new ScreenCaptureParameters { captureMouseCursor = true, frameRate = 30 });
+                Debug.Log("Publishing window capture with sourceId: " + selectedCaptureOptions.sourceId);
+            }
+            else if (selectedCaptureOptions.type == "ScreenCaptureSourceType_Screen")
+            {
+                var nRet = shareScreenEngine.StartScreenCaptureByDisplayId((uint)selectedCaptureOptions.sourceId, default(Rectangle),
+                    new ScreenCaptureParameters { captureMouseCursor = true, frameRate = 30 });
+                Debug.Log("Publishing screen capture with sourceId: " + selectedCaptureOptions.sourceId);
+            }
+        #endif
+        MakeVideoView(0, _channelNameScreen, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_SCREEN);
+    }
+
+    private void PublishCapture(){
+        RtcConnection connection = new RtcConnection();
+        connection.channelId = _channelNameScreen;
+        connection.localUid = _uid;
+
+        ChannelMediaOptions options = new ChannelMediaOptions();
+        options.autoSubscribeAudio.SetValue(false);
+        options.autoSubscribeVideo.SetValue(false);
+        options.publishCameraTrack.SetValue(false);
+        options.publishScreenTrack.SetValue(true);
+        options.enableAudioRecordingOrPlayout.SetValue(false);
+
+        #if UNITY_ANDROID || UNITY_IPHONE
+        options.publishScreenCaptureAudio.SetValue(true);
+        options.publishScreenCaptureVideo.SetValue(true);
+        #endif
+
+        options.clientRoleType.SetValue(CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER);
+
+        #if UNITY_ANDROID || UNITY_IPHONE
+            options.publishScreenCaptureAudio.SetValue(true);
+            options.publishScreenCaptureVideo.SetValue(true);
+        #endif
+
+        #if UNITY_EDITOR_WIN || UNITY_EDITOR_OSX || UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX
+            shareScreenEngine.EnableLoopbackRecording(true, "");
+        #endif
+
+        var ret = shareScreenEngine.UpdateChannelMediaOptionsEx(options, connection);
+        GameEventsManager.instance.RTCEvents.ToggleCaptureSelected(false);
+    }
+
+    private void UnPublishCapture(){
+        RtcConnection connection = new RtcConnection();
+        connection.channelId = _channelNameScreen;
+        connection.localUid = _uid;
+
+        shareScreenEngine.StopScreenCapture();
+        DestroyVideoView(0);
+        ChannelMediaOptions options = new ChannelMediaOptions();
+        options.publishCameraTrack.SetValue(true);
+        options.publishScreenTrack.SetValue(false);
+
+        #if UNITY_ANDROID || UNITY_IPHONE
+            options.publishScreenCaptureAudio.SetValue(false);
+            options.publishScreenCaptureVideo.SetValue(false);
+        #endif
+
+        var ret = shareScreenEngine.UpdateChannelMediaOptionsEx(options, connection);
+        Debug.Log("UpdateChannelMediaOptions returns: " + ret);
+        Debug.Log("Unpublishing screen");
+    }
+
+    private void ShowWindows()
+    {
+        UpdateCards(windowSources);
+    }
+
+    private void ShowScreens()
+    {
+        UpdateCards(screenSources);
+    }
+
+    private void UpdateCards(IEnumerable<ScreenCaptureSourceInfo> sources)
+    {
+        foreach (Transform child in windowCardParent)
+        {
+            Destroy(child.gameObject);
+        }
+
+        foreach (var source in sources)
+        {
+            CreateCard(source);
+        }
+    }
+
+    private void CreateCard(ScreenCaptureSourceInfo source)
+    {
+        var card = Instantiate(windowCardPrefab, windowCardParent);
+        var thumbnail = card.transform.Find("Thumbnail").GetComponent<Image>();
+        var sourceName = card.transform.Find("SourceName").GetComponent<TextMeshProUGUI>();
+
+        var captureOptions = card.GetComponent<ScreenCardID>();
+        captureOptions.sourceId = source.sourceId;
+        captureOptions.type = source.type.ToString();
+
+        var selectedButton = card.GetComponent<Button>();
+
+        if (selectedButton != null)
+        {
+            selectedButton.onClick.AddListener(() => {
+                selectedCaptureOptions = captureOptions;
+                GameEventsManager.instance.RTCEvents.ToggleCaptureSelected(true);
+                StartCapture();
+            });
+        }
+
+        if (source.thumbImage != null)
+        {
+            Texture2D texture = new Texture2D((int)source.thumbImage.width, (int)source.thumbImage.height, TextureFormat.RGBA32, false);
+            texture.LoadRawTextureData(source.thumbImage.buffer);
+            texture.Apply();
+
+            thumbnail.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+            thumbnail.transform.localScale = new Vector3(1, -1, 1);
+        }
+
+        sourceName.text = source.sourceName;
+
+    }
+
+    internal static void MakeVideoView(uint uid, string channelId = "", VIDEO_SOURCE_TYPE videoSourceType = VIDEO_SOURCE_TYPE.VIDEO_SOURCE_CAMERA)
+    {
+        var go = GameObject.Find(uid.ToString());
+        if(!ReferenceEquals(go, null)) 
+        {
+            return;
+        }
+
+        var videoSurface = MakePlaneSurface(uid.ToString());
+        if (ReferenceEquals(videoSurface, null)) return;
+
+        videoSurface.SetForUser(uid, channelId, videoSourceType);
+        videoSurface.SetEnable(true);
+
+        videoSurface.OnTextureSizeModify += (int width, int height) =>
+        {
+            var goParent = GameObject.Find("ScreenBoard");
+            if (goParent != null)
+            {
+                var parentRenderer = goParent.GetComponent<Renderer>();
+                if (parentRenderer != null)
+                {
+
+                    videoSurface.transform.localScale = new Vector3(0.1f, -1f, 0.1f);
+                }
+                else
+                {
+                    videoSurface.transform.localScale = new Vector3(width, -1, height);
+                }
+            }
+            Debug.Log("OnTextureSizeModify: " + width + "x" + height);
+        };
+
+        Debug.Log("Video view created for uid: " + uid);
+    }
+
+    internal static void DestroyVideoView(uint uid)
+    {
+        var go = GameObject.Find(uid.ToString());
+        if (!ReferenceEquals(go, null))
+        {
+            Destroy(go);
+        }
+    }
+
+    private static VideoSurface MakePlaneSurface(string goName)
+    {
+        var go = GameObject.CreatePrimitive(PrimitiveType.Plane);
+
+        if (go == null)
+        {
+            return null;
+        }
+
+        go.name = goName;
+        
+        var goParent = GameObject.Find("ScreenBoard");
+        if (goParent != null)
+        {
+            go.transform.SetParent(goParent.transform);
+
+            // Get the parent's bounds to calculate width and height constraints
+            var parentRenderer = goParent.GetComponent<Renderer>();
+            if (parentRenderer != null)
+            {
+                go.transform.localScale = new Vector3(0.1f, -0.1f, 0.1f);
+            }
+        }
+
+        var mesh = go.GetComponent<MeshRenderer>();
+        if (mesh != null)
+        {
+            mesh.material = new Material(Shader.Find("Unlit/Texture"));
+        }
+        
+        go.transform.Rotate(-90f, 0.0f, 180f);
+        go.transform.position = goParent.transform.position + new Vector3(0, 0, -0.51f);
+
+        var videoSurface = go.AddComponent<VideoSurface>();
+        return videoSurface;
+    }
+
+    internal class ShareScreenEventHandler : IRtcEngineEventHandler
+    {
+        private readonly ShareScreenRTCManager rtcSample; 
+
+        internal ShareScreenEventHandler(ShareScreenRTCManager rtcSample)
+        {
+            this.rtcSample = rtcSample;
+            Debug.Log("ShareScreenEventHandler created");
+        }
+
+        public override void OnError(int err, string msg)
+        {
+            Debug.LogError("Error: " + err);
+        }
+
+        // Callback triggered when the local user successfully joins the channel
+        public override void OnJoinChannelSuccess(RtcConnection connection, int elapsed)
+        {
+            Debug.Log("Successfully joined channel: " + connection.channelId);
+            
+        }
+
+        public override void OnUserJoined(RtcConnection connection, uint uid, int elapsed)
+        {
+            Debug.Log("Remote user joined with channelId: " + connection.channelId);
+            MakeVideoView(uid, rtcSample._channelNameScreen, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
+        }
+
+        public override void OnRemoteVideoStateChanged(RtcConnection connection, uint uid, REMOTE_VIDEO_STATE state, REMOTE_VIDEO_STATE_REASON reason, int elapsed)
+        {
+            Debug.Log($"Remote video state changed: uid={uid}, state={state}, channel={connection.channelId} reason={reason}");
+            
+            if (state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_DECODING)
+            {
+                MakeVideoView(uid,  rtcSample._channelNameScreen, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
+                Debug.Log($"Screen-sharing user {uid} video state is now decoding in channel {connection.channelId}.");
+            } else if (state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_STOPPED)
+            {
+                // DestroyVideoView(uid);
+                Debug.Log($"Screen-sharing user {uid} video state is now stopped in channel {connection.channelId}.");
+            }else{
+                Debug.Log("Nothing Catched");
+            }
+        }
+
+        // public override void OnUserMuteAudio(RtcConnection connection, uint remoteUid, bool muted)
+        // {
+        //     if(!muted){
+        //         MakeVideoView(remoteUid, rtcSample._channelNameScreen, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
+        //     }else{
+        //         DestroyVideoView(remoteUid);
+        //     }
+        // }
+    }
+}

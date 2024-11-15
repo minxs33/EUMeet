@@ -70,6 +70,7 @@
     <Compile Include="Assets\Scripts\Manager\UIManager\PlayerName.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\AuthEvents.cs" />
     <Compile Include="Assets\Scripts\Manager\LevelManager.cs" />
+    <Compile Include="Assets\Scripts\Agora\ShareScreenRTCManager.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\LevelEvents.cs" />
     <Compile Include="Assets\Scripts\Manager\UIManager\LobbyUIManager.cs" />
     <Compile Include="Assets\VoiceNetworkObject.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Assets\Scripts\Manager\UIManager\AuthUIManager.cs" />
     <Compile Include="Assets\Scripts\Manager\VoiceManager.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\JsonResponseEvents.cs" />
+    <Compile Include="Assets\Scripts\Agora\VideoRTCManager.cs" />
     <Compile Include="Assets\Scripts\Fusion\Player.cs" />
     <Compile Include="Assets\Scripts\Fusion\NetworkInputData.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\FusionEvents.cs" />

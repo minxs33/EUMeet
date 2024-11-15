@@ -21,6 +21,7 @@ public class LobbyUIManager : MonoBehaviour
     [SerializeField] private Button _screenButton;
     [SerializeField] private Button _publishButton;
     [SerializeField] private Button _cancelButton;
+    [SerializeField] private Button _unpublishButton;
     bool _isVoiceMuted = true;
     bool _isVideoMuted = true;
     bool _isShareScreenModalOpen = false;
@@ -44,7 +45,10 @@ public class LobbyUIManager : MonoBehaviour
         _windowButton.onClick.AddListener(SelectWindowCapture);
         _screenButton.onClick.AddListener(SelectScreenCapture);
         _publishButton.onClick.AddListener(PublishScreenCapture);
+        _unpublishButton.onClick.AddListener(UnPublishScreenCapture);
+        _cancelButton.onClick.AddListener(ToggleShareScreen);
         GameEventsManager.instance.RTCEvents.OnToggleCaptureSelected += ToggleCaptureSelected;
+        GameEventsManager.instance.RTCEvents.OnCaptureState += ShareScreenState;
     }
 
     private void OnDisable() {
@@ -57,7 +61,10 @@ public class LobbyUIManager : MonoBehaviour
         _windowButton.onClick.RemoveListener(SelectWindowCapture);
         _screenButton.onClick.RemoveListener(SelectScreenCapture);
         _publishButton.onClick.RemoveListener(PublishScreenCapture);
+        _unpublishButton.onClick.RemoveListener(UnPublishScreenCapture);
+        _cancelButton.onClick.RemoveListener(ToggleShareScreen);
         GameEventsManager.instance.RTCEvents.OnToggleCaptureSelected -= ToggleCaptureSelected;
+        GameEventsManager.instance.RTCEvents.OnCaptureState -= ShareScreenState;
     }
 
     private void Start(){
@@ -134,6 +141,20 @@ public class LobbyUIManager : MonoBehaviour
         _webCamDropdown.Show();
     }
 
+    private void ShareScreenState(RTCEvents.CaptureStates state){
+        var colors = _toggleShareScreenButton.colors;
+        switch (state){
+            case RTCEvents.CaptureStates.Started:
+                _unpublishButton.interactable = true;
+                _unpublishButton.gameObject.SetActive(true);
+                break;
+            case RTCEvents.CaptureStates.Stopped:
+                _unpublishButton.interactable = false;
+                _unpublishButton.gameObject.SetActive(false);
+                break;
+        }
+    }
+
     private void ToggleShareScreen(){
         if(_isShareScreenModalOpen){
             _shareScreenModal.SetActive(false);
@@ -167,6 +188,16 @@ public class LobbyUIManager : MonoBehaviour
     private void PublishScreenCapture()
     {
         GameEventsManager.instance.RTCEvents?.PublishCapture();
+        GameEventsManager.instance.RTCEvents?.CaptureState(RTCEvents.CaptureStates.Started);
+        _publishButton.interactable = false;
+        _shareScreenModal.SetActive(false);
+        _isShareScreenModalOpen = false;
+    }
+
+    public void UnPublishScreenCapture()
+    {
+        GameEventsManager.instance.RTCEvents?.UnPublishCapture();
+        GameEventsManager.instance.RTCEvents?.CaptureState(RTCEvents.CaptureStates.Stopped);
         _publishButton.interactable = false;
         _shareScreenModal.SetActive(false);
         _isShareScreenModalOpen = false;

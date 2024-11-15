@@ -11,12 +11,12 @@ public class RTCEvents
         OnPlayerJoined?.Invoke();
     }
 
-    public event Action OnVideoRTCConnected;
+    // public event Action OnVideoRTCConnected;
 
-    public void VideoRTCConnected()
-    {
-        OnVideoRTCConnected?.Invoke();
-    }
+    // public void VideoRTCConnected()
+    // {
+    //     OnVideoRTCConnected?.Invoke();
+    // }
     public event Action OnUpdateWebRTCTarget;
 
     public void UpdateWebRTCTarget()
@@ -68,7 +68,19 @@ public class RTCEvents
     public void ToggleCaptureSelected(bool state){
         OnToggleCaptureSelected?.Invoke(state);
     }
-    
+
+    public enum CaptureStates{
+        Started,
+        Stopped
+    }
+
+    public event Action<CaptureStates> OnCaptureState;
+
+
+    public void CaptureState(CaptureStates state){
+        OnCaptureState?.Invoke(state);
+    }
+
     public event Action OnPublishCapture;
 
     public void PublishCapture(){

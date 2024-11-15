@@ -8,6 +8,7 @@ using Agora.Rtc;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class JoinShareScreen : MonoBehaviour
@@ -27,7 +28,7 @@ public class JoinShareScreen : MonoBehaviour
     private IEnumerable<ScreenCaptureSourceInfo> screenSources;
 
     private void OnEnable() {
-        GameEventsManager.instance.RTCEvents.OnVideoRTCConnected += StartScreenShare;
+        // GameEventsManager.instance.RTCEvents.OnVideoRTCConnected += StartScreenShare;
         GameEventsManager.instance.RTCEvents.OnToggleSelectCaptureType += SelectCapture;
         GameEventsManager.instance.RTCEvents.OnPublishCapture += PublishCapture;
         GameEventsManager.instance.RTCEvents.OnUnPublishCapture += UnPublishCapture;
@@ -35,7 +36,7 @@ public class JoinShareScreen : MonoBehaviour
 
 
     private void OnDisable() {
-        GameEventsManager.instance.RTCEvents.OnVideoRTCConnected -= StartScreenShare;
+        // GameEventsManager.instance.RTCEvents.OnVideoRTCConnected -= StartScreenShare;
         GameEventsManager.instance.RTCEvents.OnToggleSelectCaptureType -= SelectCapture;
         GameEventsManager.instance.RTCEvents.OnPublishCapture -= PublishCapture;
         GameEventsManager.instance.RTCEvents.OnUnPublishCapture -= UnPublishCapture;
@@ -43,10 +44,10 @@ public class JoinShareScreen : MonoBehaviour
 
     private void StartScreenShare()
     {
-        SetupSDKEngine();
+        // SetupSDKEngine();
         InitEventHandler();
         SetupScreenCaptureList();
-        Join();
+        JoinScreenShareChannel();
         SetupVideoConfig();
     }
 
@@ -94,8 +95,36 @@ public class JoinShareScreen : MonoBehaviour
         }
     }
 
-    private void Join(){
-        _token = PlayerPrefs.GetString("token");
+    private void JoinScreenShareChannel()
+    {
+        StartCoroutine(GetUserToken());
+    }
+
+    IEnumerator GetUserToken()
+    {
+        int uid = PlayerPrefs.GetInt("uid");
+
+        WWWForm form = new WWWForm();
+        form.AddField("channelName", _channelName);
+        form.AddField("uid", uid);
+
+        using (UnityWebRequest www = UnityWebRequest.Post("http://172.29.174.196/get-token", form))
+        {
+            yield return www.SendWebRequest();
+
+            if (www.result == UnityWebRequest.Result.Success)
+            {
+                _token = www.downloadHandler.text;
+                Join(_token);
+            }
+            else
+            {
+                Debug.LogError("Error receiving token: " + www.error);
+            }
+        }
+    }
+
+    private void Join(string _token){
         uint uid = (uint)PlayerPrefs.GetInt("uid");
 
         RtcConnection connection = new RtcConnection();
@@ -125,7 +154,7 @@ public class JoinShareScreen : MonoBehaviour
 
     private void InitEventHandler()
     {
-        UserEventHandler handler = new UserEventHandler(this);
+        ScreenShareEventHandler handler = new ScreenShareEventHandler(this);
         RtcEngine.InitEventHandler(handler);
     }
 
@@ -183,7 +212,7 @@ public class JoinShareScreen : MonoBehaviour
 
     private void PublishCapture()
     {
-        MakeVideoView(0, "classroom", VIDEO_SOURCE_TYPE.VIDEO_SOURCE_SCREEN);
+        MakeVideoView(0, _channelName, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_SCREEN);
         Debug.Log("Publishing screen");
     }
 
@@ -313,11 +342,11 @@ public class JoinShareScreen : MonoBehaviour
 
 
     // Callbacks
-    private class UserEventHandler : IRtcEngineEventHandler
+    private class ScreenShareEventHandler : IRtcEngineEventHandler
     {
         private readonly JoinShareScreen _joinShareScreen;
 
-        public UserEventHandler(JoinShareScreen joinShareScreen)
+        public ScreenShareEventHandler(JoinShareScreen joinShareScreen)
         {
             this._joinShareScreen = joinShareScreen;
         }
