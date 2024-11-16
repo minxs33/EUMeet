@@ -72,7 +72,6 @@ public class JoinLobbyVideo : MonoBehaviour
     {
         SetupVideoSDKEngine();
         SetupShareScreenConfig();
-        ChangeWebcam(0);   
         _uid1 = (uint)PlayerPrefs.GetInt("uid");
         _uid2 = (uint)PlayerPrefs.GetInt("uid") + 1;
 
@@ -489,7 +488,6 @@ public class JoinLobbyVideo : MonoBehaviour
         RtcEngine.StopScreenCapture();
         DestroyVideoView(0);
         ChannelMediaOptions options = new ChannelMediaOptions();
-        options.publishCameraTrack.SetValue(true);
         options.publishScreenTrack.SetValue(false);
 
         #if UNITY_ANDROID || UNITY_IPHONE
@@ -670,7 +668,6 @@ public class JoinLobbyVideo : MonoBehaviour
         public override void OnUserJoined(RtcConnection connection, uint uid, int elapsed)
         {
             Debug.Log("Remote user joined with channelId: " + connection.channelId);
-            bool isPlayerVideoUID = false;
 
             Player[] players = FindObjectsOfType<Player>();
             foreach (Player player in players)
@@ -678,13 +675,12 @@ public class JoinLobbyVideo : MonoBehaviour
                 Debug.Log("Checking player with UID: " + player.Uid);
                 if (player.Uid == uid)
                 {
-                    isPlayerVideoUID = true;
                     // Assign video surface to this player
                     Debug.Log("Remote user joined with uid: " + uid);
                     VideoSurface playerVideoSurface = player.gameObject.GetComponentInChildren<VideoSurface>();
                     if(playerVideoSurface != null){
                         Debug.Log("Setting remote video for player: " + player.PlayerName);
-                        playerVideoSurface.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
+                        playerVideoSurface.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_CUSTOM);
                         playerVideoSurface.SetEnable(true);
                     }else{
                         Debug.LogError("VideoSurface not found for player: " + player.PlayerName);
@@ -692,26 +688,24 @@ public class JoinLobbyVideo : MonoBehaviour
                     break;
                 }
             }
-
-            if(!isPlayerVideoUID && uid != _videoSample._uid1 && uid != _videoSample._uid2){
-                MakeVideoView(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
-            }
         }
 
         public override void OnRemoteVideoStateChanged (RtcConnection connection, uint uid, REMOTE_VIDEO_STATE state, REMOTE_VIDEO_STATE_REASON reason, int elapsed)
         {
             Debug.Log($"Remote video state changed: uid={uid}, state={state}, channel={connection.channelId} reason={reason}");
 
-            if (state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_DECODING)
-            {
-                // _videoSample.RemoteView.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
-                // _videoSample.RemoteView.SetEnable(true);
-                Debug.Log($"Remote video for uid={uid} is now decoding, refreshing view.");
-            }
-            else if (state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_STOPPED)
-            {
-                // _videoSample.RemoteView.SetEnable(false);
-                Debug.Log($"Remote video for uid={uid} has stopped.");
+            if(uid != _videoSample._uid1 && uid != _videoSample._uid2){
+                if ((int)state == (int)REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_DECODING)
+                {
+                    JoinLobbyVideo.MakeVideoView(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
+                    Debug.Log($"Remote video for uid={uid} is now starting, refreshing view.");
+                }
+                else if ((int)state == (int)REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_STOPPED)
+                {
+                    // _videoSample.RemoteView.SetEnable(false);
+                    JoinLobbyVideo.DestroyVideoView(uid);
+                    Debug.Log($"Remote video for uid={uid} has stopped.");
+                }
             }
         }
 
