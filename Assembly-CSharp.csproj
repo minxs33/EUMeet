@@ -132,6 +132,7 @@
     <None Include="Assets\Photon\FusionAddons\SimpleKCC\simple_kcc_build_info.txt" />
     <None Include="Assets\Photon\FusionAddons\SimpleKCC\release_history.txt" />
     <None Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Plugins\x86\libagora_ai_noise_suppression_ll_extension.dll" />
+    <None Include="Assets\photon-chat-readme.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\Photon\Fusion\Assemblies\Fusion.Sockets.dll" />
     <None Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Plugins\x86_64\agora_rtc_sdk.dll" />

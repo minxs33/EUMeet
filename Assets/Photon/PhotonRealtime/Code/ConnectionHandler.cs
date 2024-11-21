@@ -17,7 +17,6 @@
 namespace Photon.Realtime
 {
     using System;
-    using System.Threading;
     using System.Diagnostics;
     using SupportClass = ExitGames.Client.Photon.SupportClass;
 
@@ -54,7 +53,10 @@ namespace Photon.Realtime
         public int CountSendAcksOnly { get; private set; }
 
         /// <summary>True if a fallback thread is running. Will call the client's SendAcksOnly() method to keep the connection up.</summary>
-        public bool FallbackThreadRunning { get; private set; }
+        public bool FallbackThreadRunning
+        {
+            get { return this.fallbackThreadId < 255; }
+        }
 
         /// <summary>Keeps the ConnectionHandler, even if a new scene gets loaded.</summary>
         public bool ApplyDontDestroyOnLoad = true;
@@ -63,27 +65,11 @@ namespace Photon.Realtime
         [NonSerialized]
         public static bool AppQuits;
 
-        /// <summary>Indicates that the (Unity) app is Paused. This means the main thread is not running.</summary>
-        [NonSerialized]
-        public static bool AppPause;
 
-        /// <summary>Indicates that the app was paused within the last 5 seconds.</summary>
-        [NonSerialized]
-        public static bool AppPauseRecent;
-
-        /// <summary>Indicates that the app is not in focus.</summary>
-        [NonSerialized]
-        public static bool AppOutOfFocus;
-
-        /// <summary>Indicates that the app was out of focus within the last 5 seconds.</summary>
-        [NonSerialized]
-        public static bool AppOutOfFocusRecent;
-
-
+        private byte fallbackThreadId = 255;
         private bool didSendAcks;
         private readonly Stopwatch backgroundStopwatch = new Stopwatch();
 
-        private Timer stateTimer;
 
         #if SUPPORTED_UNITY
 
@@ -96,13 +82,16 @@ namespace Photon.Realtime
         static void StaticReset()
         {
             AppQuits = false;
-            AppPause = false;
-            AppPauseRecent = false;
-            AppOutOfFocus = false;
-            AppOutOfFocusRecent = false;
         }
 
         #endif
+
+
+        /// <summary>Called by Unity when the application gets closed. The UnityEngine will also call OnDisable, which disconnects.</summary>
+        protected void OnApplicationQuit()
+        {
+            AppQuits = true;
+        }
 
 
         /// <summary></summary>
@@ -131,152 +120,80 @@ namespace Photon.Realtime
             }
         }
 
-
-        /// <summary>Called by Unity when the application gets closed. The UnityEngine will also call OnDisable, which disconnects.</summary>
-        public void OnApplicationQuit()
-        {
-            AppQuits = true;
-        }
-
-        /// <summary>Called by Unity when the application gets paused or resumed.</summary>
-        public void OnApplicationPause(bool pause)
-        {
-            AppPause = pause;
-
-            if (pause)
-            {
-                AppPauseRecent = true;
-                this.CancelInvoke(nameof(this.ResetAppPauseRecent));
-            }
-            else
-            {
-                Invoke(nameof(this.ResetAppPauseRecent), 5f);
-            }
-        }
-
-        private void ResetAppPauseRecent()
-        {
-            AppPauseRecent = false;
-        }
-
-        /// <summary>Called by Unity when the application changes focus.</summary>
-        public void OnApplicationFocus(bool focus)
-        {
-            AppOutOfFocus = !focus;
-            if (!focus)
-            {
-                AppOutOfFocusRecent = true;
-                this.CancelInvoke(nameof(this.ResetAppOutOfFocusRecent));
-            }
-            else
-            {
-                this.Invoke(nameof(this.ResetAppOutOfFocusRecent), 5f);
-            }
-        }
-
-        private void ResetAppOutOfFocusRecent()
-        {
-            AppOutOfFocusRecent = false;
-        }
-
-
         #endif
 
 
-        /// <summary>
-        /// When run in Unity, this returns Application.internetReachability != NetworkReachability.NotReachable.
-        /// </summary>
-        /// <returns>Application.internetReachability != NetworkReachability.NotReachable</returns>
-        public static bool IsNetworkReachableUnity()
-        {
-            #if SUPPORTED_UNITY
-            return Application.internetReachability != NetworkReachability.NotReachable;
-            #else
-            return true;
-            #endif
-        }
-
-        /// <summary>Starts periodic calls of RealtimeFallbackThread.</summary>
         public void StartFallbackSendAckThread()
         {
-            #if UNITY_WEBGL
-            if (!this.FallbackThreadRunning) this.InvokeRepeating(nameof(this.RealtimeFallbackInvoke), 0.05f, 0.05f);
-            #else
-            if (this.stateTimer != null)
+            #if !UNITY_WEBGL
+            if (this.FallbackThreadRunning)
             {
                 return;
             }
 
-            stateTimer = new Timer(this.RealtimeFallback, null, 50, 50);
+            #if UNITY_SWITCH
+            this.fallbackThreadId = SupportClass.StartBackgroundCalls(this.RealtimeFallbackThread, 50);  // as workaround, we don't name the Thread.
+            #else
+            this.fallbackThreadId = SupportClass.StartBackgroundCalls(this.RealtimeFallbackThread, 50, "RealtimeFallbackThread");
             #endif
-
-            this.FallbackThreadRunning = true;
+            #endif
         }
 
-
-        /// <summary>Stops the periodic calls of RealtimeFallbackThread.</summary>
         public void StopFallbackSendAckThread()
         {
-            #if UNITY_WEBGL
-            if (this.FallbackThreadRunning) this.CancelInvoke(nameof(this.RealtimeFallbackInvoke));
-            #else
-            if (this.stateTimer != null)
-            {
-                this.stateTimer.Dispose();
-                this.stateTimer = null;
-            }
-            #endif
-
-            this.FallbackThreadRunning = false;
-        }
-
-        /// <summary>Used in WebGL builds which can't call RealtimeFallback(object state = null) with the state context parameter.</summary>
-        public void RealtimeFallbackInvoke()
-        {
-            this.RealtimeFallback();
-        }
-
-        /// <summary>A thread which runs independently of the Update() calls. Keeps connections online while loading or in background. See <see cref="KeepAliveInBackground"/>.</summary>
-        public void RealtimeFallback(object state = null)
-        {
-            if (this.Client == null)
+            #if !UNITY_WEBGL
+            if (!this.FallbackThreadRunning)
             {
                 return;
             }
 
-            if (this.Client.IsConnected && this.Client.LoadBalancingPeer.ConnectionTime - this.Client.LoadBalancingPeer.LastSendOutgoingTime > 100)
+            SupportClass.StopBackgroundCalls(this.fallbackThreadId);
+            this.fallbackThreadId = 255;
+            #endif
+        }
+
+
+        /// <summary>A thread which runs independent from the Update() calls. Keeps connections online while loading or in background. See <see cref="KeepAliveInBackground"/>.</summary>
+        public bool RealtimeFallbackThread()
+        {
+            if (this.Client != null)
             {
-                if (!this.didSendAcks)
+                if (!this.Client.IsConnected)
                 {
-                    this.backgroundStopwatch.Reset();
-                    this.backgroundStopwatch.Start();
+                    this.didSendAcks = false;
+                    return true;
                 }
 
-                // check if the client should disconnect after some seconds in background
-                if (this.backgroundStopwatch.ElapsedMilliseconds > this.KeepAliveInBackground)
+                if (this.Client.LoadBalancingPeer.ConnectionTime - this.Client.LoadBalancingPeer.LastSendOutgoingTime > 100)
                 {
-                    if (this.DisconnectAfterKeepAlive)
+                    if (!this.didSendAcks)
                     {
-                        this.Client.Disconnect();
+                        backgroundStopwatch.Reset();
+                        backgroundStopwatch.Start();
                     }
-                    return;
+
+                    // check if the client should disconnect after some seconds in background
+                    if (backgroundStopwatch.ElapsedMilliseconds > this.KeepAliveInBackground)
+                    {
+                        if (this.DisconnectAfterKeepAlive)
+                        {
+                            this.Client.Disconnect();
+                        }
+                        return true;
+                    }
+
+
+                    this.didSendAcks = true;
+                    this.CountSendAcksOnly++;
+                    this.Client.LoadBalancingPeer.SendAcksOnly();
                 }
-
-
-                this.didSendAcks = true;
-                this.CountSendAcksOnly++;
-
-                this.Client.LoadBalancingPeer.SendAcksOnly();
-            }
-            else
-            {
-                // not connected or the LastSendOutgoingTimestamp was below the threshold
-                if (this.backgroundStopwatch.IsRunning)
+                else
                 {
-                    this.backgroundStopwatch.Reset();
+                    this.didSendAcks = false;
                 }
-                this.didSendAcks = false;
             }
+
+            return true;
         }
     }
 }
