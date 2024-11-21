@@ -103,11 +103,12 @@ public class ShareScreenRTCManager : MonoBehaviour
             // ShareScreenEventHandler handlerShareScreen = new ShareScreenEventHandler(this);
             
             LogConfig Log = new LogConfig
-{
-                filePath = "Agora Logs.log",
+            {
+                filePath = "Agora Log",
                 fileSizeInKB = 2048,
                 level = LOG_LEVEL.LOG_LEVEL_ERROR,
             };
+            
             RtcEngineContext context = new RtcEngineContext
             {
                 appId = _appID,

@@ -3284,3 +3284,6 @@ bhelper.exe","sourceDisplayId":4,"sourceDisplayId_str":"4","sourceId":984632,"so
 [2024-11-21 18:26:50.350][1112][I][iris_rtc_api_engine.cc:451] api name RtcEngine_stopScreenCapture result 0 outdata {"result":0}
 [2024-11-21 18:26:50.350][1112][I][iris_rtc_api_engine.cc:385] api name RtcEngine_updateChannelMediaOptions_7bfc1d7 params "{"options":{"publishCameraTrack":false,"publishScreenTrack":false}}"
 [2024-11-21 18:26:50.383][1112][I][iris_rtc_api_engine.cc:451] api name RtcEngine_updateChannelMediaOptions_7bfc1d7 result 0 outdata {"result":0}
+[2024-11-21 19:26:16.283][1112][I][iris_rtc_api_engine.cc:387] api name RtcEngine_release params "{"sync":false}"
+[2024-11-21 19:26:16.283][1112][I][iris_rtc_api_engine.cc:451] api name RtcEngine_release result 0 outdata {"result":0}
+[2024-11-21 19:26:16.430][1112][I][iris_async.h:30] async thread(11593171516746941605) exited...
