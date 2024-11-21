@@ -1,4 +1,5 @@
 using System;
+using Agora.Rtc;
 using UnityEngine;
 
 public class RTCEvents
@@ -36,6 +37,13 @@ public class RTCEvents
     public void MuteVoice()
     {
         OnMuteVoice?.Invoke();
+    }
+    
+    public event Action<DeviceInfo[]> OnCameraDeviceUpdated;
+
+    public void CameraDeviceUpdated(DeviceInfo[] deviceInfo)
+    {
+        OnCameraDeviceUpdated?.Invoke(deviceInfo);
     }
 
     public event Action<int> OnWebCamSelected;

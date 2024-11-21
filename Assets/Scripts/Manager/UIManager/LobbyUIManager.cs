@@ -1,4 +1,5 @@
 using System;
+using Agora.Rtc;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -25,7 +26,7 @@ public class LobbyUIManager : MonoBehaviour
     bool _isVoiceMuted = true;
     bool _isVideoMuted = true;
     bool _isShareScreenModalOpen = false;
-    bool _isVideoSource;
+    private JoinLobbyVideo _joinLobbyVideo;
     // Overlay
     [SerializeField] private GameObject _overlay;
     // Camera Source
@@ -40,6 +41,7 @@ public class LobbyUIManager : MonoBehaviour
         _toggleVideoMuteButton.onClick.AddListener(ToggleVideo);
         _toggleVideoSourceButton.onClick.AddListener(ToggleVideoDevice);
         _webCamDropdown.onValueChanged.AddListener(OnWebcamSelected);
+        GameEventsManager.instance.RTCEvents.OnCameraDeviceUpdated += UpdateWebCamDropdown;
         // Share Screen
         _toggleShareScreenButton.onClick.AddListener(ToggleShareScreen);
         _windowButton.onClick.AddListener(SelectWindowCapture);
@@ -49,6 +51,7 @@ public class LobbyUIManager : MonoBehaviour
         _cancelButton.onClick.AddListener(ToggleShareScreen);
         GameEventsManager.instance.RTCEvents.OnToggleCaptureSelected += ToggleCaptureSelected;
         GameEventsManager.instance.RTCEvents.OnCaptureState += ShareScreenState;
+        
     }
 
     private void OnDisable() {
@@ -65,19 +68,29 @@ public class LobbyUIManager : MonoBehaviour
         _cancelButton.onClick.RemoveListener(ToggleShareScreen);
         GameEventsManager.instance.RTCEvents.OnToggleCaptureSelected -= ToggleCaptureSelected;
         GameEventsManager.instance.RTCEvents.OnCaptureState -= ShareScreenState;
+        GameEventsManager.instance.RTCEvents.OnCameraDeviceUpdated -= UpdateWebCamDropdown;
     }
 
     private void Start(){
-        _webCamDevices = WebCamTexture.devices;
+        // _webCamDropdown.ClearOptions();
+        // _webCamDevices = WebCamTexture.devices;
+        // foreach (var device in _webCamDevices)
+        // {
+        //     _webCamDropdown.options.Add(new TMP_Dropdown.OptionData(device.name));
+        // }
+    }
+
+    private void UpdateWebCamDropdown(DeviceInfo[] deviceInfos){
         _webCamDropdown.ClearOptions();
-        foreach (var device in _webCamDevices)
+        foreach (var device in deviceInfos)
         {
-            _webCamDropdown.options.Add(new TMP_Dropdown.OptionData(device.name));
+            _webCamDropdown.options.Add(new TMP_Dropdown.OptionData(device.deviceName));
         }
     }
 
     private void OnWebcamSelected(int index)
     {
+
         GameEventsManager.instance.RTCEvents.WebCamSelected(index);
     }
 

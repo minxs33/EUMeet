@@ -1,3 +1,4 @@
+#if !UNITY_SERVER
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,7 +18,7 @@ public class ShareScreenRTCManager : MonoBehaviour
     public static ShareScreenRTCManager Instance { get; private set; }
     private string _appID= "aaee4ec8cfeb477380c9ec3f477894e7";
     public string _channelNameScreen = "classroom_screen";
-    internal IRtcEngineEx shareScreenEngine;
+    internal IRtcEngine shareScreenEngine;
     [SerializeField] private GameObject windowCardPrefab;
     [SerializeField] private Transform windowCardParent;
     
@@ -46,7 +47,6 @@ public class ShareScreenRTCManager : MonoBehaviour
     private void StartRTC()
     {
         SetupVideoSDKEngine();
-        SetupShareScreenConfig();
 
         // Request and join screen share channel token with different UID
         StartCoroutine(GetUserToken(PlayerPrefs.GetInt("uid") + 1, JoinShareScreenChannel));
@@ -69,7 +69,7 @@ public class ShareScreenRTCManager : MonoBehaviour
     }
 
 
-     IEnumerator GetUserToken(int uid, Action<string, int> onTokenRecieved)
+     IEnumerator GetUserToken(int uid, Action<string> onTokenRecieved)
     {
 
         WWWForm form = new WWWForm();
@@ -83,7 +83,8 @@ public class ShareScreenRTCManager : MonoBehaviour
             if (www.result == UnityWebRequest.Result.Success)
             {
                 string _token = www.downloadHandler.text;
-                onTokenRecieved?.Invoke(_token, uid);
+                _uid = (uint)uid;
+                onTokenRecieved?.Invoke(_token);
             }
             else
             {
@@ -98,25 +99,32 @@ public class ShareScreenRTCManager : MonoBehaviour
         {
             shareScreenEngine = Agora.Rtc.RtcEngine.CreateAgoraRtcEngineEx();
 
-            Player[] players = FindObjectsOfType<Player>();
 
-            ShareScreenEventHandler handlerShareScreen = new ShareScreenEventHandler(this);
+            // ShareScreenEventHandler handlerShareScreen = new ShareScreenEventHandler(this);
+            
+            LogConfig Log = new LogConfig
+{
+                filePath = "Agora Logs.log",
+                fileSizeInKB = 2048,
+                level = LOG_LEVEL.LOG_LEVEL_ERROR,
+            };
             RtcEngineContext context = new RtcEngineContext
             {
                 appId = _appID,
                 channelProfile = CHANNEL_PROFILE_TYPE.CHANNEL_PROFILE_LIVE_BROADCASTING,
-                audioScenario = AUDIO_SCENARIO_TYPE.AUDIO_SCENARIO_DEFAULT,
+                audioScenario = AUDIO_SCENARIO_TYPE.AUDIO_SCENARIO_CHATROOM,
                 areaCode = AREA_CODE.AREA_CODE_JP,
+                logConfig = Log,
             };
 
             shareScreenEngine.Initialize(context);
-            shareScreenEngine.InitEventHandler(handlerShareScreen);
+            // shareScreenEngine.InitEventHandler(handlerShareScreen);
             
-            SenderOptions senderOptions = new SenderOptions();
-            shareScreenEngine.SetExternalVideoSource(true, false, EXTERNAL_VIDEO_SOURCE_TYPE.VIDEO_FRAME, senderOptions);
+            // SenderOptions senderOptions = new SenderOptions();
+            // shareScreenEngine.SetExternalVideoSource(true, false, EXTERNAL_VIDEO_SOURCE_TYPE.VIDEO_FRAME, senderOptions);
             Debug.Log("RtcEngine initialized successfully.");
-
-
+            
+            SetupShareScreenConfig();
         }
         catch (Exception ex)
         {
@@ -124,15 +132,28 @@ public class ShareScreenRTCManager : MonoBehaviour
         }
     }
 
-    public void JoinShareScreenChannel(string token, int uid){
+     public void JoinShareScreenChannel(string token){
         // Share Screen
-        _uid = (uint)uid;
-        RtcConnection connection = new RtcConnection();
-        connection.channelId = _channelNameScreen;
-        connection.localUid = _uid;
-        
-        var ret = shareScreenEngine.JoinChannelEx(token, connection, null);
 
+        // RtcConnection connection = new RtcConnection();
+        // connection.channelId = _channelNameScreen;
+        // connection.localUid = _uid;
+
+        
+        ChannelMediaOptions options = new ChannelMediaOptions();
+            options.autoSubscribeAudio.SetValue(false);
+            options.autoSubscribeVideo.SetValue(true);
+            options.publishCameraTrack.SetValue(false);
+            options.publishScreenTrack.SetValue(true);
+            options.enableAudioRecordingOrPlayout.SetValue(false);
+
+        #if UNITY_ANDROID || UNITY_IPHONE
+                    options.publishScreenCaptureAudio.SetValue(false);
+                    options.publishScreenCaptureVideo.SetValue(true);
+        #endif
+
+        options.clientRoleType.SetValue(CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER);
+        var ret = shareScreenEngine.JoinChannel(token, _channelNameScreen, _uid, options);
         if (ret != 0)
         {
             Debug.LogError("Failed to join sharescreen channel: " + ret);
@@ -151,7 +172,7 @@ public class ShareScreenRTCManager : MonoBehaviour
         };
 
         shareScreenEngine.SetVideoEncoderConfiguration(encoder);
-        shareScreenEngine.EnableAudio();
+        // shareScreenEngine.EnableAudio();
         shareScreenEngine.EnableVideo();
         shareScreenEngine.SetClientRole(CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER);
     }
@@ -197,13 +218,13 @@ public class ShareScreenRTCManager : MonoBehaviour
         }
     }
 
-    private void StartCapture()
-    {
+    private void PublishCapture(){
         if (selectedCaptureOptions == null)
         {
             Debug.LogWarning("No capture options selected to publish.");
             return;
         }
+
 
         #if UNITY_ANDROID || UNITY_IPHONE
             var parameters2 = new ScreenCaptureParameters2();
@@ -212,7 +233,6 @@ public class ShareScreenRTCManager : MonoBehaviour
             var nRet = RtcEngine.StartScreenCapture(parameters2);
             Debug.Log("Publishing mobile screen capture: " + nRet);
         #else
-            shareScreenEngine.StopScreenCapture();
             
 
             if (selectedCaptureOptions.type == "ScreenCaptureSourceType_Window")
@@ -228,25 +248,17 @@ public class ShareScreenRTCManager : MonoBehaviour
                 Debug.Log("Publishing screen capture with sourceId: " + selectedCaptureOptions.sourceId);
             }
         #endif
-        MakeVideoView(0, _channelNameScreen, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_SCREEN);
-    }
 
-    private void PublishCapture(){
-        RtcConnection connection = new RtcConnection();
-        connection.channelId = _channelNameScreen;
-        connection.localUid = _uid;
+        // RtcConnection connection = new RtcConnection();
+        // connection.channelId = _channelNameScreen;
+        // connection.localUid = _uid;
 
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.autoSubscribeAudio.SetValue(false);
-        options.autoSubscribeVideo.SetValue(false);
+        options.autoSubscribeVideo.SetValue(true);
         options.publishCameraTrack.SetValue(false);
         options.publishScreenTrack.SetValue(true);
         options.enableAudioRecordingOrPlayout.SetValue(false);
-
-        #if UNITY_ANDROID || UNITY_IPHONE
-        options.publishScreenCaptureAudio.SetValue(true);
-        options.publishScreenCaptureVideo.SetValue(true);
-        #endif
 
         options.clientRoleType.SetValue(CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER);
 
@@ -259,8 +271,12 @@ public class ShareScreenRTCManager : MonoBehaviour
             shareScreenEngine.EnableLoopbackRecording(true, "");
         #endif
 
-        var ret = shareScreenEngine.UpdateChannelMediaOptionsEx(options, connection);
+        shareScreenEngine.UpdateChannelMediaOptions(options);
+
+        
         GameEventsManager.instance.RTCEvents.ToggleCaptureSelected(false);
+        
+        MakeVideoView(0, "", VIDEO_SOURCE_TYPE.VIDEO_SOURCE_SCREEN);
     }
 
     private void UnPublishCapture(){
@@ -271,7 +287,7 @@ public class ShareScreenRTCManager : MonoBehaviour
         shareScreenEngine.StopScreenCapture();
         DestroyVideoView(0);
         ChannelMediaOptions options = new ChannelMediaOptions();
-        options.publishCameraTrack.SetValue(true);
+        options.publishCameraTrack.SetValue(false);
         options.publishScreenTrack.SetValue(false);
 
         #if UNITY_ANDROID || UNITY_IPHONE
@@ -279,7 +295,7 @@ public class ShareScreenRTCManager : MonoBehaviour
             options.publishScreenCaptureVideo.SetValue(false);
         #endif
 
-        var ret = shareScreenEngine.UpdateChannelMediaOptionsEx(options, connection);
+        var ret = shareScreenEngine.UpdateChannelMediaOptions(options);
         Debug.Log("UpdateChannelMediaOptions returns: " + ret);
         Debug.Log("Unpublishing screen");
     }
@@ -324,7 +340,6 @@ public class ShareScreenRTCManager : MonoBehaviour
             selectedButton.onClick.AddListener(() => {
                 selectedCaptureOptions = captureOptions;
                 GameEventsManager.instance.RTCEvents.ToggleCaptureSelected(true);
-                StartCapture();
             });
         }
 
@@ -342,7 +357,7 @@ public class ShareScreenRTCManager : MonoBehaviour
 
     }
 
-    internal static void MakeVideoView(uint uid, string channelId = "", VIDEO_SOURCE_TYPE videoSourceType = VIDEO_SOURCE_TYPE.VIDEO_SOURCE_CAMERA)
+    internal static void MakeVideoView(uint uid, string channelId = "", VIDEO_SOURCE_TYPE videoSourceType = VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE)
     {
         var go = GameObject.Find(uid.ToString());
         if(!ReferenceEquals(go, null)) 
@@ -424,58 +439,66 @@ public class ShareScreenRTCManager : MonoBehaviour
         return videoSurface;
     }
 
-    internal class ShareScreenEventHandler : IRtcEngineEventHandler
-    {
-        private readonly ShareScreenRTCManager rtcSample; 
+    // internal class ShareScreenEventHandler : IRtcEngineEventHandler
+    // {
+    //     private readonly ShareScreenRTCManager videoSample; 
 
-        internal ShareScreenEventHandler(ShareScreenRTCManager rtcSample)
-        {
-            this.rtcSample = rtcSample;
-            Debug.Log("ShareScreenEventHandler created");
-        }
+    //     internal ShareScreenEventHandler(ShareScreenRTCManager videoSample)
+    //     {
+    //         this.videoSample = videoSample;
+    //         Debug.Log("ShareScreenEventHandler created");
+    //     }
 
-        public override void OnError(int err, string msg)
-        {
-            Debug.LogError("Error: " + err);
-        }
+    //     public override void OnError(int err, string msg)
+    //     {
+    //         Debug.LogError("Error: " + err);
+    //     }
 
-        // Callback triggered when the local user successfully joins the channel
-        public override void OnJoinChannelSuccess(RtcConnection connection, int elapsed)
-        {
-            Debug.Log("Successfully joined channel: " + connection.channelId);
+    //     // Callback triggered when the local user successfully joins the channel
+    //     public override void OnJoinChannelSuccess(RtcConnection connection, int elapsed)
+    //     {
+    //         Debug.Log("Successfully joined Share Screen channel: " + connection.channelId);
             
-        }
+    //     }
 
-        public override void OnUserJoined(RtcConnection connection, uint uid, int elapsed)
-        {
-            Debug.Log("Remote user joined with channelId: " + connection.channelId);
-            MakeVideoView(uid, rtcSample._channelNameScreen, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
-        }
-
-        public override void OnRemoteVideoStateChanged(RtcConnection connection, uint uid, REMOTE_VIDEO_STATE state, REMOTE_VIDEO_STATE_REASON reason, int elapsed)
-        {
-            Debug.Log($"Remote video state changed: uid={uid}, state={state}, channel={connection.channelId} reason={reason}");
+    //     public override void OnUserJoined(RtcConnection connection, uint uid, int elapsed)
+    //     {
+    //         Debug.Log("Remote user joined with channelId: " + connection.channelId);
+    //         // MakeVideoView(uid, rtcSample._channelNameScreen, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
             
-            if (state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_DECODING)
-            {
-                MakeVideoView(uid,  rtcSample._channelNameScreen, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
-                Debug.Log($"Screen-sharing user {uid} video state is now decoding in channel {connection.channelId}.");
-            } else if (state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_STOPPED)
-            {
-                // DestroyVideoView(uid);
-                Debug.Log($"Screen-sharing user {uid} video state is now stopped in channel {connection.channelId}.");
-            }else{
-                Debug.Log("Nothing Catched");
-            }
-        }
+    //     }
 
-        // public override void OnUserMuteAudio(RtcConnection connection, uint remoteUid, bool muted)
-        // {
-        //     if(!muted){
-        //         MakeVideoView(remoteUid, rtcSample._channelNameScreen, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
-        //     }else{
-        //         DestroyVideoView(remoteUid);
-        //     }
-        // }
-    }
+    //     public override void OnFirstRemoteVideoFrame(RtcConnection connection, uint remoteUid, int width, int height, int elapsed)
+    //     {
+    //         Debug.Log($"First remote video frame received: uid={remoteUid}, width={width}, height={height}, elapsed={elapsed}");
+    //     }
+
+    //     public override void OnRemoteVideoStateChanged(RtcConnection connection, uint uid, REMOTE_VIDEO_STATE state, REMOTE_VIDEO_STATE_REASON reason, int elapsed)
+    //     {
+    //         Debug.Log($"Remote video state changed: uid={uid}, state={state}, channel={connection.channelId} reason={reason}");
+            
+    //         if(uid != videoSample._uid){
+    //             if (state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_DECODING)
+    //             {
+    //                 MakeVideoView(uid,  videoSample._channelNameScreen);
+    //                 Debug.Log($"Screen-sharing user {uid} video state is now decoding in channel {connection.channelId}.");
+    //             } else if (state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_STOPPED)
+    //             {
+    //                 DestroyVideoView(uid);
+    //                 Debug.Log($"Screen-sharing user {uid} video state is now stopped in channel {connection.channelId}.");
+    //             }
+    //         }
+    //     }
+
+
+    //     // public override void OnUserMuteAudio(RtcConnection connection, uint remoteUid, bool muted)
+    //     // {
+    //     //     if(!muted){
+    //     //         MakeVideoView(remoteUid, rtcSample._channelNameScreen, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
+    //     //     }else{
+    //     //         DestroyVideoView(remoteUid);
+    //     //     }
+    //     // }
+    // }
 }
+#endif

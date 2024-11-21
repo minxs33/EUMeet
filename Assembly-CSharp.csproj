@@ -69,6 +69,7 @@
     <Compile Include="Assets\Scripts\ScreenCardID.cs" />
     <Compile Include="Assets\Scripts\Manager\UIManager\PlayerName.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\AuthEvents.cs" />
+    <Compile Include="Assets\Scripts\Agora\EventHandler.cs" />
     <Compile Include="Assets\Scripts\Manager\LevelManager.cs" />
     <Compile Include="Assets\Scripts\Agora\ShareScreenRTCManager.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\LevelEvents.cs" />

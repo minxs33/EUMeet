@@ -9,6 +9,7 @@ using System.Linq;
 using UnityEngine.UI;
 using TMPro;
 using Unity.VisualScripting;
+using ExitGames.Client.Photon.StructWrapping;
 
 #if (UNITY_2018_3_OR_NEWER && UNITY_ANDROID)
     using UnityEngine.Android;
@@ -23,10 +24,15 @@ public class JoinLobbyVideo : MonoBehaviour
     [SerializeField] private VideoSurface LocalView;
     // internal VideoSurface RemoteView;
     internal IRtcEngineEx RtcEngine;
+    public IVideoDeviceManager deviceManager;
+    private DeviceInfo[] _videoDevices; 
+    public DeviceInfo[] VideoDevices => _videoDevices;
     private WebCamTexture _webCamTexture;
     private WebCamDevice[] _webCamDevices;
     private uint _videoTrackId;
     private bool isPushingFrames;
+
+    private string _selectedWebcamDevice;
 
     // Share Screen
     [SerializeField] private GameObject windowCardPrefab;
@@ -72,13 +78,7 @@ public class JoinLobbyVideo : MonoBehaviour
     {
         SetupVideoSDKEngine();
         SetupShareScreenConfig();
-        _uid1 = (uint)PlayerPrefs.GetInt("uid");
-        _uid2 = (uint)PlayerPrefs.GetInt("uid") + 1;
-
-        StartCoroutine(GetUserToken(_uid1, JoinVideoChannel));
-
-        // Request and join screen share channel token with different UID
-        StartCoroutine(GetUserToken(_uid2, JoinShareScreenChannel));
+        JoinChannels();
     }
 
     void Update()
@@ -136,8 +136,9 @@ public class JoinLobbyVideo : MonoBehaviour
         {
             RtcEngine.EnableVideo();
             RtcEngine.StartPreview();
-            LocalView.SetForUser(0, "", VIDEO_SOURCE_TYPE.VIDEO_SOURCE_CUSTOM);
+            LocalView.SetForUser(0, "", VIDEO_SOURCE_TYPE.VIDEO_SOURCE_CAMERA);
             LocalView.SetEnable(true);
+            LocalView.transform.localScale = new Vector3(0.1f, -1f, 0.1f);
         }
         else
         {
@@ -150,8 +151,7 @@ public class JoinLobbyVideo : MonoBehaviour
         try
         {
             RtcEngine = Agora.Rtc.RtcEngine.CreateAgoraRtcEngineEx();
-
-            Player[] players = FindObjectsOfType<Player>();
+            deviceManager = RtcEngine.GetVideoDeviceManager();
 
             UserEventHandler handler = new UserEventHandler(this);
             RtcEngineContext context = new RtcEngineContext
@@ -167,10 +167,10 @@ public class JoinLobbyVideo : MonoBehaviour
             
             Debug.Log("RtcEngine initialized successfully.");
 
-            SenderOptions senderOptions = new SenderOptions();
-            RtcEngine.SetExternalVideoSource(true, false, EXTERNAL_VIDEO_SOURCE_TYPE.VIDEO_FRAME, senderOptions);
+            // SenderOptions senderOptions = new SenderOptions();
+            // RtcEngine.SetExternalVideoSource(true, false, EXTERNAL_VIDEO_SOURCE_TYPE.VIDEO_FRAME, senderOptions);
 
-
+            UpdateVideoDevices();
         }
         catch (Exception ex)
         {
@@ -178,26 +178,35 @@ public class JoinLobbyVideo : MonoBehaviour
         }
     }
 
+    private void JoinChannels(){
+        _uid1 = (uint)PlayerPrefs.GetInt("uid");
+        _uid2 = (uint)PlayerPrefs.GetInt("uid") + 1;
+        StartCoroutine(GetUserToken(_uid1, JoinVideoChannel));
+        StartCoroutine(GetUserToken(_uid2, JoinShareScreenChannel));
+    }
 
     public void JoinVideoChannel(string token)
     {
-        _videoTrackId = RtcEngine.CreateCustomVideoTrack();
+        // _videoTrackId = RtcEngine.CreateCustomVideoTrack();
 
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.publishMicrophoneTrack.SetValue(false);
         options.publishCameraTrack.SetValue(true);
+        options.publishScreenTrack.SetValue(false);
         options.autoSubscribeAudio.SetValue(false);
         options.autoSubscribeVideo.SetValue(true);
-        options.customVideoTrackId.SetValue(_videoTrackId);
-        options.publishCustomVideoTrack.SetValue(true);
+        // options.customVideoTrackId.SetValue(_videoTrackId);
+        // options.publishCustomVideoTrack.SetValue(true);
         options.channelProfile.SetValue(CHANNEL_PROFILE_TYPE.CHANNEL_PROFILE_LIVE_BROADCASTING);
         options.clientRoleType.SetValue(CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER);
-        
+
         var ret = RtcEngine.JoinChannel(token, _channelName, _uid1, options);
 
         if (ret != 0)
         {
             Debug.LogError("Failed to join video channel: " + ret);
+        }else{
+            RtcEngine.MuteRemoteVideoStream(_uid2, true);
         }
 
     }
@@ -217,7 +226,7 @@ public class JoinLobbyVideo : MonoBehaviour
             options.enableAudioRecordingOrPlayout.SetValue(false);
 
         #if UNITY_ANDROID || UNITY_IPHONE
-                    options.publishScreenCaptureAudio.SetValue(true);
+                    options.publishScreenCaptureAudio.SetValue(false);
                     options.publishScreenCaptureVideo.SetValue(true);
         #endif
 
@@ -229,6 +238,7 @@ public class JoinLobbyVideo : MonoBehaviour
         }
         else
         {
+            RtcEngine.MuteRemoteVideoStream(_uid1, true);
             SetupScreenCaptureList();
         }
     }
@@ -238,7 +248,7 @@ public class JoinLobbyVideo : MonoBehaviour
         Debug.Log("Leaving "+_channelName);
         if(RtcEngine == null) return;
 
-        RtcEngine.DestroyCustomVideoTrack(_videoTrackId);
+        // RtcEngine.DestroyCustomVideoTrack(_videoTrackId);
         // RtcEngine.EnableLocalVideo(false);
         RtcEngine.DisableVideo();
         RtcEngine.StopPreview();
@@ -246,53 +256,95 @@ public class JoinLobbyVideo : MonoBehaviour
         RtcEngine.LeaveChannel();
 
         
-        StopPushingFrame();
+        // StopPushingFrame();
 
         // RemoteView.SetEnable(false);
     }
 
-    public void ChangeWebcam(int index)
-    {
-        _webCamDevices = WebCamTexture.devices;
-        if (_webCamDevices == null || _webCamDevices.Length == 0)
-        {
-            Debug.LogError("No webcam devices found.");
-            return;
-        }
+    private void UpdateVideoDevices(){
+        _videoDevices = deviceManager.EnumerateVideoDevices();
 
-        if (index >= _webCamDevices.Length)
+        if (_videoDevices == null || _videoDevices.Length == 0)
         {
-            Debug.LogError("WebCam index out of range.");
-            return;
+            Debug.LogError("No video devices found!");
         }
-
-        if (_webCamTexture != null && _webCamTexture.isPlaying)
+        else
         {
-            _webCamTexture.Stop();
-        }
-
-        _webCamTexture = new WebCamTexture(_webCamDevices[index].name);
-        _webCamTexture.requestedWidth = 640;
-        _webCamTexture.requestedHeight = 480;
-        _webCamTexture.requestedFPS = 30;
-        Debug.Log("Webcam selected: " + _webCamTexture.deviceName);
-        if(isPushingFrames){
-            StartPushingFrame();
+            Debug.Log($"Found {_videoDevices.Length} video devices.");
+            GameEventsManager.instance.RTCEvents.CameraDeviceUpdated(_videoDevices);
         }
     }
+    
+    public void ChangeWebcam(int index)
+    {
+        // Stop the current video preview
+        if(RtcEngine == null) return;
+        
+         if (_videoDevices == null || index < 0 || index >= _videoDevices.Length)
+        {
+            Debug.LogError("Invalid device index.");
+            return;
+        }
 
-    private void StartPushingFrame(){
-        isPushingFrames = true;
-        _webCamTexture.Play();
-        LocalView.SetEnable(true);
-        StartCoroutine(PushFrames());
+        _selectedWebcamDevice = _videoDevices[index].deviceId;
+        Debug.Log($"Switching to device: {_videoDevices[index].deviceName} (ID: {_selectedWebcamDevice})");
+
+        // Enable video and start the preview with the new device
+        
+        // _webCamDevices = WebCamTexture.devices;
+        // if (_webCamDevices == null || _webCamDevices.Length == 0)
+        // {
+        //     Debug.LogError("No webcam devices found.");
+        //     return;
+        // }
+
+        // if (index >= _webCamDevices.Length)
+        // {
+        //     Debug.LogError("WebCam index out of range.");
+        //     return;
+        // }
+
+        // if (_webCamTexture != null && _webCamTexture.isPlaying)
+        // {
+        //     _webCamTexture.Stop();
+        // }
+
+        // _webCamTexture = new WebCamTexture(_webCamDevices[index].name);
+        // _webCamTexture.requestedWidth = 640;
+        // _webCamTexture.requestedHeight = 480;
+        // _webCamTexture.requestedFPS = 30;
+        // _webCamTexture.Play();
+        // Debug.Log("Webcam selected: " + _webCamTexture.deviceName);
+        // RtcEngine.SwitchCamera();
+        // PreviewSelf();
+        // if(isPushingFrames){
+        //     StartPushingFrame();
+        // }
+    }
+
+    private void StartPushingFrame()
+    {
+        PreviewSelf();
+        
+        int webcamSwitchResult = deviceManager.SetDevice(_selectedWebcamDevice);
+        if (webcamSwitchResult != 0)
+        {
+            Debug.LogError($"Error switching webcam: {webcamSwitchResult}");
+            return;
+        }
+
+        CameraCapturerConfiguration cameraConfig = new CameraCapturerConfiguration();
+        RtcEngine.SetCameraCapturerConfiguration(cameraConfig);
+        RtcEngine.StartPreview();
+        RtcEngine.EnableLocalVideo(true);
     }
 
     private void StopPushingFrame(){
-        isPushingFrames = false;
+        // isPushingFrames = false;
         if(_webCamTexture != null) _webCamTexture.Stop();
         LocalView.SetEnable(false);
-        StopCoroutine(PushFrames());
+        RtcEngine.EnableLocalVideo(false);
+        // StopCoroutine(PushFrames());
     }
 
     IEnumerator PushFrames()
@@ -669,27 +721,31 @@ public class JoinLobbyVideo : MonoBehaviour
         {
             Debug.Log("Remote user joined with channelId: " + connection.channelId);
 
-            Player[] players = FindObjectsOfType<Player>();
-            foreach (Player player in players)
-            {
-                Debug.Log("Checking player with UID: " + player.Uid);
-                if (player.Uid == uid)
-                {
-                    // Assign video surface to this player
-                    Debug.Log("Remote user joined with uid: " + uid);
-                    VideoSurface playerVideoSurface = player.gameObject.GetComponentInChildren<VideoSurface>();
-                    if(playerVideoSurface != null){
-                        Debug.Log("Setting remote video for player: " + player.PlayerName);
-                        playerVideoSurface.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_CUSTOM);
-                        playerVideoSurface.SetEnable(true);
-                    }else{
-                        Debug.LogError("VideoSurface not found for player: " + player.PlayerName);
-                    }
-                    break;
-                }
-            }
+            // Player[] players = FindObjectsOfType<Player>();
+            // foreach (Player player in players)
+            // {
+            //     Debug.Log("Checking player with UID: " + player.Uid);
+            //     if (player.Uid == uid)
+            //     {
+            //         // Assign video surface to this player
+            //         Debug.Log("Remote user joined with uid: " + uid);
+            //         VideoSurface playerVideoSurface = player.gameObject.GetComponentInChildren<VideoSurface>();
+            //         if(playerVideoSurface != null){
+            //             Debug.Log("Setting remote video for player: " + player.PlayerName);
+            //             playerVideoSurface.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_CAMERA);
+            //             playerVideoSurface.SetEnable(true);
+            //         }else{
+            //             Debug.LogError("VideoSurface not found for player: " + player.PlayerName);
+            //         }
+            //         break;
+            //     }
+            // }
         }
 
+        public override void OnFirstRemoteVideoFrame(RtcConnection connection, uint uid, int width, int height, int elapsed)
+        {
+            Debug.Log($"First remote video frame received: uid={uid}, width={width}, height={height}, elapsed={elapsed}");
+        }
         public override void OnRemoteVideoStateChanged (RtcConnection connection, uint uid, REMOTE_VIDEO_STATE state, REMOTE_VIDEO_STATE_REASON reason, int elapsed)
         {
             Debug.Log($"Remote video state changed: uid={uid}, state={state}, channel={connection.channelId} reason={reason}");
@@ -727,7 +783,7 @@ public class JoinLobbyVideo : MonoBehaviour
         public override void OnLeaveChannel(RtcConnection connection, RtcStats stats)
         {
             Debug.Log("Left channel");
-            JoinShareScreen.DestroyVideoView(connection.localUid);
+            // JoinShareScreen.DestroyVideoView(connection.localUid);
         }
     }
 }
