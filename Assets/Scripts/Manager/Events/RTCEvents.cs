@@ -101,5 +101,10 @@ public class RTCEvents
         OnUnPublishCapture?.Invoke();
     }
 
+    public event Action<string> OnSendChat;
+
+    public void SendChat(string message){
+        OnSendChat?.Invoke(message);
+    }
 
 }

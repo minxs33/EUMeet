@@ -1,13 +1,20 @@
 using System;
+using System.Collections;
 using Agora.Rtc;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class LobbyUIManager : MonoBehaviour
 {
     public static LobbyUIManager Instance { get; private set; }
+
+    [Header("Chat UI")]
+    [SerializeField] private TMP_InputField _inputField;
+    [SerializeField] private GameObject _chatPanel;
+    [SerializeField] private TMP_Text _chatText;
 
     [Header("Video UI")]
     [SerializeField] private Button _toggleVideoMuteButton;
@@ -26,7 +33,8 @@ public class LobbyUIManager : MonoBehaviour
     bool _isVoiceMuted = true;
     bool _isVideoMuted = true;
     bool _isShareScreenModalOpen = false;
-    private JoinLobbyVideo _joinLobbyVideo;
+    private Coroutine fadeChatCoroutine;
+
     // Overlay
     [SerializeField] private GameObject _overlay;
     // Camera Source
@@ -35,6 +43,9 @@ public class LobbyUIManager : MonoBehaviour
 
     private void OnEnable() {
         GameEventsManager.instance.UIEvents.onToggleOverlay += ToggleOverlay;
+        GameEventsManager.instance.UIEvents.onChatInputPressed += InputTextSelected;
+        // Chat
+        _inputField.onEndEdit.AddListener(ChatHandler);
         // Audio
         _toggleAudioMuteButton.onClick.AddListener(ToggleVoice);
         // Video
@@ -56,6 +67,8 @@ public class LobbyUIManager : MonoBehaviour
 
     private void OnDisable() {
         GameEventsManager.instance.UIEvents.onToggleOverlay -= ToggleOverlay;
+        GameEventsManager.instance.UIEvents.onChatInputPressed -= InputTextSelected;
+        _inputField.onEndEdit.RemoveListener(ChatHandler); 
         _toggleAudioMuteButton.onClick.RemoveListener(ToggleVoice);
         _toggleVideoMuteButton.onClick.RemoveListener(ToggleVideo);
         _toggleVideoSourceButton.onClick.RemoveListener(ToggleVideoDevice);
@@ -71,6 +84,9 @@ public class LobbyUIManager : MonoBehaviour
         GameEventsManager.instance.RTCEvents.OnCameraDeviceUpdated -= UpdateWebCamDropdown;
     }
 
+    private void Awake() {
+        Instance = this;
+    }
     private void Start(){
         // _webCamDropdown.ClearOptions();
         // _webCamDevices = WebCamTexture.devices;
@@ -207,7 +223,7 @@ public class LobbyUIManager : MonoBehaviour
         _isShareScreenModalOpen = false;
     }
 
-    public void UnPublishScreenCapture()
+    private void UnPublishScreenCapture()
     {
         GameEventsManager.instance.RTCEvents?.UnPublishCapture();
         GameEventsManager.instance.RTCEvents?.CaptureState(RTCEvents.CaptureStates.Stopped);
@@ -216,4 +232,59 @@ public class LobbyUIManager : MonoBehaviour
         _isShareScreenModalOpen = false;
     }
 
+    // chat
+
+    private void InputTextSelected(bool state){
+        if (state) {
+            StartFadeChatPanel(false);
+            _chatPanel.GetComponent<CanvasGroup>().alpha = 1;
+
+            _inputField.gameObject.SetActive(true);
+            _inputField.Select();
+            _inputField.ActivateInputField();
+        } else {
+            _inputField.gameObject.SetActive(false);
+            EventSystem.current.SetSelectedGameObject(null);
+            
+            StartFadeChatPanel(true);
+        }
+    }
+
+    public void AddMessage(string message) {
+        if(message != null) {
+            _chatText.text +="\n"+ message;
+            _chatPanel.GetComponent<CanvasGroup>().alpha = 1;
+            StartFadeChatPanel(true);
+        }
+    }
+
+    private void ChatHandler(string message){
+        if (_inputField.text.Length > 0) {
+            GameEventsManager.instance.RTCEvents?.SendChat(_inputField.text);
+            _inputField.text = "";
+        }
+    }
+
+    public void StartFadeChatPanel(bool start) {
+        if (fadeChatCoroutine != null) {
+            StopCoroutine(fadeChatCoroutine);
+            fadeChatCoroutine = null;
+        }
+    
+        if (start) {
+            fadeChatCoroutine = StartCoroutine(FadeChatPanel());
+        }
+    }
+
+    IEnumerator FadeChatPanel() {
+        yield return new WaitForSeconds(5f); // Wait before starting to fade
+        CanvasGroup canvasGroup = _chatPanel.GetComponent<CanvasGroup>();
+
+        while (canvasGroup.alpha > 0) {
+            canvasGroup.alpha -= 0.05f;
+            yield return new WaitForSeconds(0.05f);
+        }
+
+        canvasGroup.alpha = 0;
+    }
 }

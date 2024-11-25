@@ -21,4 +21,11 @@ public class UIEvents
     public void LoginError(JObject error) {
         onRegisterError?.Invoke(error);
     }
+
+    public event Action<bool> onChatInputPressed;
+
+    public void ChatInputPressed(bool state) {
+        onChatInputPressed?.Invoke(state);
+    }
+
 }

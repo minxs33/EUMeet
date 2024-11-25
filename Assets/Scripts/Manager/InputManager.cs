@@ -14,6 +14,8 @@ public class InputManager : SimulationBehaviour, IBeforeUpdate, INetworkRunnerCa
     public Vector2 AccumulatedMouseDelta => mouseDeltaAccumulator.AccumulatedValue;
     private NetworkInputData accumulatedInput;
     private bool resetInput;
+    private bool isTyping = false;
+    private bool isOverlayActive = false;
     private Vector2Accumulator mouseDeltaAccumulator = new() { SmoothingWindow = 0.025f };
     public void BeforeUpdate()
     {
@@ -23,17 +25,31 @@ public class InputManager : SimulationBehaviour, IBeforeUpdate, INetworkRunnerCa
         }
 
         Keyboard keyboard = Keyboard.current;
-        if (keyboard != null && (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame || keyboard.escapeKey.wasPressedThisFrame))
+        if (keyboard != null && isTyping == false && (keyboard.tabKey.wasPressedThisFrame || keyboard.escapeKey.wasPressedThisFrame))
         {
            if(Cursor.lockState == CursorLockMode.Locked){
                Cursor.lockState = CursorLockMode.None;
                Cursor.visible = true;
                GameEventsManager.instance.UIEvents.ToggleOverlay(true);
+               isOverlayActive = true;
            } else {
                Cursor.lockState = CursorLockMode.Locked;
                Cursor.visible = false;
                GameEventsManager.instance.UIEvents.ToggleOverlay(false);
+               isOverlayActive = false;
            }
+        }
+
+        if(keyboard != null &&  isOverlayActive == false && (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame)){
+            if(Cursor.lockState == CursorLockMode.Locked && !isTyping){
+                GameEventsManager.instance.UIEvents.ChatInputPressed(true);
+                Cursor.lockState = CursorLockMode.None;
+                isTyping = true;
+            }else{
+                GameEventsManager.instance.UIEvents.ChatInputPressed(false);
+                Cursor.lockState = CursorLockMode.Locked;
+                isTyping = false;
+            }
         }
 
 
