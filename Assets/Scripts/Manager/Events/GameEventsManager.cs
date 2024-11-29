@@ -14,6 +14,7 @@ public class GameEventsManager : MonoBehaviour
     public UIEvents UIEvents;
     public RTCEvents RTCEvents;
     public FusionEvents fusionEvents;
+    public QuizEvents QuizEvents;
 
     private void Awake() {
         if(instance == null){
@@ -25,6 +26,7 @@ public class GameEventsManager : MonoBehaviour
             levelEvents = new LevelEvents();
             UIEvents = new UIEvents();
             RTCEvents = new RTCEvents();
+            QuizEvents = new QuizEvents();
 
         } else if(instance != this) {
             Destroy(gameObject);

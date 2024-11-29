@@ -73,7 +73,7 @@ public class AuthUIManager : MonoBehaviour
         loginButton.onClick.RemoveListener(()=> GameEventsManager.instance.authEvents.Login(loginEmailInputField.text, loginPasswordInputField.text));
 
         // Auth Debug
-        Player1.onClick.RemoveListener(()=> GameEventsManager.instance.authEvents.Login("testing@esaunggul.ac.id", "testing123"));
+        Player1.onClick.RemoveListener(()=> GameEventsManager.instance.authEvents.Login("testing1@esaunggul.ac.id", "testing123"));
         Player2.onClick.RemoveListener(()=> GameEventsManager.instance.authEvents.Login("testing2@esaunggul.ac.id", "testing123"));
     }
     private void OpenLoginPage(){

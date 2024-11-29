@@ -10,7 +10,7 @@ using UnityEngine.UI;
 public class LobbyUIManager : MonoBehaviour
 {
     public static LobbyUIManager Instance { get; private set; }
-
+    [SerializeField] private GameObject _overlay;
     [Header("Chat UI")]
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private GameObject _chatPanel;
@@ -30,13 +30,18 @@ public class LobbyUIManager : MonoBehaviour
     [SerializeField] private Button _publishButton;
     [SerializeField] private Button _cancelButton;
     [SerializeField] private Button _unpublishButton;
+    [Header("Quiz UI")]
+    [SerializeField] private Button _toggleQuizButton;
+    [SerializeField] private Button _cancelQuizModalButton;
+    [SerializeField] private GameObject _quizModal;
+    [SerializeField] private Button _addQuizButton;
+    [SerializeField] private TMP_InputField _addQuizInputField;
     bool _isVoiceMuted = true;
     bool _isVideoMuted = true;
     bool _isShareScreenModalOpen = false;
+    bool _isQuizModalOpen = false;
     private Coroutine fadeChatCoroutine;
 
-    // Overlay
-    [SerializeField] private GameObject _overlay;
     // Camera Source
     [SerializeField] private TMP_Dropdown _webCamDropdown;
     private WebCamDevice[] _webCamDevices;
@@ -62,6 +67,11 @@ public class LobbyUIManager : MonoBehaviour
         _cancelButton.onClick.AddListener(ToggleShareScreen);
         GameEventsManager.instance.RTCEvents.OnToggleCaptureSelected += ToggleCaptureSelected;
         GameEventsManager.instance.RTCEvents.OnCaptureState += ShareScreenState;
+        // Quiz
+        _toggleQuizButton.onClick.AddListener(ToggleQuiz);
+        _cancelQuizModalButton.onClick.AddListener(ToggleQuiz);
+        _addQuizButton.onClick.AddListener(AddQuiz);
+
         
     }
 
@@ -82,6 +92,9 @@ public class LobbyUIManager : MonoBehaviour
         GameEventsManager.instance.RTCEvents.OnToggleCaptureSelected -= ToggleCaptureSelected;
         GameEventsManager.instance.RTCEvents.OnCaptureState -= ShareScreenState;
         GameEventsManager.instance.RTCEvents.OnCameraDeviceUpdated -= UpdateWebCamDropdown;
+        _toggleQuizButton.onClick.RemoveListener(ToggleQuiz);
+        _cancelQuizModalButton.onClick.RemoveListener(ToggleQuiz);
+        _addQuizButton.onClick.RemoveListener(AddQuiz);
     }
 
     private void Awake() {
@@ -286,5 +299,29 @@ public class LobbyUIManager : MonoBehaviour
         }
 
         canvasGroup.alpha = 0;
+    }
+
+    // Quiz
+    public void ToggleQuiz() {
+        if(_isQuizModalOpen){
+            _quizModal.SetActive(false);
+            _isQuizModalOpen = false;
+        } else {
+            _quizModal.SetActive(true);
+            _isQuizModalOpen = true;
+        }
+    }
+
+    public void AddQuiz(){
+        if(_addQuizInputField.text.Length > 0){
+            GameEventsManager.instance.QuizEvents?.AddQuiz(_addQuizInputField.text);
+            _addQuizInputField.text = "";
+        }
+    }
+
+    public void UpdateQuiz(string title, int id){
+        if(!string.IsNullOrEmpty(title)){
+            GameEventsManager.instance.QuizEvents?.UpdateQuiz(title, id);
+        }
     }
 }

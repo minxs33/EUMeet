@@ -106,5 +106,4 @@ public class RTCEvents
     public void SendChat(string message){
         OnSendChat?.Invoke(message);
     }
-
 }
