@@ -12,12 +12,6 @@ public class RTCEvents
         OnPlayerJoined?.Invoke();
     }
 
-    // public event Action OnVideoRTCConnected;
-
-    // public void VideoRTCConnected()
-    // {
-    //     OnVideoRTCConnected?.Invoke();
-    // }
     public event Action OnUpdateWebRTCTarget;
 
     public void UpdateWebRTCTarget()
@@ -99,6 +93,13 @@ public class RTCEvents
 
     public void UnPublishCapture(){
         OnUnPublishCapture?.Invoke();
+    }
+
+    
+    public event Action<bool> onChatInputPressed;
+
+    public void ChatInputPressed(bool state) {
+        onChatInputPressed?.Invoke(state);
     }
 
     public event Action<string> OnSendChat;

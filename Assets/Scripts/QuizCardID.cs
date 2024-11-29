@@ -6,8 +6,6 @@ public class QuizCardID : MonoBehaviour
 {
     [SerializeField] private TMP_InputField _titleText;
     [SerializeField] private RectTransform inputFieldRect;
-    [SerializeField] private Button _openQuestionButton;
-    [SerializeField] private Button _deleteQuizButton;
     public int _id;
 
     private float minWidth = 50f;

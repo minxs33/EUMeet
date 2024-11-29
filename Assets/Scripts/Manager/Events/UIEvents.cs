@@ -22,10 +22,4 @@ public class UIEvents
         onRegisterError?.Invoke(error);
     }
 
-    public event Action<bool> onChatInputPressed;
-
-    public void ChatInputPressed(bool state) {
-        onChatInputPressed?.Invoke(state);
-    }
-
 }

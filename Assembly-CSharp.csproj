@@ -80,6 +80,7 @@
     <Compile Include="Assets\Scripts\Fusion\BasicSpawner.cs" />
     <Compile Include="Assets\Scripts\DeleteQuiz.cs" />
     <Compile Include="Assets\Scripts\PlayerUID.cs" />
+    <Compile Include="Assets\Scripts\QuestionCardID.cs" />
     <Compile Include="Assets\Scripts\Manager\UIManager\PlayerUnrenderedBody.cs" />
     <Compile Include="Assets\Scripts\Manager\AuthManager.cs" />
     <Compile Include="Assets\Scripts\CameraFollow.cs" />

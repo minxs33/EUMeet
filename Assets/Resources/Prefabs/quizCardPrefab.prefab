@@ -714,7 +714,7 @@ GameObject:
   - component: {fileID: 5130183830169065923}
   - component: {fileID: 520497551226414279}
   m_Layer: 5
-  m_Name: Edit
+  m_Name: QuestionButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -949,8 +949,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _titleText: {fileID: 6059699790114796699}
   inputFieldRect: {fileID: 5050464342702114268}
-  _openQuestionButton: {fileID: 520497551226414279}
-  _deleteQuizButton: {fileID: 6849297118346319528}
   _id: 0
 --- !u!114 &8211312196689124043
 MonoBehaviour:

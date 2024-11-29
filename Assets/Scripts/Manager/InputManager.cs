@@ -42,11 +42,11 @@ public class InputManager : SimulationBehaviour, IBeforeUpdate, INetworkRunnerCa
 
         if(keyboard != null &&  isOverlayActive == false && (keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame)){
             if(Cursor.lockState == CursorLockMode.Locked && !isTyping){
-                GameEventsManager.instance.UIEvents.ChatInputPressed(true);
+                GameEventsManager.instance.RTCEvents.ChatInputPressed(true);
                 Cursor.lockState = CursorLockMode.None;
                 isTyping = true;
             }else{
-                GameEventsManager.instance.UIEvents.ChatInputPressed(false);
+                GameEventsManager.instance.RTCEvents.ChatInputPressed(false);
                 Cursor.lockState = CursorLockMode.Locked;
                 isTyping = false;
             }

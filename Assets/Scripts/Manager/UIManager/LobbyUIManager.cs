@@ -31,15 +31,23 @@ public class LobbyUIManager : MonoBehaviour
     [SerializeField] private Button _cancelButton;
     [SerializeField] private Button _unpublishButton;
     [Header("Quiz UI")]
+    [SerializeField] private GameObject _quizModalContent;
     [SerializeField] private Button _toggleQuizButton;
     [SerializeField] private Button _cancelQuizModalButton;
     [SerializeField] private GameObject _quizModal;
     [SerializeField] private Button _addQuizButton;
     [SerializeField] private TMP_InputField _addQuizInputField;
+
+    [Header("Question UI")]
+    [SerializeField] private TMP_Text _quizTitleText;
+    [SerializeField] private GameObject _questionModalContent;
+    [SerializeField] private Button _doneQuestionModalButton;
+    [SerializeField] private Button _addQuestionButton;
     bool _isVoiceMuted = true;
     bool _isVideoMuted = true;
     bool _isShareScreenModalOpen = false;
     bool _isQuizModalOpen = false;
+    bool _isQuizModalContentOpen = true;
     private Coroutine fadeChatCoroutine;
 
     // Camera Source
@@ -48,7 +56,7 @@ public class LobbyUIManager : MonoBehaviour
 
     private void OnEnable() {
         GameEventsManager.instance.UIEvents.onToggleOverlay += ToggleOverlay;
-        GameEventsManager.instance.UIEvents.onChatInputPressed += InputTextSelected;
+        GameEventsManager.instance.RTCEvents.onChatInputPressed += InputTextSelected;
         // Chat
         _inputField.onEndEdit.AddListener(ChatHandler);
         // Audio
@@ -71,13 +79,16 @@ public class LobbyUIManager : MonoBehaviour
         _toggleQuizButton.onClick.AddListener(ToggleQuiz);
         _cancelQuizModalButton.onClick.AddListener(ToggleQuiz);
         _addQuizButton.onClick.AddListener(AddQuiz);
-
+        _doneQuestionModalButton.onClick.AddListener(ToggleModalContent);
+        _addQuestionButton.onClick.AddListener(AddQuestion);
+        GameEventsManager.instance.QuizEvents.OnOpenQuizQuestion += ToggleModalContent;
+        GameEventsManager.instance.QuizEvents.OnSetTitleText += SetTitleText;
         
     }
 
     private void OnDisable() {
         GameEventsManager.instance.UIEvents.onToggleOverlay -= ToggleOverlay;
-        GameEventsManager.instance.UIEvents.onChatInputPressed -= InputTextSelected;
+        GameEventsManager.instance.RTCEvents.onChatInputPressed -= InputTextSelected;
         _inputField.onEndEdit.RemoveListener(ChatHandler); 
         _toggleAudioMuteButton.onClick.RemoveListener(ToggleVoice);
         _toggleVideoMuteButton.onClick.RemoveListener(ToggleVideo);
@@ -95,6 +106,10 @@ public class LobbyUIManager : MonoBehaviour
         _toggleQuizButton.onClick.RemoveListener(ToggleQuiz);
         _cancelQuizModalButton.onClick.RemoveListener(ToggleQuiz);
         _addQuizButton.onClick.RemoveListener(AddQuiz);
+        _doneQuestionModalButton.onClick.RemoveListener(ToggleModalContent);
+        _addQuestionButton.onClick.RemoveListener(AddQuestion);
+        GameEventsManager.instance.QuizEvents.OnOpenQuizQuestion -= ToggleModalContent;
+        GameEventsManager.instance.QuizEvents.OnSetTitleText -= SetTitleText;
     }
 
     private void Awake() {
@@ -324,4 +339,21 @@ public class LobbyUIManager : MonoBehaviour
             GameEventsManager.instance.QuizEvents?.UpdateQuiz(title, id);
         }
     }
+
+    public void ToggleModalContent(){
+        if(_isQuizModalContentOpen){
+            _quizModalContent.SetActive(false);
+            _questionModalContent.SetActive(true);
+            _isQuizModalContentOpen = false;
+        } else {
+            _quizModalContent.SetActive(true);
+            _questionModalContent.SetActive(false);
+            _isQuizModalContentOpen = true;
+        }
+        Debug.Log("isQuizModalContentOpen: " + _isQuizModalContentOpen);
+    }
+
+    public void SetTitleText(string title) => _quizTitleText.text = title;
+
+    public void AddQuestion() => GameEventsManager.instance.QuizEvents?.AddQuestion();
 }
