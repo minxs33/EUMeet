@@ -76,8 +76,8 @@
     <Compile Include="Assets\Scripts\Manager\Events\GameEventsManager.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\RTCEvents.cs" />
     <Compile Include="Assets\Scripts\Manager\InputManager.cs" />
+    <Compile Include="Assets\Scripts\Fusion\GameLogic.cs" />
     <Compile Include="Assets\Scripts\Manager\JsonResponseManager.cs" />
-    <Compile Include="Assets\Scripts\Fusion\BasicSpawner.cs" />
     <Compile Include="Assets\Scripts\DeleteQuiz.cs" />
     <Compile Include="Assets\Scripts\PlayerUID.cs" />
     <Compile Include="Assets\Scripts\QuestionCardID.cs" />
@@ -90,6 +90,7 @@
     <Compile Include="Assets\Scripts\Manager\QuizManager.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\QuizEvents.cs" />
     <Compile Include="Assets\Scripts\Manager\UIManager\AuthUIManager.cs" />
+    <Compile Include="Assets\Scripts\Fusion\QuizSync.cs" />
     <Compile Include="Assets\Scripts\Manager\VoiceManager.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\JsonResponseEvents.cs" />
     <Compile Include="Assets\Scripts\Agora\VideoRTCManager.cs" />

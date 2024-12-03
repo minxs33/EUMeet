@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using TMPro;
@@ -24,6 +25,58 @@ public class Player : NetworkBehaviour
     private InputManager inputManager;
     private Vector2 baseLookRotation;
     private bool playerNameTextSet = false;
+    // quiz stuff
+    QuizSync quizSync;
+    QuizManager quizManager;
+    private List<QuizManager.QuestionItem> questions;
+    private void OnEnable() {
+        GameEventsManager.instance.QuizEvents.OnStartQuiz += StartQuiz;
+    }
+
+    private void OnDisable() {
+        GameEventsManager.instance.QuizEvents.OnStartQuiz -= StartQuiz;
+    }
+
+    private void Start() {
+        quizManager = FindObjectOfType<QuizManager>();
+
+        if (quizSync != null && !quizSync.Object.IsValid)
+        {
+            SceneRef currentScene = Runner.GetSceneRef(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+
+            // Register all scene objects in the current scene
+            Runner.RegisterSceneObjects(currentScene, new NetworkObject[] { quizSync.Object });
+            Debug.Log("Registering scene objects");
+        }
+    }
+    private void StartQuiz(){
+
+        if (HasInputAuthority)
+        {
+            if (quizManager != null)
+            {
+                questions = quizManager.questions;
+
+                string serializedQuestions = JsonUtility.ToJson(new QuestionResponseWrapper
+                {
+                    questions = questions
+                });
+
+                RPC_RequestStartQuiz(serializedQuestions);
+                Debug.Log("Start Quiz");
+            }
+            else
+            {
+                Debug.LogError("QuizManager not found!");
+            }
+        }
+    }
+
+    [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
+    public void RPC_RequestStartQuiz(string serializedQuestions){
+        Debug.Log("RPC_RequestStartQuiz");
+        quizSync.RPC_BeginQuiz(serializedQuestions);
+    }
 
     public override void Spawned()
     {
@@ -31,6 +84,8 @@ public class Player : NetworkBehaviour
 
         inputManager = Runner.GetComponent<InputManager>();
         inputManager.LocalPlayer = this;
+
+        quizSync = FindObjectOfType<QuizSync>();
 
         if (HasInputAuthority)
         {
@@ -113,5 +168,11 @@ public class Player : NetworkBehaviour
     private void UpdateCamTarget()
     {
         camTarget.localRotation = Quaternion.Euler(kcc.GetLookRotation().x, 0f, 0f);
+    }
+
+    [System.Serializable]
+    public class QuestionResponseWrapper
+    {
+        public List<QuizManager.QuestionItem> questions;
     }
 }

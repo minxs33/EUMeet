@@ -12,6 +12,10 @@ public class QuizEvents
     public event Action OnOpenQuizQuestion;
     public void OpenQuizQuestion() => OnOpenQuizQuestion?.Invoke();
 
+    public event Action<bool> OnToggleQuizSelected;
+
+    public void ToggleQuizSelected(bool state) => OnToggleQuizSelected?.Invoke(state);
+
     public event Action<string, int> OnUpdateQuiz;
     public void UpdateQuiz(string title, int id) => OnUpdateQuiz?.Invoke(title, id);
 
@@ -23,4 +27,7 @@ public class QuizEvents
 
     public event Action<int, string, string> OnUpdateQuestion;
     public void UpdateQuestion(int id, string field, string value) => OnUpdateQuestion?.Invoke(id, field, value);
+
+    public event Action OnStartQuiz;
+    public void StartQuiz() => OnStartQuiz?.Invoke();
 }

@@ -11,7 +11,7 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
 
     private NetworkRunner _runner;
     [SerializeField] private NetworkPrefabRef playerPrefab;
-    private Dictionary<PlayerRef, NetworkObject> spawnedPlayers = new Dictionary<PlayerRef, NetworkObject>();
+    public Dictionary<PlayerRef, NetworkObject> spawnedPlayers = new Dictionary<PlayerRef, NetworkObject>();
     private HashSet<int> processedPlayerIds = new HashSet<int>();
     
     private void Start(){
@@ -106,7 +106,28 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
                 Vector3 playerPos = new Vector3(player.RawEncoded % runner.Config.Simulation.PlayerCount * 1.5f, 1f, 0f);
                 NetworkObject networkObject = runner.Spawn(playerPrefab, playerPos, Quaternion.identity, player);
                 spawnedPlayers.Add(player, networkObject);
+
+                SyncPlayerData();
             }
+            
+        }
+    }
+
+    public void SyncPlayerData()
+    {
+        foreach (var player in spawnedPlayers)
+        {
+            RPC_SyncPlayerData(player.Key, player.Value);
+        }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RPC_SyncPlayerData(PlayerRef player, NetworkObject networkObject)
+    {
+        if (!spawnedPlayers.ContainsKey(player))
+        {
+            spawnedPlayers.Add(player, networkObject);
+            Debug.Log($"RPC_SyncPlayerData: {player}");
         }
     }
 

@@ -13,6 +13,7 @@ public class QuizManager : MonoBehaviour
 {
     public static QuizManager Instance { get; private set; }
     private int _quizId;
+    public List<QuestionItem> questions;
     [SerializeField] private GameObject quizCardPrefab;
     [SerializeField] private Transform parentTransform;
 
@@ -74,8 +75,16 @@ public class QuizManager : MonoBehaviour
                     GameObject quizCard = Instantiate(quizCardPrefab, parentTransform);
                     quizCard.transform.Find("QuizSelect").GetComponent<QuizCardID>().Setup(quiz.title, quiz.id);
 
+                    Button selectQuizButton = quizCard.transform.Find("QuizSelect")?.GetComponent<Button>();
                     Button openQuestionButton = quizCard.transform.Find("QuestionButton")?.GetComponent<Button>();
                     Button deleteQuizButton = quizCard.transform.Find("DeleteQuizButton")?.GetComponent<Button>();
+
+                    if(selectQuizButton != null){
+                        selectQuizButton.onClick.AddListener(() => {
+                            GameEventsManager.instance.QuizEvents.ToggleQuizSelected(true);
+                            OpenQuizQuestion(quiz.id);
+                        });  
+                    }
 
                     if(openQuestionButton != null){
                         openQuestionButton.onClick.AddListener(() => {
@@ -226,6 +235,8 @@ public class QuizManager : MonoBehaviour
 
                 QuestionResponse questionResponse = JsonUtility.FromJson<QuestionResponse>(responseText);
 
+                questions = questionResponse.data.questions;
+
                 GameEventsManager.instance.QuizEvents.SetTitleText(questionResponse.data.title);
 
                 foreach (Transform child in questionParentTransform)
@@ -354,7 +365,7 @@ public class QuizManager : MonoBehaviour
 
 
     [System.Serializable]
-    internal class QuizItem
+    public class QuizItem
     {
         public int id;
         public int user_id;
@@ -362,7 +373,7 @@ public class QuizManager : MonoBehaviour
     }
 
     [System.Serializable]
-    internal class QuizResponse
+    public class QuizResponse
     {
         public List<QuizItem> data;
         public string status;
@@ -370,12 +381,12 @@ public class QuizManager : MonoBehaviour
 
     [System.Serializable]
 
-    internal class QuizQuestionItem{
+    public class QuizQuestionItem{
         public string title;
         public List<QuestionItem> questions;
     }
     [System.Serializable]
-    internal class QuestionItem
+    public class QuestionItem
     {
         public int id;
         public int quiz_id;
@@ -388,7 +399,7 @@ public class QuizManager : MonoBehaviour
     }
 
     [System.Serializable]
-    internal class QuestionResponse
+    public class QuestionResponse
     {
         public QuizQuestionItem data;
         public string status;

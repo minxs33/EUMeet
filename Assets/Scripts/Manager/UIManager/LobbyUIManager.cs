@@ -41,13 +41,16 @@ public class LobbyUIManager : MonoBehaviour
     [Header("Question UI")]
     [SerializeField] private TMP_Text _quizTitleText;
     [SerializeField] private GameObject _questionModalContent;
+    [SerializeField] private Button _startQuizButton;
     [SerializeField] private Button _doneQuestionModalButton;
     [SerializeField] private Button _addQuestionButton;
+    [SerializeField] private GameObject _quizPanel;
     bool _isVoiceMuted = true;
     bool _isVideoMuted = true;
     bool _isShareScreenModalOpen = false;
     bool _isQuizModalOpen = false;
     bool _isQuizModalContentOpen = true;
+    bool _isQuizOverlayOpen = false;
     private Coroutine fadeChatCoroutine;
 
     // Camera Source
@@ -81,8 +84,11 @@ public class LobbyUIManager : MonoBehaviour
         _addQuizButton.onClick.AddListener(AddQuiz);
         _doneQuestionModalButton.onClick.AddListener(ToggleModalContent);
         _addQuestionButton.onClick.AddListener(AddQuestion);
+        _startQuizButton.onClick.AddListener(GameEventsManager.instance.QuizEvents.StartQuiz);
         GameEventsManager.instance.QuizEvents.OnOpenQuizQuestion += ToggleModalContent;
         GameEventsManager.instance.QuizEvents.OnSetTitleText += SetTitleText;
+        GameEventsManager.instance.QuizEvents.OnToggleQuizSelected += ToggleQuizSelected;
+        GameEventsManager.instance.QuizEvents.OnStartQuiz += StartQuiz;
         
     }
 
@@ -108,8 +114,11 @@ public class LobbyUIManager : MonoBehaviour
         _addQuizButton.onClick.RemoveListener(AddQuiz);
         _doneQuestionModalButton.onClick.RemoveListener(ToggleModalContent);
         _addQuestionButton.onClick.RemoveListener(AddQuestion);
+        _startQuizButton.onClick.RemoveListener(GameEventsManager.instance.QuizEvents.StartQuiz);
         GameEventsManager.instance.QuizEvents.OnOpenQuizQuestion -= ToggleModalContent;
         GameEventsManager.instance.QuizEvents.OnSetTitleText -= SetTitleText;
+        GameEventsManager.instance.QuizEvents.OnToggleQuizSelected -= ToggleQuizSelected;
+        GameEventsManager.instance.QuizEvents.OnStartQuiz -= StartQuiz;
     }
 
     private void Awake() {
@@ -327,6 +336,22 @@ public class LobbyUIManager : MonoBehaviour
         }
     }
 
+    public void ToggleQuizOverlay(){
+        if(!_isQuizOverlayOpen){
+            _quizPanel.SetActive(true);
+        } else {
+            _quizPanel.SetActive(false);
+        }
+    }
+
+    public void ToggleQuizSelected(bool state){
+        if(state){
+            _startQuizButton.interactable = true;
+        } else {
+            _startQuizButton.interactable = false;
+        }
+    }
+
     public void AddQuiz(){
         if(_addQuizInputField.text.Length > 0){
             GameEventsManager.instance.QuizEvents?.AddQuiz(_addQuizInputField.text);
@@ -353,7 +378,12 @@ public class LobbyUIManager : MonoBehaviour
         Debug.Log("isQuizModalContentOpen: " + _isQuizModalContentOpen);
     }
 
+    public void StartQuiz(){
+        ToggleQuiz();
+        ToggleQuizOverlay();
+    }
     public void SetTitleText(string title) => _quizTitleText.text = title;
 
     public void AddQuestion() => GameEventsManager.instance.QuizEvents?.AddQuestion();
+
 }
