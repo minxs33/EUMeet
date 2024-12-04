@@ -84,11 +84,12 @@ public class LobbyUIManager : MonoBehaviour
         _addQuizButton.onClick.AddListener(AddQuiz);
         _doneQuestionModalButton.onClick.AddListener(ToggleModalContent);
         _addQuestionButton.onClick.AddListener(AddQuestion);
-        _startQuizButton.onClick.AddListener(GameEventsManager.instance.QuizEvents.StartQuiz);
+        _startQuizButton.onClick.AddListener(GameEventsManager.instance.QuizEvents.StartQuizClicked);
         GameEventsManager.instance.QuizEvents.OnOpenQuizQuestion += ToggleModalContent;
         GameEventsManager.instance.QuizEvents.OnSetTitleText += SetTitleText;
         GameEventsManager.instance.QuizEvents.OnToggleQuizSelected += ToggleQuizSelected;
         GameEventsManager.instance.QuizEvents.OnStartQuiz += StartQuiz;
+        GameEventsManager.instance.QuizEvents.OnEndQuiz += EndQuiz;
         
     }
 
@@ -114,11 +115,12 @@ public class LobbyUIManager : MonoBehaviour
         _addQuizButton.onClick.RemoveListener(AddQuiz);
         _doneQuestionModalButton.onClick.RemoveListener(ToggleModalContent);
         _addQuestionButton.onClick.RemoveListener(AddQuestion);
-        _startQuizButton.onClick.RemoveListener(GameEventsManager.instance.QuizEvents.StartQuiz);
+        _startQuizButton.onClick.RemoveListener(GameEventsManager.instance.QuizEvents.StartQuizClicked);
         GameEventsManager.instance.QuizEvents.OnOpenQuizQuestion -= ToggleModalContent;
         GameEventsManager.instance.QuizEvents.OnSetTitleText -= SetTitleText;
         GameEventsManager.instance.QuizEvents.OnToggleQuizSelected -= ToggleQuizSelected;
         GameEventsManager.instance.QuizEvents.OnStartQuiz -= StartQuiz;
+        GameEventsManager.instance.QuizEvents.OnEndQuiz -= EndQuiz;
     }
 
     private void Awake() {
@@ -339,8 +341,10 @@ public class LobbyUIManager : MonoBehaviour
     public void ToggleQuizOverlay(){
         if(!_isQuizOverlayOpen){
             _quizPanel.SetActive(true);
+            _isQuizOverlayOpen = true;
         } else {
             _quizPanel.SetActive(false);
+            _isQuizOverlayOpen = false;
         }
     }
 
@@ -381,6 +385,11 @@ public class LobbyUIManager : MonoBehaviour
     public void StartQuiz(){
         ToggleQuiz();
         ToggleQuizOverlay();
+    }
+
+    public void EndQuiz(){
+        ToggleQuizOverlay();
+        // TODO: show UI leaderboard
     }
     public void SetTitleText(string title) => _quizTitleText.text = title;
 

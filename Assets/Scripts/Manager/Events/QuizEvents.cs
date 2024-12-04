@@ -27,7 +27,13 @@ public class QuizEvents
 
     public event Action<int, string, string> OnUpdateQuestion;
     public void UpdateQuestion(int id, string field, string value) => OnUpdateQuestion?.Invoke(id, field, value);
+    
+    public event Action OnStartQuizClicked;
+    public void StartQuizClicked() => OnStartQuizClicked?.Invoke();
 
     public event Action OnStartQuiz;
     public void StartQuiz() => OnStartQuiz?.Invoke();
+
+    public event Action OnEndQuiz;
+    public void EndQuiz() => OnEndQuiz?.Invoke();
 }

@@ -30,11 +30,11 @@ public class Player : NetworkBehaviour
     QuizManager quizManager;
     private List<QuizManager.QuestionItem> questions;
     private void OnEnable() {
-        GameEventsManager.instance.QuizEvents.OnStartQuiz += StartQuiz;
+        GameEventsManager.instance.QuizEvents.OnStartQuizClicked += StartQuiz;
     }
 
     private void OnDisable() {
-        GameEventsManager.instance.QuizEvents.OnStartQuiz -= StartQuiz;
+        GameEventsManager.instance.QuizEvents.OnStartQuizClicked -= StartQuiz;
     }
 
     private void Start() {

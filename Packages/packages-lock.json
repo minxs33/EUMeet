@@ -221,6 +221,13 @@
       },
       "url": "https://packages.unity.com"
     },
+    "com.veriorpies.parrelsync": {
+      "version": "https://github.com/VeriorPies/ParrelSync.git?path=/ParrelSync",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "d1ef610e9fe3ad0b490cce91594449fc0af809a6"
+    },
     "jillejr.newtonsoft.json-for-unity": {
       "version": "https://github.com/jilleJr/Newtonsoft.Json-for-Unity.git#upm",
       "depth": 0,

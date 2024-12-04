@@ -1,4 +1,3 @@
-#if !UNITY_SERVER
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -116,4 +115,3 @@ public class ChatManager : MonoBehaviour, IChatClientListener
     }
 
 }
-#endif
