@@ -1,44 +1,74 @@
 using System.Collections;
 using System.Collections.Generic;
 using Fusion;
+using Photon.Pun;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
+using ExitGames.Client.Photon.StructWrapping;
 
 public class QuizSync : NetworkBehaviour
 {
     private List<QuizManager.QuestionItem> questions;
+    GameLogic gameLogic;
+    Leaderboard leaderboard;
     [Networked] private int currentQuestionIndex { get; set; } = 0;
     [SerializeField] private GameObject[] questionGo;
 
     private float questionTimer = 10f;
     private Coroutine questionTimerCoroutine;
     private char selectedAnswer;
+    
 
-    private void Start() {
+    private void Start()
+    {
         if (!HasStateAuthority)
         {
             Debug.LogWarning("QuizSync does not have state authority. Ensure it's managed by the host.");
         }
+
+        gameLogic = FindObjectOfType<GameLogic>();
+        if (gameLogic == null) {
+            Debug.LogError("GameLogic not found in the scene!");
+        }
+
+        leaderboard = FindObjectOfType<Leaderboard>();
+        if (leaderboard == null) {
+            Debug.LogError("Leaderboard not found in the scene!");
+        }
+    }
+
+    private void ResetAllPlayerScores()
+    {
+        var players = FindObjectsOfType<Player>();
+        foreach (var player in players)
+        {
+            if (player.HasStateAuthority)
+            {
+                player.Rpc_ResetScore();
+            }
+        }
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void RPC_BeginQuiz(string serializedQuestions){
+    public void RPC_BeginQuiz(string serializedQuestions)
+    {
         Debug.Log("Begin Quiz");
         questions = JsonUtility.FromJson<QuestionResponseWrapper>(serializedQuestions).questions;
         GameEventsManager.instance.QuizEvents.StartQuiz();
-        
+
         DisplayQuestion(0);
-        
-        if(HasStateAuthority){    
+
+        if (HasStateAuthority)
+        {
             StartQuestionTimer();
         }
     }
 
     private void StartQuestionTimer()
     {
-        if (questionTimerCoroutine != null)
-        {
+        if (questionTimerCoroutine != null){
             StopCoroutine(questionTimerCoroutine);
         }
         questionTimerCoroutine = StartCoroutine(QuestionTimerCoroutine());
@@ -47,14 +77,35 @@ public class QuizSync : NetworkBehaviour
     private IEnumerator QuestionTimerCoroutine()
     {
         yield return new WaitForSeconds(questionTimer);
-        
+
         if (currentQuestionIndex + 1 >= questions.Count)
         {
-            Debug.Log("Last question or only one question remaining.");
+            Rpc_GetLeaderboard();
+            Rpc_ToggleLeaderboard();
+            yield return new WaitForSeconds(3f);
+            Rpc_ToggleLeaderboard();
             EndQuiz();
-        }else{
+        }
+        else
+        {
+            Rpc_GetLeaderboard();
+            Rpc_ToggleLeaderboard();
+            yield return new WaitForSeconds(3f);
+            Rpc_ToggleLeaderboard();
             NextQuestion();
         }
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void Rpc_ToggleLeaderboard()
+    {
+        GameEventsManager.instance.QuizEvents.ToggleLeaderboard();
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void Rpc_GetLeaderboard()
+    {
+        GameEventsManager.instance.QuizEvents.GetLeaderboard();
     }
 
     public void NextQuestion()
@@ -85,7 +136,7 @@ public class QuizSync : NetworkBehaviour
         }
 
         var question = questions[questionIndex];
-        
+
         // Set pertanyaan dan pilihan jawaban
         questionGo[0].GetComponentInChildren<TMP_Text>().text = question.question;
         questionGo[1].GetComponentInChildren<TMP_Text>().text = question.a;
@@ -105,7 +156,7 @@ public class QuizSync : NetworkBehaviour
 
                 button.interactable = true;
             }
-            
+
             LayoutRebuilder.ForceRebuildLayoutImmediate(go.GetComponent<RectTransform>());
         }
 
@@ -116,7 +167,7 @@ public class QuizSync : NetworkBehaviour
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => OnAnswerSelected(question.correct_answer, buttonIndex));
         }
-        
+
         Debug.Log($"Question: {question.question}");
         Debug.Log($"A: {question.a}, B: {question.b}, C: {question.c}, D: {question.d}");
         Debug.Log($"Answer: {question.correct_answer}");
@@ -140,13 +191,25 @@ public class QuizSync : NetworkBehaviour
             var button = questionGo[i].GetComponent<Button>();
             var buttonColors = button.colors;
 
-            // Warna tombol dipilih
             if (i == selectedIndex)
             {
                 if (correctAnswer.Equals(selectedAnswer.ToString(), System.StringComparison.OrdinalIgnoreCase))
                 {
                     buttonColors.disabledColor = Color.green;
-                }else{
+                    // var player = gameLogic.spawnedPlayers.Values.Select(networkObject => networkObject.GetComponent<Player>()).FirstOrDefault(p => p.PlayerName == PlayerPrefs.GetString("name"));
+
+                    var player = FindObjectsOfType<Player>().FirstOrDefault(p => p.PlayerName == PlayerPrefs.GetString("name"));
+                    if(player != null)
+                    {
+                        player.Rpc_AddScore(10);
+                        Debug.Log("Player found:" +player.PlayerName);
+                    }else{
+                        Debug.Log("Player not found");
+                    }
+                    // AddPlayerScore(Object.InputAuthority.ToString(), 10); // Example: 10 points for a correct answer
+                }
+                else
+                {
                     buttonColors.disabledColor = Color.red;
                 }
             }
@@ -160,8 +223,6 @@ public class QuizSync : NetworkBehaviour
 
             button.colors = buttonColors;
         }
-
-        // Anda bisa menambahkan logika lainnya, seperti memberikan poin atau melanjutkan ke pertanyaan berikutnya
     }
 
     public void EndQuiz()
@@ -188,9 +249,10 @@ public class QuizSync : NetworkBehaviour
         {
             go.GetComponentInChildren<TMP_Text>().text = string.Empty;
         }
+        
+        ResetAllPlayerScores();
 
         GameEventsManager.instance.QuizEvents.EndQuiz();
-        // TODO: Show leaderboard
     }
 
     [System.Serializable]

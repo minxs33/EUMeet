@@ -34,6 +34,12 @@ public class QuizEvents
     public event Action OnStartQuiz;
     public void StartQuiz() => OnStartQuiz?.Invoke();
 
+    public event Action OnToggleLeaderboard;
+    public void ToggleLeaderboard() => OnToggleLeaderboard?.Invoke();
+
+    public event Action OnGetLeaderboard;
+    public void GetLeaderboard() => OnGetLeaderboard?.Invoke();
+
     public event Action OnEndQuiz;
     public void EndQuiz() => OnEndQuiz?.Invoke();
 }

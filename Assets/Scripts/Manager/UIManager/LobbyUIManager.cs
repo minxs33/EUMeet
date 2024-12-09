@@ -45,12 +45,14 @@ public class LobbyUIManager : MonoBehaviour
     [SerializeField] private Button _doneQuestionModalButton;
     [SerializeField] private Button _addQuestionButton;
     [SerializeField] private GameObject _quizPanel;
+    [SerializeField] private GameObject _leaderboardPanel;
     bool _isVoiceMuted = true;
     bool _isVideoMuted = true;
     bool _isShareScreenModalOpen = false;
     bool _isQuizModalOpen = false;
     bool _isQuizModalContentOpen = true;
     bool _isQuizOverlayOpen = false;
+    bool _isLeaderboardOpen = false;
     private Coroutine fadeChatCoroutine;
 
     // Camera Source
@@ -89,6 +91,7 @@ public class LobbyUIManager : MonoBehaviour
         GameEventsManager.instance.QuizEvents.OnSetTitleText += SetTitleText;
         GameEventsManager.instance.QuizEvents.OnToggleQuizSelected += ToggleQuizSelected;
         GameEventsManager.instance.QuizEvents.OnStartQuiz += StartQuiz;
+        GameEventsManager.instance.QuizEvents.OnToggleLeaderboard += ToggleLeaderboard;
         GameEventsManager.instance.QuizEvents.OnEndQuiz += EndQuiz;
         
     }
@@ -120,6 +123,7 @@ public class LobbyUIManager : MonoBehaviour
         GameEventsManager.instance.QuizEvents.OnSetTitleText -= SetTitleText;
         GameEventsManager.instance.QuizEvents.OnToggleQuizSelected -= ToggleQuizSelected;
         GameEventsManager.instance.QuizEvents.OnStartQuiz -= StartQuiz;
+        GameEventsManager.instance.QuizEvents.OnToggleLeaderboard -= ToggleLeaderboard;
         GameEventsManager.instance.QuizEvents.OnEndQuiz -= EndQuiz;
     }
 
@@ -385,6 +389,17 @@ public class LobbyUIManager : MonoBehaviour
     public void StartQuiz(){
         ToggleQuiz();
         ToggleQuizOverlay();
+    }
+
+    public void ToggleLeaderboard(){
+        if(_isLeaderboardOpen){
+            _leaderboardPanel.SetActive(false);
+            _isLeaderboardOpen = false;
+        }else{
+            _isLeaderboardOpen = true;
+            _leaderboardPanel.SetActive(true);
+            GameEventsManager.instance.QuizEvents?.GetLeaderboard();
+        }
     }
 
     public void EndQuiz(){

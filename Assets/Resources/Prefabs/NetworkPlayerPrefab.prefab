@@ -589,7 +589,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SortKey: 2088336448
   ObjectInterest: 1
-  Flags: 262145
+  Flags: 786433
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: -4891051864809427532}
@@ -620,6 +620,7 @@ MonoBehaviour:
   - {fileID: 500298882613325791}
   _Uid: 0
   _PlayerName: 
+  _LeaderboardScore: 0
 --- !u!114 &9047911073281854568
 MonoBehaviour:
   m_ObjectHideFlags: 0

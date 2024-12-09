@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 
 public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
 {
-
+    public static GameLogic Instance { get; private set; }
     private NetworkRunner _runner;
     [SerializeField] private NetworkPrefabRef playerPrefab;
     public Dictionary<PlayerRef, NetworkObject> spawnedPlayers = new Dictionary<PlayerRef, NetworkObject>();  
@@ -106,6 +106,10 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
                 Vector3 playerPos = new Vector3(player.RawEncoded % runner.Config.Simulation.PlayerCount * 1.5f, 1f, 0f);
                 NetworkObject networkObject = runner.Spawn(playerPrefab, playerPos, Quaternion.identity, player);
                 spawnedPlayers.Add(player, networkObject);
+
+                foreach (var otherPlayer in spawnedPlayers){
+                    Debug.Log($"otherPlayer: {otherPlayer}");
+                }
 
                 SyncPlayerData();
             }

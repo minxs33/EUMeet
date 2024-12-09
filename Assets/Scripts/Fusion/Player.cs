@@ -22,11 +22,14 @@ public class Player : NetworkBehaviour
     
     [Networked] private Vector2 NetworkedLookRotation { get; set; }
 
+    [Networked] public int LeaderboardScore { get; set; } = 0;
+
     private InputManager inputManager;
     private Vector2 baseLookRotation;
     private bool playerNameTextSet = false;
     // quiz stuff
     QuizSync quizSync;
+    Leaderboard leaderboard;
     QuizManager quizManager;
     private List<QuizManager.QuestionItem> questions;
     private void OnEnable() {
@@ -44,8 +47,11 @@ public class Player : NetworkBehaviour
         {
             SceneRef currentScene = Runner.GetSceneRef(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
 
-            // Register all scene objects in the current scene
-            Runner.RegisterSceneObjects(currentScene, new NetworkObject[] { quizSync.Object });
+            Runner.RegisterSceneObjects(currentScene, new NetworkObject[] {
+                quizSync.Object,
+                leaderboard.Object    
+            });
+            
             Debug.Log("Registering scene objects");
         }
     }
@@ -78,12 +84,27 @@ public class Player : NetworkBehaviour
         quizSync.RPC_BeginQuiz(serializedQuestions);
     }
 
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void Rpc_AddScore(int score)
+    {
+        LeaderboardScore += score;
+        Debug.Log($"Score updated on State Authority for {Object.InputAuthority}");
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void Rpc_ResetScore()
+    {
+        LeaderboardScore = 0; // Reset the score on the server.
+        Debug.Log($"Score reset for player {PlayerName}");
+    }
+
     public override void Spawned()
     {
         kcc.SetGravity(Physics.gravity.y * 2f);
 
         inputManager = Runner.GetComponent<InputManager>();
         inputManager.LocalPlayer = this;
+        LeaderboardScore = 0;
 
         quizSync = FindObjectOfType<QuizSync>();
 
@@ -92,7 +113,6 @@ public class Player : NetworkBehaviour
             GameEventsManager.instance.RTCEvents.PlayerJoined();
             CameraFollow.Singleton.SetTarget(camTarget);
 
-            // Client requests the server to set the UID
             foreach (MeshRenderer renderer in modelParts)
             {
                 renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
@@ -106,7 +126,6 @@ public class Player : NetworkBehaviour
         kcc.Settings.ForcePredictedLookRotation = true; 
     }
 
-    // Client sends a request to the server to set its UID
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
     public void Rpc_RequestPlayerPrefs(uint uid, string playerName)
     {
