@@ -124,8 +124,8 @@
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\Netstandard15Polyfill.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\MediaPlayerCacheManager.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\MediaPlayerSourceObserverNative.cs" />
-    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMediaPlayerSourceObserver.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Native\AgoraEventType.cs" />
+    <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\IMediaPlayerSourceObserver.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Impl\Private\Observer\MediaPlayerCustomDataProviderNative.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Tools\litjson-0.17.0\src\LitJson\ParserToken.cs" />
     <Compile Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Code\Rtc\Types\AgoraRtcEngine.cs" />

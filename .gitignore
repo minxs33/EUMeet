@@ -82,4 +82,8 @@ crashlytics-build.properties
 /[Aa]ssets/[Tt]ext[Mm]esh [Pp]ro/[Ff]onts/*
 /[Aa]ssets/[Pp]hoton/PhotonLibs
 /Assets/Photon/PhotonLibs
-Assets/Plugins/
+Assets/Plugins/*
+Assets/Resources/*
+Assets/Adobe/*
+Assets/GreenMossGames/*
+Assets/ProBuilder Data/*
