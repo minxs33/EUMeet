@@ -181,7 +181,7 @@
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Surface.cginc" />
     <None Include="Assets\Photon\PhotonUnityNetworking\readme.txt" />
     <None Include="Assets\Photon\Fusion\Plugins\NanoSockets\Metro\x86\libnanosockets.dll" />
-    <None Include="Assets\Resources\Material\Poly Etereo\Polygon Materials - LITE\Use SRP(URP).txt" />
+    <None Include="Assets\Resources\Poly Etereo\Polygon Materials - LITE\Use SRP(URP).txt" />
     <None Include="Assets\Photon\PhotonVoice\PhotonVoiceLibs\WSA\x64\webrtc-audio.dll" />
     <None Include="Assets\Photon\PhotonLibs\netstandard2.0\Photon3Unity3D.dll" />
     <None Include="Assets\Agora-RTC-Plugin\Agora-Unity-RTC-SDK\Plugins\x86_64\libagora_face_capture_extension.dll" />
