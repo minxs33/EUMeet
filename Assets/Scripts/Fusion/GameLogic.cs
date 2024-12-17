@@ -103,7 +103,8 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
         if (runner.IsServer)
         {
             if(SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.Null || player != runner.LocalPlayer){
-                Vector3 playerPos = new Vector3(player.RawEncoded % runner.Config.Simulation.PlayerCount * 1.5f, 1f, 0f);
+                // Vector3 playerPos = new Vector3(player.RawEncoded % runner.Config.Simulation.PlayerCount * 1.5f, 1f, 0f);
+                Vector3 playerPos = new Vector3(-10.343f,9.433f, -5.939f);
                 NetworkObject networkObject = runner.Spawn(playerPrefab, playerPos, Quaternion.identity, player);
                 spawnedPlayers.Add(player, networkObject);
 

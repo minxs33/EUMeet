@@ -1,5 +1,7 @@
 using UnityEditor;
 using System.IO;
+using UnityEngine.Rendering;
+using UnityEngine;
 
 public class BuildScript
 {
@@ -7,6 +9,7 @@ public class BuildScript
     [System.Obsolete]
     public static void BuildHeadless()
     {
+
         // Define preprocessor directive for headless build
         string[] defineSymbols = {
             "UNITY_SERVER",
@@ -15,7 +18,6 @@ public class BuildScript
         };
         string defineSymbolsString = string.Join(";", defineSymbols);
 
-        // Set the preprocessor directive for Linux builds
         BuildTargetGroup buildTargetGroup = BuildTargetGroup.Standalone;
         PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defineSymbolsString);
 
@@ -24,8 +26,7 @@ public class BuildScript
             "Assets/Scenes/Lobby.unity"
         };
         string buildPath = "Builds/Headless/Server.x86_64";
-        
-        // Ensure the build directory exists
+
         Directory.CreateDirectory("Builds/Headless");
 
         BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions
@@ -38,7 +39,7 @@ public class BuildScript
 
         BuildPipeline.BuildPlayer(buildPlayerOptions);
 
-        // Optionally, reset the define symbols after the build
+        // Reset define symbols after build
         PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, "");
     }
 }
