@@ -23,10 +23,12 @@ public class Player : NetworkBehaviour
     [Networked] private Vector2 NetworkedLookRotation { get; set; }
 
     [Networked] public int LeaderboardScore { get; set; } = 0;
-
+    private ChairSync currentChair;
+    private NetworkInputData input;
     private InputManager inputManager;
     private Vector2 baseLookRotation;
     private bool playerNameTextSet = false;
+    private bool interactDebounce = false;
     // quiz stuff
     QuizSync quizSync;
     Leaderboard leaderboard;
@@ -41,6 +43,7 @@ public class Player : NetworkBehaviour
     }
 
     private void Start() {
+        
         quizManager = FindObjectOfType<QuizManager>();
 
         if (quizSync != null && !quizSync.Object.IsValid)
@@ -94,13 +97,15 @@ public class Player : NetworkBehaviour
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
     public void Rpc_ResetScore()
     {
-        LeaderboardScore = 0; // Reset the score on the server.
+        LeaderboardScore = 0;
         Debug.Log($"Score reset for player {PlayerName}");
     }
 
     public override void Spawned()
     {
         kcc.SetGravity(Physics.gravity.y * 2f);
+
+        input = new NetworkInputData();
 
         inputManager = Runner.GetComponent<InputManager>();
         inputManager.LocalPlayer = this;
@@ -133,7 +138,6 @@ public class Player : NetworkBehaviour
         Rpc_SetPlayerAttribute(uid, playerName);
     }
 
-    // This RPC is executed by the server to update the UID
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
     public void Rpc_SetPlayerAttribute(uint uid, string playerName)
     {
@@ -145,25 +149,64 @@ public class Player : NetworkBehaviour
 
     public override void FixedUpdateNetwork()
     {
-        if (GetInput(out NetworkInputData input))
+        if (GetInput(out input))
         {
-            // Update local rotation and send to network
             baseLookRotation += input.LookDelta * lookSensitivity;
-            NetworkedLookRotation = baseLookRotation; // Sync look rotation across clients
-            
+            NetworkedLookRotation = baseLookRotation;
+
             kcc.AddLookRotation(input.LookDelta * lookSensitivity);
             UpdateCamTarget();
 
-            Vector3 worldDirection = kcc.TransformRotation * new Vector3(input.Direction.x, 0f, input.Direction.y);
-            float jump = 0f;
-
-            if (input.Buttons.WasPressed(PreviousButtons, InputButton.Jump) && kcc.IsGrounded)
+            if (input.Buttons.WasPressed(PreviousButtons, InputButton.Interact) && !interactDebounce)
             {
-                jump = jumpImpluse;
+                interactDebounce = true;
+                PreviousButtons = input.Buttons;
+                InteractChair();
+            }else if(!input.Buttons.WasPressed(PreviousButtons, InputButton.Interact)){
+                interactDebounce = false;
             }
 
-            kcc.Move(worldDirection.normalized * speed, jump);
+            if (currentChair != null && currentChair.IsOccupied){
+                Vector3 chairPosition = currentChair.transform.position;
+                kcc.SetGravity(0f);
+                Vector3 targetPosition = new Vector3(chairPosition.x, chairPosition.y - 0.2f, chairPosition.z);
+                kcc.SetPosition(targetPosition);
+            }else{
+                Vector3 worldDirection = kcc.TransformRotation * new Vector3(input.Direction.x, 0f, input.Direction.y);
+                float jump = 0f;
+                kcc.SetGravity(Physics.gravity.y * 2f);
+
+                if (input.Buttons.WasPressed(PreviousButtons, InputButton.Jump) && kcc.IsGrounded)
+                {
+                    jump = jumpImpluse;
+                }
+
+                kcc.Move(worldDirection.normalized * speed, jump);
+            }
+
             PreviousButtons = input.Buttons;
+        }
+
+    }
+
+    private void InteractChair(){
+        if(currentChair != null && HasInputAuthority)
+        {
+            currentChair.RPC_ToggleOccupancy(this);
+        }
+    }
+
+    private void OnTriggerEnter(Collider other) {
+        if(other.TryGetComponent(out ChairSync chair) && currentChair == null){
+            currentChair = chair;
+            Debug.Log("Chair triggered: " + currentChair);
+        }
+    }
+
+    private void OnTriggerExit(Collider other) {
+        if(other.TryGetComponent(out ChairSync chair) && currentChair == chair){
+            currentChair = null;
+            Debug.Log("Chair exited: " + currentChair);
         }
     }
 

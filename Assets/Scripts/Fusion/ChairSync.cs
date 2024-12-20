@@ -1,43 +1,37 @@
 using Fusion;
 using UnityEngine;
 
-public class Chair : NetworkBehaviour
+public class ChairSync : NetworkBehaviour
 {
     [Networked] public bool IsOccupied { get; private set; } = false;
-    [Networked] public NetworkObject OccupyingPlayer { get; private set; }
+    [Networked] public Player OccupyingPlayer { get; private set; }
 
-    public Transform sitPosition;
-
-    private void OnTriggerEnter(Collider other)
+    [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
+    public void RPC_ToggleOccupancy(Player player)
     {
-        if (IsOccupied || !other.CompareTag("Player")) return;
-
-        var player = other.GetComponent<NetworkObject>();
-        if (player != null && Runner.IsServer)
+        Debug.Log($"RPC_ToggleOccupancy called by: {player} | StateAuthority: {Object.HasStateAuthority}");
+        if (IsOccupied && OccupyingPlayer == player)
         {
-            SitPlayer(player);
+            SetChairState(false, null);
         }
+        else if (!IsOccupied)
+        {
+            SetChairState(true, player);
+        }
+
+        Debug.Log($"Chair state toggled");
     }
 
-    [Rpc]
-    private void SitPlayer(NetworkObject player)
-    {
-        if (player == null || IsOccupied) return;
+    private void SetChairState(bool occupied, Player player){
+        if (IsOccupied == occupied && OccupyingPlayer == player) return;
+        Rpc_UpdateChairState(occupied, player);
+        Debug.Log($"Chair state updated: {(IsOccupied ? "Occupied" : "Unoccupied")}");
+    }
 
-        IsOccupied = true;
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void Rpc_UpdateChairState(bool occupied, Player player){
+        IsOccupied = occupied;
         OccupyingPlayer = player;
-
-        var playerTransform = player.transform;
-        playerTransform.position = sitPosition.position;
-        playerTransform.rotation = sitPosition.rotation;
     }
 
-    [Rpc]
-    public void StandUp()
-    {
-        if (!IsOccupied || OccupyingPlayer == null) return;
-
-        IsOccupied = false;
-        OccupyingPlayer = null;
-    }
 }

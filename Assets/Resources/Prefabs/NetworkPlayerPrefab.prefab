@@ -552,7 +552,6 @@ GameObject:
   - component: {fileID: 9047911073281854568}
   - component: {fileID: 2349312810768818181}
   - component: {fileID: -1956514663304331160}
-  - component: {fileID: -3011871404662033897}
   m_Layer: 0
   m_Name: NetworkPlayerPrefab
   m_TagString: Untagged
@@ -649,11 +648,11 @@ MonoBehaviour:
     AntiJitterDistance: {x: 0.025, y: 0.01}
     CompressNetworkPosition: 0
     ForcePredictedLookRotation: 1
-    StepHeight: 6
+    StepHeight: 1
     StepDepth: 0.2
     StepSpeed: 1
     StepMinPushBack: 0.5
-    StepGroundCheckRadiusScale: 0.5
+    StepGroundCheckRadiusScale: 0.626
     StepRequireGroundTarget: 1
     SnapDistance: 0.25
     SnapSpeed: 4
@@ -696,20 +695,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &-3011871404662033897
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4607142518901474023}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 1541381998, guid: e725a070cec140c4caffb81624c8c787, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Guid:
-    RawGuidValue: 0261cb6607d46f0489b46437ed4476ea
 --- !u!1 &7339157528715143845
 GameObject:
   m_ObjectHideFlags: 0

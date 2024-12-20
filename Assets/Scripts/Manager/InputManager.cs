@@ -83,6 +83,7 @@ public class InputManager : SimulationBehaviour, IBeforeUpdate, INetworkRunnerCa
 
             accumulatedInput.Direction += moveDirection;
             buttons.Set(InputButton.Jump, keyboard.spaceKey.isPressed);
+            buttons.Set(InputButton.Interact, keyboard.eKey.isPressed);
         }
 
         accumulatedInput.Buttons = new NetworkButtons(accumulatedInput.Buttons.Bits | buttons.Bits);
