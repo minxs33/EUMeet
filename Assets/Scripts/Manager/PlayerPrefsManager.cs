@@ -8,12 +8,14 @@ public class PlayerPrefsManager : MonoBehaviour
     private void OnEnable() {
         GameEventsManager.instance.authEvents.onAuthenticate += SavePlayerPrefs;
         GameEventsManager.instance.authEvents.onSaveToken += SaveToken;
+        GameEventsManager.instance.authEvents.onSaveGender += SaveGender;
     }
 
 
     private void OnDisable() {
         GameEventsManager.instance.authEvents.onAuthenticate -= SavePlayerPrefs;
         GameEventsManager.instance.authEvents.onSaveToken -= SaveToken;
+        GameEventsManager.instance.authEvents.onSaveGender -= SaveGender;
     }
 
     public void SavePlayerPrefs(JObject token) {
@@ -31,5 +33,9 @@ public class PlayerPrefsManager : MonoBehaviour
     private void SaveToken(string token)
     {
         PlayerPrefs.SetString("token", token);
+    }
+
+    private void SaveGender(string gender){
+        PlayerPrefs.SetString("gender", gender);
     }
 }

@@ -32,4 +32,9 @@ public class AuthEvents
     public void Authenticate(JObject response) {
         onAuthenticate?.Invoke(response);
     }
+
+    public event Action<String> onSaveGender;
+    public void SaveGender(String gender) {
+        onSaveGender?.Invoke(gender);
+    }
 }

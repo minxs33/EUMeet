@@ -12,7 +12,6 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
     private NetworkRunner _runner;
     [SerializeField] private NetworkPrefabRef playerPrefab;
     public Dictionary<PlayerRef, NetworkObject> spawnedPlayers = new Dictionary<PlayerRef, NetworkObject>();  
-    private HashSet<int> processedPlayerIds = new HashSet<int>();
     
     private void Start(){
         if(SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null)

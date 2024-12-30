@@ -32,9 +32,16 @@ public class AuthUIManager : MonoBehaviour
     [SerializeField] private Button loginButton;
     [SerializeField] private GameObject loginErrorPanel;
 
+    [Header("Gender UI")]
+    [SerializeField] private Button maleButton;
+    [SerializeField] private Button femaleButton;
+    [SerializeField] private Button playButton;
+    [SerializeField] private GameObject genderPanel;
+
     [Header("Auth Debug")]
     [SerializeField] private Button Player1;
     [SerializeField] private Button Player2;
+
 
 
     public static AuthUIManager Instance { get; private set; }
@@ -56,6 +63,13 @@ public class AuthUIManager : MonoBehaviour
         // Auth Debug
         Player1.onClick.AddListener(()=> GameEventsManager.instance.authEvents.Login("testing1@esaunggul.ac.id", "testing123"));
         Player2.onClick.AddListener(()=> GameEventsManager.instance.authEvents.Login("testing2@esaunggul.ac.id", "testing123"));
+
+        // Gender UI
+        maleButton.onClick.AddListener(()=>TogglePlayButton("male"));
+        femaleButton.onClick.AddListener(()=>TogglePlayButton("female"));
+        playButton.onClick.AddListener(StartGame);
+        GameEventsManager.instance.UIEvents.onShowGenderPanel += ShowGenderPanel;
+
     }
 
     private void OnDisable() {
@@ -73,8 +87,21 @@ public class AuthUIManager : MonoBehaviour
         loginButton.onClick.RemoveListener(()=> GameEventsManager.instance.authEvents.Login(loginEmailInputField.text, loginPasswordInputField.text));
 
         // Auth Debug
-        Player1.onClick.RemoveListener(()=> GameEventsManager.instance.authEvents.Login("testing1@esaunggul.ac.id", "testing123"));
-        Player2.onClick.RemoveListener(()=> GameEventsManager.instance.authEvents.Login("testing2@esaunggul.ac.id", "testing123"));
+        Player1.onClick.RemoveListener(()=> {
+            GameEventsManager.instance.authEvents.Login("testing1@esaunggul.ac.id", "testing123");
+            GameEventsManager.instance.authEvents.SaveGender("male");
+        });
+        Player2.onClick.RemoveListener(()=> {
+            GameEventsManager.instance.authEvents.Login("testing2@esaunggul.ac.id", "testing123");
+            GameEventsManager.instance.authEvents.SaveGender("female");
+        });
+
+        // Gender UI
+        maleButton.onClick.RemoveListener(()=>TogglePlayButton(""));
+        femaleButton.onClick.RemoveListener(()=>TogglePlayButton(""));
+        playButton.onClick.RemoveListener(StartGame);
+        GameEventsManager.instance.UIEvents.onShowGenderPanel -= ShowGenderPanel;
+
     }
     private void OpenLoginPage(){
         StartCoroutine(FadeCanvasGroups(menuPanel.GetComponent<CanvasGroup>(), loginPanel.GetComponent<CanvasGroup>()));
@@ -169,21 +196,34 @@ public class AuthUIManager : MonoBehaviour
     }
 
     private void LoginError(JObject error) {
-    loginErrorPanel.SetActive(false); // Assuming you have a panel for login errors similar to register errors
-    var errorText = loginErrorPanel.transform.GetComponentInChildren<TextMeshProUGUI>();
-    errorText.text = "";
+        loginErrorPanel.SetActive(false);
+        var errorText = loginErrorPanel.transform.GetComponentInChildren<TextMeshProUGUI>();
+        errorText.text = "";
 
-    if (error.TryGetValue("errors", out JToken errorsToken)) {
-        JObject errors = (JObject)errorsToken;
-        foreach (var errorPair in errors) {
-            JArray errorMessages = (JArray)errorPair.Value;
-            for (int i = 0; i < errorMessages.Count; i++) {
-                errorText.text += $"{errorMessages[i]}";
+        if (error.TryGetValue("errors", out JToken errorsToken)) {
+            JObject errors = (JObject)errorsToken;
+            foreach (var errorPair in errors) {
+                JArray errorMessages = (JArray)errorPair.Value;
+                for (int i = 0; i < errorMessages.Count; i++) {
+                    errorText.text += $"{errorMessages[i]}";
+                }
             }
         }
+
+        loginErrorPanel.SetActive(true);
     }
 
-    loginErrorPanel.SetActive(true);
-}
+    private void ShowGenderPanel(){
+        genderPanel.SetActive(true);
+    }
+
+    private void TogglePlayButton(string state) {
+        GameEventsManager.instance.authEvents.SaveGender(state);
+        playButton.interactable = true;
+    }
+
+    private void StartGame(){
+        GameEventsManager.instance.levelEvents.LevelLoad("Lobby");
+    }
 
 }

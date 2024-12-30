@@ -63,12 +63,11 @@ public class AuthManager : MonoBehaviour
                 Debug.Log($"Success: {www.downloadHandler.text}");
                 var response = JObject.Parse(www.downloadHandler.text);
                 GameEventsManager.instance.authEvents.Authenticate(response);
-                GameEventsManager.instance.levelEvents.LevelLoad("Lobby");
+                GameEventsManager.instance.UIEvents.ShowGenderPanel();
             }
             else
             {
                 Debug.LogError($"Unexpected result: {www.result}");
-                Application.Quit();
             }
         }
         catch (System.Exception ex)
@@ -82,61 +81,60 @@ public class AuthManager : MonoBehaviour
     }
     
     public void Login(string email, string password)
-{
-    List<IMultipartFormSection> formData = new List<IMultipartFormSection>
     {
-        new MultipartFormDataSection("email", email),
-        new MultipartFormDataSection("password", password)
-    };
-    
-    StartCoroutine(LoginRoutine(formData));
-}
-
-public IEnumerator LoginRoutine(List<IMultipartFormSection> formData)
-{
-    UnityWebRequest www = UnityWebRequest.Post("http://172.29.174.196/login", formData);
-
-    yield return www.SendWebRequest();
-
-    try
-    {
-        if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
+        List<IMultipartFormSection> formData = new List<IMultipartFormSection>
         {
-            string responseText = www.downloadHandler.text;
-            Debug.Log($"Response text: {responseText}");
+            new MultipartFormDataSection("email", email),
+            new MultipartFormDataSection("password", password)
+        };
+        
+        StartCoroutine(LoginRoutine(formData));
+    }
 
-            try
+    public IEnumerator LoginRoutine(List<IMultipartFormSection> formData)
+    {
+        UnityWebRequest www = UnityWebRequest.Post("http://172.29.174.196/login", formData);
+
+        yield return www.SendWebRequest();
+
+        try
+        {
+            if (www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError)
             {
-                JObject error = JObject.Parse(responseText);
-                Debug.Log($"{error}");
-                GameEventsManager.instance.UIEvents.LoginError(error);
+                string responseText = www.downloadHandler.text;
+                Debug.Log($"Response text: {responseText}");
+
+                try
+                {
+                    JObject error = JObject.Parse(responseText);
+                    Debug.Log($"{error}");
+                    GameEventsManager.instance.UIEvents.LoginError(error);
+                }
+                catch (JsonReaderException ex)
+                {
+                    Debug.LogError($"Failed to parse response text as JSON: {ex.Message}\nResponse text: {responseText}");
+                }
             }
-            catch (JsonReaderException ex)
+            else if (www.result == UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"Failed to parse response text as JSON: {ex.Message}\nResponse text: {responseText}");
+                Debug.Log($"Success: {www.downloadHandler.text}");
+                var response = JObject.Parse(www.downloadHandler.text);
+                GameEventsManager.instance.authEvents.Authenticate(response);
+                GameEventsManager.instance.UIEvents.ShowGenderPanel();
+            }
+            else
+            {
+                Debug.LogError($"Unexpected result: {www.result}");
             }
         }
-        else if (www.result == UnityWebRequest.Result.Success)
+        catch (System.Exception ex)
         {
-            Debug.Log($"Success: {www.downloadHandler.text}");
-            var response = JObject.Parse(www.downloadHandler.text);
-            GameEventsManager.instance.authEvents.Authenticate(response);
-            GameEventsManager.instance.levelEvents.LevelLoad("Lobby");
+            Debug.LogError($"Exception caught: {ex.Message}\n{ex.StackTrace}");
         }
-        else
+        finally
         {
-            Debug.LogError($"Unexpected result: {www.result}");
-            Application.Quit();
+            www.Dispose();
         }
     }
-    catch (System.Exception ex)
-    {
-        Debug.LogError($"Exception caught: {ex.Message}\n{ex.StackTrace}");
-    }
-    finally
-    {
-        www.Dispose();
-    }
-}
 
 }

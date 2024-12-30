@@ -20,12 +20,14 @@ public class Player : NetworkBehaviour
     [SerializeField] private SkinnedMeshRenderer[] modelPartsSkinnedMesh;
     [SerializeField] private Animator animator;
     [SerializeField] private Transform characterModel;
+    [SerializeField] private Transform characterHair;
     [SerializeField] private Transform ikTarget;
     [SerializeField] private Transform headRig;
     
     [Networked] private NetworkButtons PreviousButtons { get; set; }
     [Networked] public uint Uid { get; set; }
     [Networked] public string PlayerName { get; set; }
+    [Networked] public string PlayerGender { get; set; }
     
     [Networked] private Vector2 NetworkedLookRotation { get; set; }
 
@@ -137,19 +139,20 @@ public class Player : NetworkBehaviour
             GameEventsManager.instance.RTCEvents.PlayerJoined();
             CameraFollow.Singleton.SetTarget(camTarget);
 
-            // foreach (MeshRenderer renderer in modelPartsMesh)
-            // {
-            //     renderer.enabled = false;
-            // }
+            foreach (MeshRenderer renderer in modelPartsMesh)
+            {
+                renderer.enabled = false;
+            }
 
-            // foreach(SkinnedMeshRenderer renderer in modelPartsSkinnedMesh)
-            // {
-            //     renderer.enabled = false;
-            // }
+            foreach(SkinnedMeshRenderer renderer in modelPartsSkinnedMesh)
+            {
+                renderer.enabled = false;
+            }
 
             Uid = (uint)PlayerPrefs.GetInt("uid");
             PlayerName = PlayerPrefs.GetString("name");
-            Rpc_RequestPlayerPrefs(Uid, PlayerName);
+            PlayerGender = PlayerPrefs.GetString("gender");
+            Rpc_RequestPlayerPrefs(Uid, PlayerName, PlayerGender);
             
             lightState.RPC_RequestLightState();
         }
@@ -158,18 +161,27 @@ public class Player : NetworkBehaviour
     }
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void Rpc_RequestPlayerPrefs(uint uid, string playerName)
+    public void Rpc_RequestPlayerPrefs(uint uid, string playerName, string playerGender)
     {
         Debug.Log("Requesting PlayerPrefs");
-        Rpc_SetPlayerAttribute(uid, playerName);
+        Rpc_SetPlayerAttribute(uid, playerName, playerGender);
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void Rpc_SetPlayerAttribute(uint uid, string playerName)
+    public void Rpc_SetPlayerAttribute(uint uid, string playerName, string playerGender)
     {
         this.Uid = uid;
         this.PlayerName = playerName;
         this.playerNameText.text = playerName;
+
+        if(playerGender == "male"){
+            this.characterModel.Find("Male").gameObject.SetActive(true);
+            this.characterHair.Find("Male_Hair").gameObject.SetActive(true);
+        }else{
+            this.characterModel.Find("Female").gameObject.SetActive(true);
+            this.characterHair.Find("Female_Hair").gameObject.SetActive(true);
+        }
+
         Debug.Log("UID set to: " + uid + " and Player Name set to: " + playerName);
     }
 

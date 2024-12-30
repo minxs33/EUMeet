@@ -21,5 +21,9 @@ public class UIEvents
     public void LoginError(JObject error) {
         onRegisterError?.Invoke(error);
     }
-
+    
+    public event Action onShowGenderPanel;
+    public void ShowGenderPanel() {
+        onShowGenderPanel?.Invoke();
+    }
 }

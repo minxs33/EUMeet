@@ -76,6 +76,7 @@
     <Compile Include="Assets\DebugCameraFollow.cs" />
     <Compile Include="Assets\VoiceNetworkObject.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\GameEventsManager.cs" />
+    <Compile Include="Assets\Scripts\CharacterSelectionRotate.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\RTCEvents.cs" />
     <Compile Include="Assets\Scripts\Fusion\LightSync.cs" />
     <Compile Include="Assets\Scripts\Manager\InputManager.cs" />
