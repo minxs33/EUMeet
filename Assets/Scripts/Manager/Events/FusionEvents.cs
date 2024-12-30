@@ -11,4 +11,11 @@ public class FusionEvents
     {
         onPlayerJoined?.Invoke();
     }
+
+    public event Action<bool> onLightToggle;
+
+    public void LightToggle(bool value)
+    {
+        onLightToggle?.Invoke(value);
+    }
 }

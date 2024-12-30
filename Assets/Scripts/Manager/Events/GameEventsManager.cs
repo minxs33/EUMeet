@@ -27,6 +27,7 @@ public class GameEventsManager : MonoBehaviour
             UIEvents = new UIEvents();
             RTCEvents = new RTCEvents();
             QuizEvents = new QuizEvents();
+            fusionEvents = new FusionEvents();
 
         } else if(instance != this) {
             Destroy(gameObject);

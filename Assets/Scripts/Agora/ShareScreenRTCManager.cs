@@ -378,6 +378,7 @@ public class ShareScreenRTCManager : MonoBehaviour
                     videoSurface.transform.localScale = new Vector3(width, -1, height);
                 }
             }
+
             Debug.Log("OnTextureSizeModify: " + width + "x" + height);
         };
 
@@ -420,11 +421,15 @@ public class ShareScreenRTCManager : MonoBehaviour
         var mesh = go.GetComponent<MeshRenderer>();
         if (mesh != null)
         {
-            mesh.material = new Material(Shader.Find("Unlit/Texture"));
+            var material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+            material.EnableKeyword("_EMISSION");
+            material.SetColor("_EmissionColor", Color.white * 2f);
+
+            mesh.material = material;
         }
         
         go.transform.Rotate(-90f, 0.0f, 180f);
-        go.transform.position = goParent.transform.position + new Vector3(0, 0, -0.51f);
+        go.transform.localPosition = new Vector3(0, 0, -0.51f);
 
         var videoSurface = go.AddComponent<VideoSurface>();
         return videoSurface;

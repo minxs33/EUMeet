@@ -1,20 +1,27 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Fusion;
 using Fusion.Addons.SimpleKCC;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Animations.Rigging;
 
 public class Player : NetworkBehaviour
 {
     [SerializeField] private SimpleKCC kcc;
     [SerializeField] private float speed = 5f;
-    [SerializeField] private float jumpImpluse = 10f;
+    [SerializeField] private float jumpImpluse = 8f;
 
     [SerializeField] private Transform camTarget;
     [SerializeField] private float lookSensitivity = 0.15f;
     [SerializeField] private TextMeshPro playerNameText;
-    [SerializeField] private MeshRenderer[] modelParts;
+    [SerializeField] private MeshRenderer[] modelPartsMesh;
+    [SerializeField] private SkinnedMeshRenderer[] modelPartsSkinnedMesh;
+    [SerializeField] private Animator animator;
+    [SerializeField] private Transform characterModel;
+    [SerializeField] private Transform ikTarget;
+    [SerializeField] private Transform headRig;
     
     [Networked] private NetworkButtons PreviousButtons { get; set; }
     [Networked] public uint Uid { get; set; }
@@ -24,11 +31,18 @@ public class Player : NetworkBehaviour
 
     [Networked] public int LeaderboardScore { get; set; } = 0;
     private ChairSync currentChair;
+    private LightSync lightTrigger;
+    private LightSync lightState;
+    private GameObject[] lightsGo;
     private NetworkInputData input;
     private InputManager inputManager;
     private Vector2 baseLookRotation;
     private bool playerNameTextSet = false;
     private bool interactDebounce = false;
+    // animation paramters
+    [Networked] private NetworkBool isMoving {get; set;} = false;
+    [Networked] private NetworkBool isJumping {get; set;} = false;
+    [Networked] private NetworkBool isSitting {get; set;} = false;
     // quiz stuff
     QuizSync quizSync;
     Leaderboard leaderboard;
@@ -36,15 +50,18 @@ public class Player : NetworkBehaviour
     private List<QuizManager.QuestionItem> questions;
     private void OnEnable() {
         GameEventsManager.instance.QuizEvents.OnStartQuizClicked += StartQuiz;
+        GameEventsManager.instance.fusionEvents.onLightToggle += ToggleLight;
     }
 
     private void OnDisable() {
         GameEventsManager.instance.QuizEvents.OnStartQuizClicked -= StartQuiz;
+        GameEventsManager.instance.fusionEvents.onLightToggle -= ToggleLight;
     }
 
     private void Start() {
         
         quizManager = FindObjectOfType<QuizManager>();
+        lightsGo =  GameObject.FindObjectsOfType<Transform>().Where(t => t.name == "Spot Light").Select(t => t.gameObject).ToArray();
 
         if (quizSync != null && !quizSync.Object.IsValid)
         {
@@ -52,7 +69,8 @@ public class Player : NetworkBehaviour
 
             Runner.RegisterSceneObjects(currentScene, new NetworkObject[] {
                 quizSync.Object,
-                leaderboard.Object    
+                leaderboard.Object,
+                lightState.Object
             });
             
             Debug.Log("Registering scene objects");
@@ -112,20 +130,28 @@ public class Player : NetworkBehaviour
         LeaderboardScore = 0;
 
         quizSync = FindObjectOfType<QuizSync>();
+        lightState = GameObject.FindObjectOfType<LightSync>();
 
         if (HasInputAuthority)
         {
             GameEventsManager.instance.RTCEvents.PlayerJoined();
             CameraFollow.Singleton.SetTarget(camTarget);
 
-            foreach (MeshRenderer renderer in modelParts)
-            {
-                renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.ShadowsOnly;
-            }
+            // foreach (MeshRenderer renderer in modelPartsMesh)
+            // {
+            //     renderer.enabled = false;
+            // }
+
+            // foreach(SkinnedMeshRenderer renderer in modelPartsSkinnedMesh)
+            // {
+            //     renderer.enabled = false;
+            // }
 
             Uid = (uint)PlayerPrefs.GetInt("uid");
             PlayerName = PlayerPrefs.GetString("name");
             Rpc_RequestPlayerPrefs(Uid, PlayerName);
+            
+            lightState.RPC_RequestLightState();
         }
 
         kcc.Settings.ForcePredictedLookRotation = true; 
@@ -152,33 +178,56 @@ public class Player : NetworkBehaviour
         if (GetInput(out input))
         {
             baseLookRotation += input.LookDelta * lookSensitivity;
+
             NetworkedLookRotation = baseLookRotation;
 
             kcc.AddLookRotation(input.LookDelta * lookSensitivity);
             UpdateCamTarget();
+
+            if (ikTarget != null && headRig != null){
+                ikTarget.position = headRig.position + kcc.LookDirection * 5f;
+            }
 
             if (input.Buttons.WasPressed(PreviousButtons, InputButton.Interact) && !interactDebounce)
             {
                 interactDebounce = true;
                 PreviousButtons = input.Buttons;
                 InteractChair();
+                InteractLight();
             }else if(!input.Buttons.WasPressed(PreviousButtons, InputButton.Interact)){
                 interactDebounce = false;
             }
 
-            if (currentChair != null && currentChair.IsOccupied){
+            if (currentChair != null && currentChair.IsOccupied && currentChair.OccupyingPlayer == this) {
                 Vector3 chairPosition = currentChair.transform.position;
                 kcc.SetGravity(0f);
-                Vector3 targetPosition = new Vector3(chairPosition.x, chairPosition.y - 0.2f, chairPosition.z);
-                kcc.SetPosition(targetPosition);
+                
+                isSitting = true;
+
+                if(currentChair.IsDosen){
+                    Vector3 targetPosition = new Vector3(chairPosition.x, chairPosition.y, chairPosition.z);
+                    kcc.SetPosition(targetPosition);
+                }else{
+                    Vector3 targetPosition = new Vector3(chairPosition.x - 0.15f, chairPosition.y, chairPosition.z);
+                    kcc.SetPosition(targetPosition);
+                }
             }else{
+                    isSitting = false;
+
                 Vector3 worldDirection = kcc.TransformRotation * new Vector3(input.Direction.x, 0f, input.Direction.y);
                 float jump = 0f;
                 kcc.SetGravity(Physics.gravity.y * 2f);
 
-                if (input.Buttons.WasPressed(PreviousButtons, InputButton.Jump) && kcc.IsGrounded)
-                {
+                isMoving = worldDirection != Vector3.zero;
+
+                if (input.Buttons.WasPressed(PreviousButtons, InputButton.Jump) && kcc.IsGrounded){
                     jump = jumpImpluse;
+                }
+
+                if(!kcc.IsGrounded){
+                    isJumping = true;
+                }else{
+                    isJumping = false;
                 }
 
                 kcc.Move(worldDirection.normalized * speed, jump);
@@ -187,6 +236,19 @@ public class Player : NetworkBehaviour
             PreviousButtons = input.Buttons;
         }
 
+        if(HasStateAuthority){
+            RpcSyncAnimationState(isSitting, isJumping, isMoving, ikTarget.position);
+        }
+
+    }
+
+    [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+    private void RpcSyncAnimationState(bool isSitting, bool isJumping, bool isMoving, Vector3 targetPosition)
+    {
+        animator.SetBool("IsSitting", isSitting);
+        animator.SetBool("IsJumping", isJumping);
+        animator.SetBool("IsMoving", isMoving);
+        ikTarget.position = targetPosition;
     }
 
     private void InteractChair(){
@@ -196,10 +258,20 @@ public class Player : NetworkBehaviour
         }
     }
 
+    private void InteractLight(){
+        if(lightTrigger != null && HasInputAuthority)
+        {
+            lightTrigger.RPC_ToggleLight();
+        }
+    }
+
     private void OnTriggerEnter(Collider other) {
         if(other.TryGetComponent(out ChairSync chair) && currentChair == null){
             currentChair = chair;
             Debug.Log("Chair triggered: " + currentChair);
+        }else if(other.TryGetComponent(out LightSync lightSync) && lightTrigger == null){
+            lightTrigger = lightSync;
+            Debug.Log("Light triggered: " + lightTrigger);
         }
     }
 
@@ -207,6 +279,18 @@ public class Player : NetworkBehaviour
         if(other.TryGetComponent(out ChairSync chair) && currentChair == chair){
             currentChair = null;
             Debug.Log("Chair exited: " + currentChair);
+        }else if(other.TryGetComponent(out LightSync lightSync) && lightTrigger == lightSync){
+            lightTrigger = null;
+            Debug.Log("Light exited: " + lightTrigger);
+        }
+    }
+
+    private void ToggleLight(bool isOn){
+        Debug.Log("Toggling light: " + isOn);
+        foreach (var light in lightsGo)
+        {
+            var lightComponent = light.GetComponent<Light>();
+            lightComponent.intensity = isOn ? 58f : 5f;
         }
     }
 
@@ -216,7 +300,7 @@ public class Player : NetworkBehaviour
         if (!HasInputAuthority)
         {
             kcc.SetLookRotation(NetworkedLookRotation);
-        }
+        }    
 
         if (!playerNameTextSet && !string.IsNullOrEmpty(PlayerName))
         {

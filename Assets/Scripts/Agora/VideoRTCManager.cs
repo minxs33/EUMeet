@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Agora.Rtc;
+using Unity.Burst.Intrinsics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -272,10 +273,10 @@ public class VideoRTCManager : MonoBehaviour
 
     internal void MakeVideoView(uint uid, string channelId = "", VIDEO_SOURCE_TYPE videoSourceType = VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE)
     {
-        var go = GameObject.Find(uid.ToString() + "face");
+        var go = GameObject.Find(uid.ToString() + "_face");
         if (go != null) return;
 
-        var videoSurface = MakeQuadSurface(uid.ToString() + "face", uid);
+        var videoSurface = MakeQuadSurface(uid.ToString() + "_face", uid);
         if (videoSurface == null) return;
 
         videoSurface.SetForUser(uid, channelId, videoSourceType);
@@ -288,17 +289,46 @@ public class VideoRTCManager : MonoBehaviour
             {
                 var playerGo = player.gameObject;
                 var goVisual = playerGo.transform.Find("Visual");
-                var goParent = goVisual.Find("face");
+                var goParent = goVisual.Find("Labels");
                 if (goParent != null)
                 {
                     var parentRenderer = goParent.GetComponent<RectTransform>();
-                    videoSurface.transform.localScale = parentRenderer != null 
-                        ? Vector3.one 
-                        : new Vector3(1, -1, 1);
+
+                    float maxScale = 0.5f;
+                    float aspectRatio = (float)width / height;
+                    float scaleX = maxScale;
+                    float scaleY = maxScale;
+
+                    if (aspectRatio > 16f / 9f)
+                    {
+                        scaleY = maxScale * (9f / 16f) * (float)height / width;
+                    }
+                    else if (aspectRatio < 4f / 3f)
+                    {
+                        scaleX = maxScale * (4f / 3f) * (float)width / height;
+                    }
+                    else if (aspectRatio > 4f / 3f && aspectRatio < 16f / 9f)
+                    {
+                        if (aspectRatio > 1.33f)
+                        {
+                            scaleY = maxScale * (9f / 16f) * (float)height / width;
+                        }
+                        else
+                        {
+                            scaleX = maxScale * (4f / 3f) * (float)width / height;
+                        }
+                    }
+
+                    scaleX = Mathf.Clamp(scaleX, 0, maxScale);
+                    scaleY = Mathf.Clamp(scaleY, 0, maxScale);
+
+                    videoSurface.transform.localScale = parentRenderer != null
+                        ? new Vector3(scaleX, scaleY, 1)
+                        : new Vector3(scaleX, -scaleY, 1);
                 }
             }
 
-            Debug.Log($"OnTextureSizeModify: {width}x{height}");
+            Debug.Log($"OnTextureSizeModify: {width}x{height}, Aspect Ratio: {(float)width / height}");
         };
 
         Debug.Log($"Video view created for UID: {uid}");
@@ -326,24 +356,24 @@ public class VideoRTCManager : MonoBehaviour
             return null;
         }
 
-        var goParent = goVisual.Find("face");
+        var goParent = goVisual.Find("Labels");
         if (goParent == null)
         {
-            Debug.LogError("Face GameObject not found!");
+            Debug.LogError("Labels GameObject not found!");
             return null;
         }
 
         go.transform.SetParent(goParent, false);
-        go.transform.localPosition = new Vector3(0,0,-0.53f);
+        go.transform.localPosition = new Vector3(0,0,0);
         go.transform.localRotation = Quaternion.identity;
         go.transform.localScale = Vector3.one;
 
         return go.AddComponent<VideoSurface>();
     }
     
-    internal static void DestroyVideoView(uint uid)
+    internal void DestroyVideoView(uint uid)
     {
-        var go = GameObject.Find(uid.ToString() + "face");
+        var go = GameObject.Find(uid.ToString() + "_face");
         if (go != null)
         {
             Debug.Log($"Destroying video view for UID: {uid}");
@@ -384,23 +414,23 @@ public class VideoRTCManager : MonoBehaviour
             Player[] players = FindObjectsOfType<Player>();
             foreach (Player player in players)
             {
-                if (player.Uid == uid)
-                {
-                    var videoFeed = player.gameObject.transform.Find("Visual/face/VideoFeed");
-                    Debug.Log("Remote user joined with uid: " + uid);
-                    VideoSurface playerVideoSurface = videoFeed.GetComponent<VideoSurface>();
-                    MeshRenderer playerMeshRenderer = videoFeed.GetComponent<MeshRenderer>();
-                    if(playerVideoSurface != null && playerMeshRenderer != null){
-                        Debug.Log("Setting remote video for player: " + player.PlayerName);
-                        playerVideoSurface.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
-                        playerVideoSurface.SetEnable(true);
-                        playerMeshRenderer.enabled = false;
+                // if (player.Uid == uid)
+                // {
+                    // var videoFeed = player.gameObject.transform.Find("Visual/face/VideoFeed");
+                    // Debug.Log("Remote user joined with uid: " + uid);
+                    // VideoSurface playerVideoSurface = videoFeed.GetComponent<VideoSurface>();
+                    // MeshRenderer playerMeshRenderer = videoFeed.GetComponent<MeshRenderer>();
+                    // if(playerVideoSurface != null && playerMeshRenderer != null){
+                        // Debug.Log("Setting remote video for player: " + player.PlayerName);
+                        // playerVideoSurface.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
+                        // playerVideoSurface.SetEnable(true);
+                        // playerMeshRenderer.enabled = false;
                         
-                    }else{
-                        Debug.LogError("VideoSurface not found for player: " + player.PlayerName);
-                    }
-                    break;
-                }
+                    // }else{
+                    //     Debug.LogError("VideoSurface not found for player: " + player.PlayerName);
+                    // }
+                    // break;
+                // }
             }
         }
 
@@ -427,22 +457,26 @@ public class VideoRTCManager : MonoBehaviour
                 {
                     
                     if(reason == REMOTE_VIDEO_STATE_REASON.REMOTE_VIDEO_STATE_REASON_REMOTE_UNMUTED || reason == REMOTE_VIDEO_STATE_REASON.REMOTE_VIDEO_STATE_REASON_LOCAL_MUTED){
-                        var player = rtcSample.GetPlayer(uid);
-                        var videoFeed = player.transform.Find("Visual/face/VideoFeed");
-                        MeshRenderer playerMeshRenderer = videoFeed.GetComponent<MeshRenderer>();
+                        // var player = rtcSample.GetPlayer(uid);
+                        // var videoFeed = player.transform.Find("Visual/face/VideoFeed");
+                        // MeshRenderer playerMeshRenderer = videoFeed.GetComponent<MeshRenderer>();
 
                         Debug.Log("Setting remote video for uid: "+uid);
                         
                         if(state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_DECODING){
-                            
-                            playerMeshRenderer.enabled = true;
+                            rtcSample.MakeVideoView(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
+                            // playerMeshRenderer.enabled = true;
                             Debug.Log("Turning on video object");
                         
                         }else if(state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_STOPPED){
-                            
-                            playerMeshRenderer.enabled = false;
+                            rtcSample.DestroyVideoView(uid);
+                            // playerMeshRenderer.enabled = false;
                             Debug.Log("Turning off video object");
                         
+                        }
+                    }else if(reason == REMOTE_VIDEO_STATE_REASON.REMOTE_VIDEO_STATE_REASON_REMOTE_MUTED){
+                        if(GameObject.Find(uid.ToString() + "_face")){
+                           rtcSample.DestroyVideoView(uid); 
                         }
                     }
                 }

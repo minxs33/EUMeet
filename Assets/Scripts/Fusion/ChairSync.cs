@@ -4,6 +4,7 @@ using UnityEngine;
 public class ChairSync : NetworkBehaviour
 {
     [Networked] public bool IsOccupied { get; private set; } = false;
+    public bool IsDosen;
     [Networked] public Player OccupyingPlayer { get; private set; }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
