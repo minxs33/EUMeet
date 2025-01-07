@@ -15,6 +15,7 @@ public class GameEventsManager : MonoBehaviour
     public RTCEvents RTCEvents;
     public FusionEvents fusionEvents;
     public QuizEvents QuizEvents;
+    public SoundEvents soundEvents;
 
     private void Awake() {
         if(instance == null){

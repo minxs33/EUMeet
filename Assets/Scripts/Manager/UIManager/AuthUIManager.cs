@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using POpusCodec.Enums;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -10,14 +11,15 @@ public class AuthUIManager : MonoBehaviour
 {
     [Header("Menu UI")]
     [SerializeField] private GameObject menuPanel;
+    [SerializeField] private GameObject authPanel;
     [SerializeField] private Button registerPageButton;
     [SerializeField] private GameObject registerPanel;
-    [SerializeField] private Button loginPageButton;
+    [SerializeField] private Button startButton;
     [SerializeField] private GameObject loginPanel;
     [SerializeField] private Button exit;
     
     [Header("Back to menu UI")]
-    [SerializeField] private Button backToMenu;
+    [SerializeField] private Button[] backToMenuButton;
     
     [Header("Register Form UI")]
     public TMP_InputField nameInputField;
@@ -25,6 +27,7 @@ public class AuthUIManager : MonoBehaviour
     public TMP_InputField passwordInputField;
     [SerializeField] private Button registerButton;
     [SerializeField] private GameObject registerErrorPanel;
+    [SerializeField] private Button[] backToLogin;
 
     [Header("Login Form UI")]
     public TMP_InputField loginEmailInputField;
@@ -49,12 +52,13 @@ public class AuthUIManager : MonoBehaviour
     private void OnEnable() {
         // Menu UI
         registerPageButton.onClick.AddListener(OpenRegisterPage);
-        loginPageButton.onClick.AddListener(OpenLoginPage);
-        backToMenu.onClick.AddListener(OpenMenuPage);
+        foreach (Button button in backToMenuButton) button.onClick.AddListener(OpenMenuPage);
+        startButton.onClick.AddListener(OpenAuthPanel);
 
         // Register UI
         GameEventsManager.instance.UIEvents.onRegisterError += RegisterError;
         registerButton.onClick.AddListener(()=> GameEventsManager.instance.authEvents.Register(nameInputField.text, emailInputField.text, passwordInputField.text));
+        foreach (Button button in backToLogin) button.onClick.AddListener(OpenLoginPanel);
 
         // Login UI
         GameEventsManager.instance.UIEvents.onLoginError += LoginError;
@@ -75,8 +79,8 @@ public class AuthUIManager : MonoBehaviour
     private void OnDisable() {
         // Menu UI
         registerPageButton.onClick.RemoveListener(OpenRegisterPage);
-        loginPageButton.onClick.RemoveListener(OpenLoginPage);
-        backToMenu.onClick.RemoveListener(OpenMenuPage);
+        foreach (Button button in backToMenuButton) button.onClick.RemoveListener(OpenMenuPage);
+        startButton.onClick.RemoveListener(OpenAuthPanel);
 
         // Register UI
         GameEventsManager.instance.UIEvents.onRegisterError -= RegisterError;
@@ -103,11 +107,14 @@ public class AuthUIManager : MonoBehaviour
         GameEventsManager.instance.UIEvents.onShowGenderPanel -= ShowGenderPanel;
 
     }
-    private void OpenLoginPage(){
-        StartCoroutine(FadeCanvasGroups(menuPanel.GetComponent<CanvasGroup>(), loginPanel.GetComponent<CanvasGroup>()));
+    private void OpenAuthPanel(){
+        StartCoroutine(FadeCanvasGroups(menuPanel.GetComponent<CanvasGroup>(), authPanel.GetComponent<CanvasGroup>()));
+    }
+    public void OpenLoginPanel(){
+        StartCoroutine(FadeCanvasGroups(registerPanel.GetComponent<CanvasGroup>(), loginPanel.GetComponent<CanvasGroup>()));
     }
     private void OpenRegisterPage(){
-        StartCoroutine(FadeCanvasGroups(menuPanel.GetComponent<CanvasGroup>(), registerPanel.GetComponent<CanvasGroup>()));
+        StartCoroutine(FadeCanvasGroups(loginPanel.GetComponent<CanvasGroup>(), registerPanel.GetComponent<CanvasGroup>()));
     }
     private void OpenMenuPage(){
         StartCoroutine(BackToMenu());
@@ -115,15 +122,12 @@ public class AuthUIManager : MonoBehaviour
 
     private IEnumerator FadeCanvasGroups(CanvasGroup fadeOutCanvas, CanvasGroup fadeInCanvas)
     {
-        float duration = 0.1f;
+        float duration = 0.3f;
         float time = 0;
 
         fadeInCanvas.gameObject.SetActive(true);
         fadeInCanvas.alpha = 0;
 
-        backToMenu.gameObject.SetActive(true);
-        CanvasGroup backToMenuCanvasGroup = backToMenu.GetComponent<CanvasGroup>();
-        backToMenuCanvasGroup.alpha = 0;
 
         while (time < duration)
         {
@@ -131,23 +135,20 @@ public class AuthUIManager : MonoBehaviour
             float alpha = Mathf.Lerp(1, 0, time / duration);
             fadeOutCanvas.alpha = alpha;
             fadeInCanvas.alpha = 1 - alpha;
-            backToMenuCanvasGroup.alpha = fadeInCanvas.alpha;
             yield return null;
         }
 
         fadeOutCanvas.alpha = 0;
         fadeInCanvas.alpha = 1;
-        backToMenuCanvasGroup.alpha = fadeInCanvas.alpha;
 
         fadeOutCanvas.gameObject.SetActive(false);
     }
 
     private IEnumerator BackToMenu()
     {
-        CanvasGroup regCanvas = registerPanel.GetComponent<CanvasGroup>();
-        CanvasGroup logCanvas = loginPanel.GetComponent<CanvasGroup>();
+        CanvasGroup authCanvas = authPanel.GetComponent<CanvasGroup>();
+        CanvasGroup loginCanvas = loginPanel.GetComponent<CanvasGroup>();
         CanvasGroup menuCanvas = menuPanel.GetComponent<CanvasGroup>();
-        CanvasGroup backToMenuCanvasGroup = backToMenu.GetComponent<CanvasGroup>();
 
         float duration = 0.1f;
         float time = 0;
@@ -159,21 +160,18 @@ public class AuthUIManager : MonoBehaviour
         {
             time += Time.deltaTime;
             float alpha = Mathf.Lerp(1, 0, time / duration);
-            regCanvas.alpha = alpha;
-            logCanvas.alpha = alpha;
-            backToMenuCanvasGroup.alpha = alpha;
+            authCanvas.alpha = alpha;
             menuCanvas.alpha = 1 - alpha;
             yield return null;
         }
 
-        regCanvas.alpha = 0;
-        logCanvas.alpha = 0;
-        backToMenuCanvasGroup.alpha = 0;
         menuCanvas.alpha = 1;
 
-        backToMenu.gameObject.SetActive(false);
         registerPanel.SetActive(false);
-        loginPanel.SetActive(false);
+        loginPanel.SetActive(true);
+        loginCanvas.alpha = 1;
+        authPanel.SetActive(false);
+
     }
 
     private void RegisterError(JObject error) {
