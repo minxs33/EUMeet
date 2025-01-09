@@ -9,6 +9,7 @@ public class SlideAnimation : MonoBehaviour
     [SerializeField] private Direction startDirection = Direction.Up; // Starting direction
     [SerializeField] private AnimationType animationType = AnimationType.SlideIn;
     [SerializeField] private CanvasGroup canvasGroup;   // For fade effect
+    [SerializeField] private bool isPlayOnStart = true;
     private bool isFirstAnimation = true;
 
     private Vector3 originalPosition;
@@ -25,14 +26,14 @@ public class SlideAnimation : MonoBehaviour
     private void Start()
     {
         originalPosition = transform.position;
-        if (isFirstAnimation)
+        if (isFirstAnimation && isPlayOnStart)
         {
             isFirstAnimation = false;
             StartAnimation();
         }
     }
 
-    private void StartAnimation()
+    public void StartAnimation()
     {
         if (canvasGroup == null)
         {
@@ -52,7 +53,7 @@ public class SlideAnimation : MonoBehaviour
         }
     }
 
-    private void SlideIn()
+    public void SlideIn()
     {
         canvasGroup.alpha = 0;
         transform.position = offsetPosition;
@@ -63,7 +64,7 @@ public class SlideAnimation : MonoBehaviour
             .Join(canvasGroup.DOFade(1f, duration));
     }
 
-    private void SlideOut()
+    public void SlideOut()
     {
         canvasGroup.alpha = 1;
 

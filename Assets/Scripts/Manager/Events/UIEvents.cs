@@ -3,7 +3,12 @@ using Newtonsoft.Json.Linq;
 
 public class UIEvents
 {
+    public event Action onLocalPlayerJoined;
 
+    public void LocalPlayerJoined() {
+        onLocalPlayerJoined?.Invoke();
+    }
+    
     public event Action<Boolean> onToggleOverlay;
 
     public void ToggleOverlay(Boolean state)

@@ -212,7 +212,7 @@ public class AuthUIManager : MonoBehaviour
     }
 
     private void ShowGenderPanel(){
-        genderPanel.SetActive(true);
+        StartCoroutine(FadeCanvasGroups(authPanel.GetComponent<CanvasGroup>(), genderPanel.GetComponent<CanvasGroup>()));
     }
 
     private void TogglePlayButton(string state) {

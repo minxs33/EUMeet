@@ -113,7 +113,8 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
 
                 SyncPlayerData();
             }
-            
+        }else{
+            GameEventsManager.instance.UIEvents.LocalPlayerJoined();
         }
     }
 

@@ -1,13 +1,15 @@
 using UnityEngine;
 using DG.Tweening;
+using System;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class FadeAnimation : MonoBehaviour
 {
     [SerializeField] private float range = 1f;
-    [SerializeField] private float duration = 1f;
+    [SerializeField] public float duration = 1f;
     [SerializeField] private AnimationType animationType = AnimationType.FadeIn;
     [SerializeField] private CanvasGroup canvasGroup;
+    [SerializeField] private bool isPlayOnStart = true;
     private bool isFirstAnimation = true;
 
     private Vector3 originalPosition;
@@ -23,14 +25,14 @@ public class FadeAnimation : MonoBehaviour
     private void Start()
     {
         originalPosition = transform.position;
-        if (isFirstAnimation)
+        if (isFirstAnimation && isPlayOnStart)
         {
             isFirstAnimation = false;
             StartAnimation();
         }
     }
 
-    private void StartAnimation()
+    public void StartAnimation()
     {
         if (canvasGroup == null)
         {
@@ -48,7 +50,7 @@ public class FadeAnimation : MonoBehaviour
         }
     }
 
-    private void FadeIn()
+    public void FadeIn()
     {
         canvasGroup.alpha = 0;
 
@@ -56,12 +58,12 @@ public class FadeAnimation : MonoBehaviour
         sequence.Join(canvasGroup.DOFade(1f, duration));
     }
 
-    private void FadeOut()
+    public void FadeOut(Action onComplete = null)
     {
         canvasGroup.alpha = 1;
 
         Sequence sequence = DOTween.Sequence();
-        sequence.Join(canvasGroup.DOFade(0f, duration));
+        sequence.Join(canvasGroup.DOFade(0f, duration)).OnComplete(() =>{ onComplete?.Invoke();});
     }
 
     internal enum AnimationType { FadeIn, FadeOut };

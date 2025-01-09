@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
 {
-    public static CameraFollow Singleton {
+    public static CameraFollow instance {
         get => _singleton;
         set
         {
@@ -25,12 +25,12 @@ public class CameraFollow : MonoBehaviour
     private Transform target;
 
     private void Awake() {
-        Singleton = this;
+        instance = this;
     }
 
     private void OnDestroy() {
-        if(Singleton == this)
-            Singleton = null;
+        if(instance == this)
+            instance = null;
     }
 
     private void LateUpdate() {

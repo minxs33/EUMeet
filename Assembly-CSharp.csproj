@@ -77,6 +77,7 @@
     <Compile Include="Assets\Scripts\Manager\LevelManager.cs" />
     <Compile Include="Assets\Scripts\Agora\ShareScreenRTCManager.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\LevelEvents.cs" />
+    <Compile Include="Assets\Scripts\DOTween Scripts\LoadingAnimation.cs" />
     <Compile Include="Assets\Scripts\Manager\UIManager\LobbyUIManager.cs" />
     <Compile Include="Assets\Scripts\PlaySoundEnter.cs" />
     <Compile Include="Assets\DebugCameraFollow.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Assets\Scripts\Manager\Events\RTCEvents.cs" />
     <Compile Include="Assets\Scripts\DOTween Scripts\FadeAnimation.cs" />
     <Compile Include="Assets\Scripts\Fusion\LightSync.cs" />
+    <Compile Include="Assets\Scripts\LoadingTips.cs" />
     <Compile Include="Assets\Scripts\DOTween Scripts\SlideAnimation.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\SoundEvents.cs" />
     <Compile Include="Assets\Scripts\Manager\InputManager.cs" />

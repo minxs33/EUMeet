@@ -137,7 +137,8 @@ public class Player : NetworkBehaviour
         if (HasInputAuthority)
         {
             GameEventsManager.instance.RTCEvents.PlayerJoined();
-            CameraFollow.Singleton.SetTarget(camTarget);
+            CameraFollow.instance.SetTarget(camTarget);
+            GameEventsManager.instance.UIEvents.LocalPlayerJoined();
 
             foreach (MeshRenderer renderer in modelPartsMesh)
             {
@@ -224,7 +225,7 @@ public class Player : NetworkBehaviour
                     kcc.SetPosition(targetPosition);
                 }
             }else{
-                    isSitting = false;
+                isSitting = false;
 
                 Vector3 worldDirection = kcc.TransformRotation * new Vector3(input.Direction.x, 0f, input.Direction.y);
                 float jump = 0f;

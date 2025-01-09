@@ -11,6 +11,7 @@ public class LobbyUIManager : MonoBehaviour
 {
     public static LobbyUIManager Instance { get; private set; }
     [SerializeField] private GameObject _overlay;
+    [SerializeField] private GameObject _loadingScreen;
     [Header("Chat UI")]
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private GameObject _chatPanel;
@@ -54,12 +55,15 @@ public class LobbyUIManager : MonoBehaviour
     bool _isQuizOverlayOpen = false;
     bool _isLeaderboardOpen = false;
     private Coroutine fadeChatCoroutine;
+    private FadeAnimation _fadeAnimation;
+    private SlideAnimation _slideAnimation;
 
     // Camera Source
     [SerializeField] private TMP_Dropdown _webCamDropdown;
     private WebCamDevice[] _webCamDevices;
 
     private void OnEnable() {
+        GameEventsManager.instance.UIEvents.onLocalPlayerJoined += DisableLoading;
         GameEventsManager.instance.UIEvents.onToggleOverlay += ToggleOverlay;
         GameEventsManager.instance.RTCEvents.onChatInputPressed += InputTextSelected;
         // Chat
@@ -97,6 +101,7 @@ public class LobbyUIManager : MonoBehaviour
     }
 
     private void OnDisable() {
+        GameEventsManager.instance.UIEvents.onLocalPlayerJoined -= DisableLoading;
         GameEventsManager.instance.UIEvents.onToggleOverlay -= ToggleOverlay;
         GameEventsManager.instance.RTCEvents.onChatInputPressed -= InputTextSelected;
         _inputField.onEndEdit.RemoveListener(ChatHandler); 
@@ -131,12 +136,14 @@ public class LobbyUIManager : MonoBehaviour
         Instance = this;
     }
     private void Start(){
-        // _webCamDropdown.ClearOptions();
-        // _webCamDevices = WebCamTexture.devices;
-        // foreach (var device in _webCamDevices)
-        // {
-        //     _webCamDropdown.options.Add(new TMP_Dropdown.OptionData(device.name));
-        // }
+        _loadingScreen.SetActive(true);
+    }
+
+    private void DisableLoading(){
+        _fadeAnimation = _loadingScreen.GetComponent<FadeAnimation>();
+        _fadeAnimation.FadeOut(()=>{
+            _loadingScreen.SetActive(false);
+        });
     }
 
     private void UpdateWebCamDropdown(DeviceInfo[] deviceInfos){
@@ -149,23 +156,31 @@ public class LobbyUIManager : MonoBehaviour
 
     private void OnWebcamSelected(int index)
     {
-
         GameEventsManager.instance.RTCEvents.WebCamSelected(index);
+        SoundManager.PlaySound(SoundType.UI_PRESS, null, 0.5f);
     }
 
     private void ToggleOverlay(Boolean state)
     {
+        _fadeAnimation = _overlay.GetComponent<FadeAnimation>();
         if(state){
+            SoundManager.PlaySound(SoundType.UI_OVERLAY_OPEN, null, 0.5f);
             _overlay.SetActive(true);
+            _fadeAnimation.FadeIn();
+            
         } else {
-            _overlay.SetActive(false);
+            SoundManager.PlaySound(SoundType.UI_OVERLAY_CLOSE, null, 0.5f);
+            _fadeAnimation.FadeOut(()=>{
+                _overlay.SetActive(false);
+            });
         }
     }
 
     private void ToggleVoice(){
-        Transform _button = _toggleAudioMuteButton.GetComponentInChildren<Transform>();
-        GameObject _buttonChild = _button.Find("Icon").gameObject;
-        Image _buttonImage = _buttonChild.GetComponentInChildren<Image>();
+        Button _button = _toggleAudioMuteButton.GetComponentInChildren<Button>();
+        Image _buttonGoImage = _button.GetComponent<Image>();
+        GameObject _buttonChild = _button.transform.Find("Icon").gameObject;
+        Image _buttonImage = _buttonChild.GetComponent<Image>();
         
         if (_buttonImage == null) {
             Debug.LogError("Button Image component is missing.");
@@ -175,21 +190,29 @@ public class LobbyUIManager : MonoBehaviour
         if (_isVoiceMuted) {
             GameEventsManager.instance.RTCEvents?.UnMuteVoice();
             _isVoiceMuted = false;
+            
+            _button.transition = Selectable.Transition.None;
+            _buttonGoImage.color = new Color(0.172549f,0.172549f,0.172549f,1f);
+            _buttonImage.color = new Color(0.9607843f, 0.9607843f, 0.9607843f, 1f);
             _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Mic Icon");
 
         } else {
             GameEventsManager.instance.RTCEvents?.MuteVoice();
             _isVoiceMuted = true;
 
+            _button.transition = Selectable.Transition.ColorTint;
+            _buttonGoImage.color = new Color(1f, 1f, 1f, 1f);
+            _buttonImage.color = new Color(0.9811321f, 0.1434674f, 0.1776674f, 1f);
             _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Mic Off Icon");
         }
 
     }
 
     private void ToggleVideo(){
-        Transform _button = _toggleVideoMuteButton.GetComponentInChildren<Transform>();
-        GameObject _buttonChild = _button.Find("Icon").gameObject;
-        Image _buttonImage = _buttonChild.GetComponentInChildren<Image>();
+        Button _button = _toggleVideoMuteButton.GetComponentInChildren<Button>();
+        Image _buttonGoImage = _button.GetComponent<Image>();
+        GameObject _buttonChild = _button.transform.Find("Icon").gameObject;
+        Image _buttonImage = _buttonChild.GetComponent<Image>();
 
         if (_buttonImage == null) {
             Debug.LogError("Button Image component is missing.");
@@ -199,13 +222,19 @@ public class LobbyUIManager : MonoBehaviour
         if (_isVideoMuted) {
             GameEventsManager.instance.RTCEvents?.UnMuteVideo();
             _isVideoMuted = false;
+            _button.transition = Selectable.Transition.None;
+            _buttonGoImage.color = new Color(0.172549f,0.172549f,0.172549f,1f);
+            _buttonImage.color = new Color(0.9607843f, 0.9607843f, 0.9607843f, 1f);
             _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Video Icon");
             _localView.SetActive(true);
         } else {
             GameEventsManager.instance.RTCEvents?.MuteVideo();
             _isVideoMuted = true;
-            _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Video Off Icon");
             _localView.SetActive(false);
+            _button.transition = Selectable.Transition.ColorTint;
+            _buttonGoImage.color = new Color(1f, 1f, 1f, 1f);
+            _buttonImage.color = new Color(0.9811321f, 0.1434674f, 0.1776674f, 1f);
+            _buttonImage.sprite = Resources.Load<Sprite>("Icons/Free Flat Video Off Icon");
         }
     }
 
@@ -231,9 +260,11 @@ public class LobbyUIManager : MonoBehaviour
         if(_isShareScreenModalOpen){
             _shareScreenModal.SetActive(false);
             _isShareScreenModalOpen = false;
+            SoundManager.PlaySound(SoundType.UI_CLOSE_POP_UP, null, 0.5f);
         } else {
             _shareScreenModal.SetActive(true);
             _isShareScreenModalOpen = true;
+            SoundManager.PlaySound(SoundType.UI_OPEN_POP_UP, null, 0.5f);
         }
     }
 
@@ -241,12 +272,14 @@ public class LobbyUIManager : MonoBehaviour
         GameEventsManager.instance.RTCEvents?.ToggleSelectCaptureType(true);
         _windowButton.interactable = false;
         _screenButton.interactable = true;
+        SoundManager.PlaySound(SoundType.UI_PRESS,null,0.5f);
     }
 
     private void SelectScreenCapture(){
         GameEventsManager.instance.RTCEvents?.ToggleSelectCaptureType(false);
         _windowButton.interactable = true;
         _screenButton.interactable = false;
+        SoundManager.PlaySound(SoundType.UI_PRESS,null,0.5f);
     }
 
     private void ToggleCaptureSelected(bool state){
@@ -264,6 +297,7 @@ public class LobbyUIManager : MonoBehaviour
         _publishButton.interactable = false;
         _shareScreenModal.SetActive(false);
         _isShareScreenModalOpen = false;
+        SoundManager.PlaySound(SoundType.UI_PRESS, null, 0.5f);
     }
 
     private void UnPublishScreenCapture()
@@ -273,6 +307,7 @@ public class LobbyUIManager : MonoBehaviour
         _publishButton.interactable = false;
         _shareScreenModal.SetActive(false);
         _isShareScreenModalOpen = false;
+        SoundManager.PlaySound(SoundType.UI_CANCEL, null ,0.5f);
     }
 
     // chat
@@ -297,6 +332,7 @@ public class LobbyUIManager : MonoBehaviour
         if(message != null) {
             _chatText.text +="\n"+ message;
             _chatPanel.GetComponent<CanvasGroup>().alpha = 1;
+            SoundManager.PlaySound(SoundType.UI_CHAT, null, 0.5f);
             StartFadeChatPanel(true);
         }
     }
@@ -336,9 +372,11 @@ public class LobbyUIManager : MonoBehaviour
         if(_isQuizModalOpen){
             _quizModal.SetActive(false);
             _isQuizModalOpen = false;
+            SoundManager.PlaySound(SoundType.UI_CLOSE_POP_UP,null, 0.5f);
         } else {
             _quizModal.SetActive(true);
             _isQuizModalOpen = true;
+            SoundManager.PlaySound(SoundType.UI_OPEN_POP_UP,null, 0.5f);
         }
     }
 
@@ -364,6 +402,7 @@ public class LobbyUIManager : MonoBehaviour
         if(_addQuizInputField.text.Length > 0){
             GameEventsManager.instance.QuizEvents?.AddQuiz(_addQuizInputField.text);
             _addQuizInputField.text = "";
+            SoundManager.PlaySound(SoundType.UI_PRESS, null, 0.5f);
         }
     }
 
@@ -383,6 +422,7 @@ public class LobbyUIManager : MonoBehaviour
             _questionModalContent.SetActive(false);
             _isQuizModalContentOpen = true;
         }
+        SoundManager.PlaySound(SoundType.UI_PRESS, null, 0.5f);
         Debug.Log("isQuizModalContentOpen: " + _isQuizModalContentOpen);
     }
 
@@ -408,6 +448,8 @@ public class LobbyUIManager : MonoBehaviour
     }
     public void SetTitleText(string title) => _quizTitleText.text = title;
 
-    public void AddQuestion() => GameEventsManager.instance.QuizEvents?.AddQuestion();
-
+    public void AddQuestion(){
+        GameEventsManager.instance.QuizEvents?.AddQuestion();
+        SoundManager.PlaySound(SoundType.UI_OPEN_POP_UP, null, 0.5f);
+    }
 }
