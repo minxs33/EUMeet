@@ -42,4 +42,8 @@ public class QuizEvents
 
     public event Action OnEndQuiz;
     public void EndQuiz() => OnEndQuiz?.Invoke();
+
+    public event Action<int> OnCountDownStart;
+
+    public void CountDownStart(int num) => OnCountDownStart.Invoke(num);
 }

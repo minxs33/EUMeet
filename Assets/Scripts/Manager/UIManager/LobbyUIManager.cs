@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Threading;
 using Agora.Rtc;
 using TMPro;
 using Unity.VisualScripting;
@@ -38,6 +39,7 @@ public class LobbyUIManager : MonoBehaviour
     [SerializeField] private GameObject _quizModal;
     [SerializeField] private Button _addQuizButton;
     [SerializeField] private TMP_InputField _addQuizInputField;
+    [SerializeField] private TMP_Text _CountDownText;
 
     [Header("Question UI")]
     [SerializeField] private TMP_Text _quizTitleText;
@@ -97,6 +99,7 @@ public class LobbyUIManager : MonoBehaviour
         GameEventsManager.instance.QuizEvents.OnStartQuiz += StartQuiz;
         GameEventsManager.instance.QuizEvents.OnToggleLeaderboard += ToggleLeaderboard;
         GameEventsManager.instance.QuizEvents.OnEndQuiz += EndQuiz;
+        GameEventsManager.instance.QuizEvents.OnCountDownStart += CountDownStart;
         
     }
 
@@ -384,9 +387,11 @@ public class LobbyUIManager : MonoBehaviour
         if(!_isQuizOverlayOpen){
             _quizPanel.SetActive(true);
             _isQuizOverlayOpen = true;
+            // Sound start quiz
         } else {
             _quizPanel.SetActive(false);
             _isQuizOverlayOpen = false;
+            // Sound end quiz
         }
     }
 
@@ -438,6 +443,7 @@ public class LobbyUIManager : MonoBehaviour
         }else{
             _isLeaderboardOpen = true;
             _leaderboardPanel.SetActive(true);
+            // Sound Leaderboard
             GameEventsManager.instance.QuizEvents?.GetLeaderboard();
         }
     }
@@ -445,11 +451,23 @@ public class LobbyUIManager : MonoBehaviour
     public void EndQuiz(){
         ToggleQuizOverlay();
         // TODO: show UI leaderboard
+        // Sound end leaderboard
     }
     public void SetTitleText(string title) => _quizTitleText.text = title;
 
     public void AddQuestion(){
         GameEventsManager.instance.QuizEvents?.AddQuestion();
         SoundManager.PlaySound(SoundType.UI_OPEN_POP_UP, null, 0.5f);
+    }
+
+    public void CountDownStart(int num){
+        if (num == 0){
+            _CountDownText.gameObject.SetActive(false);
+            // Sound start
+        }else{
+            _CountDownText.gameObject.SetActive(true);
+            _CountDownText.text = num.ToString();
+            // Sound countdown
+        }
     }
 }
