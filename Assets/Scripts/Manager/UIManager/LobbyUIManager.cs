@@ -37,6 +37,8 @@ public class LobbyUIManager : MonoBehaviour
     [SerializeField] private Button _toggleQuizButton;
     [SerializeField] private Button _cancelQuizModalButton;
     [SerializeField] private GameObject _quizModal;
+    [SerializeField] private Button _addSubjectButton;
+    [SerializeField] private TMP_InputField _addSubjectInputField;
     [SerializeField] private Button _addQuizButton;
     [SerializeField] private TMP_InputField _addQuizInputField;
     [SerializeField] private TMP_Text _CountDownText;
@@ -90,6 +92,7 @@ public class LobbyUIManager : MonoBehaviour
         _toggleQuizButton.onClick.AddListener(ToggleQuiz);
         _cancelQuizModalButton.onClick.AddListener(ToggleQuiz);
         _addQuizButton.onClick.AddListener(AddQuiz);
+        _addSubjectButton.onClick.AddListener(AddSubject);
         _doneQuestionModalButton.onClick.AddListener(ToggleModalContent);
         _addQuestionButton.onClick.AddListener(AddQuestion);
         _startQuizButton.onClick.AddListener(GameEventsManager.instance.QuizEvents.StartQuizClicked);
@@ -124,6 +127,7 @@ public class LobbyUIManager : MonoBehaviour
         _toggleQuizButton.onClick.RemoveListener(ToggleQuiz);
         _cancelQuizModalButton.onClick.RemoveListener(ToggleQuiz);
         _addQuizButton.onClick.RemoveListener(AddQuiz);
+        _addSubjectButton.onClick.RemoveListener(AddSubject);
         _doneQuestionModalButton.onClick.RemoveListener(ToggleModalContent);
         _addQuestionButton.onClick.RemoveListener(AddQuestion);
         _startQuizButton.onClick.RemoveListener(GameEventsManager.instance.QuizEvents.StartQuizClicked);
@@ -140,6 +144,12 @@ public class LobbyUIManager : MonoBehaviour
     }
     private void Start(){
         _loadingScreen.SetActive(true);
+        if(PlayerPrefs.GetInt("isDosen") == 1)
+        {
+            _toggleQuizButton.gameObject.SetActive(true);
+        }else{
+            _toggleQuizButton.gameObject.SetActive(false);
+        }
     }
 
     private void DisableLoading(){
@@ -403,6 +413,20 @@ public class LobbyUIManager : MonoBehaviour
         }
     }
 
+    public void AddSubject(){
+        if(_addSubjectInputField.text.Length > 0){
+            GameEventsManager.instance.QuizEvents?.AddSubject(_addSubjectInputField.text);
+            _addSubjectInputField.text = "";
+            SoundManager.PlaySound(SoundType.UI_PRESS, null, 0.5f);
+        }
+    }
+
+    public void UpdateSubject(string subject, int id){
+        if(!string.IsNullOrEmpty(subject)){
+            GameEventsManager.instance.QuizEvents?.UpdateSubject(subject, id);
+        }
+    }
+
     public void AddQuiz(){
         if(_addQuizInputField.text.Length > 0){
             GameEventsManager.instance.QuizEvents?.AddQuiz(_addQuizInputField.text);
@@ -416,7 +440,6 @@ public class LobbyUIManager : MonoBehaviour
             GameEventsManager.instance.QuizEvents?.UpdateQuiz(title, id);
         }
     }
-
     public void ToggleModalContent(){
         if(_isQuizModalContentOpen){
             _quizModalContent.SetActive(false);
@@ -432,7 +455,7 @@ public class LobbyUIManager : MonoBehaviour
     }
 
     public void StartQuiz(){
-        ToggleQuiz();
+        // ToggleQuiz();
         ToggleQuizOverlay();
     }
 

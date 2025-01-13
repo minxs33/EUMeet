@@ -28,6 +28,7 @@ public class Player : NetworkBehaviour
     [Networked] public uint Uid { get; set; }
     [Networked] public string PlayerName { get; set; }
     [Networked] public string PlayerGender { get; set; }
+    [Networked] public int IsDosen {get; set;}
     
     [Networked] private Vector2 NetworkedLookRotation { get; set; }
 
@@ -50,6 +51,7 @@ public class Player : NetworkBehaviour
     Leaderboard leaderboard;
     QuizManager quizManager;
     private List<QuizManager.QuestionItem> questions;
+    private int subjectId;
     private void OnEnable() {
         GameEventsManager.instance.QuizEvents.OnStartQuizClicked += StartQuiz;
         GameEventsManager.instance.fusionEvents.onLightToggle += ToggleLight;
@@ -85,13 +87,15 @@ public class Player : NetworkBehaviour
             if (quizManager != null)
             {
                 questions = quizManager.questions;
+                subjectId = quizManager._subjectId;
+
 
                 string serializedQuestions = JsonUtility.ToJson(new QuestionResponseWrapper
                 {
                     questions = questions
                 });
 
-                RPC_RequestStartQuiz(serializedQuestions);
+                RPC_RequestStartQuiz(serializedQuestions, subjectId);
                 Debug.Log("Start Quiz");
             }
             else
@@ -102,9 +106,9 @@ public class Player : NetworkBehaviour
     }
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void RPC_RequestStartQuiz(string serializedQuestions){
+    public void RPC_RequestStartQuiz(string serializedQuestions, int subjectId){
         Debug.Log("RPC_RequestStartQuiz");
-        quizSync.RPC_BeginQuiz(serializedQuestions);
+        quizSync.RPC_BeginQuiz(serializedQuestions, subjectId);
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -153,7 +157,10 @@ public class Player : NetworkBehaviour
             Uid = (uint)PlayerPrefs.GetInt("uid");
             PlayerName = PlayerPrefs.GetString("name");
             PlayerGender = PlayerPrefs.GetString("gender");
-            Rpc_RequestPlayerPrefs(Uid, PlayerName, PlayerGender);
+            IsDosen = PlayerPrefs.GetInt("isDosen");
+
+            Debug.Log(Uid + " " + PlayerName + " " + PlayerGender + " " + IsDosen);
+            Rpc_RequestPlayerPrefs(Uid, PlayerName, PlayerGender, IsDosen);
             
             lightState.RPC_RequestLightState();
         }
@@ -162,18 +169,20 @@ public class Player : NetworkBehaviour
     }
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void Rpc_RequestPlayerPrefs(uint uid, string playerName, string playerGender)
+    public void Rpc_RequestPlayerPrefs(uint uid, string playerName, string playerGender, int IsDosen)
     {
         Debug.Log("Requesting PlayerPrefs");
-        Rpc_SetPlayerAttribute(uid, playerName, playerGender);
+        Rpc_SetPlayerAttribute(uid, playerName, playerGender, IsDosen);
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void Rpc_SetPlayerAttribute(uint uid, string playerName, string playerGender)
+    public void Rpc_SetPlayerAttribute(uint uid, string playerName, string playerGender, int IsDosen)
     {
         this.Uid = uid;
         this.PlayerName = playerName;
         this.playerNameText.text = playerName;
+        this.IsDosen = IsDosen;
+        this.PlayerGender = playerGender;
 
         if(playerGender == "male"){
             this.characterModel.Find("Male").gameObject.SetActive(true);
@@ -319,6 +328,16 @@ public class Player : NetworkBehaviour
         {
             playerNameText.text = PlayerName;
             playerNameTextSet = true;
+            IsDosen = IsDosen;
+        }
+
+
+        if(PlayerGender == "male"){
+            this.characterModel.Find("Male").gameObject.SetActive(true);
+            this.characterHair.Find("Male_Hair").gameObject.SetActive(true);
+        }else{
+            this.characterModel.Find("Female").gameObject.SetActive(true);
+            this.characterHair.Find("Female_Hair").gameObject.SetActive(true);
         }
 
         UpdateCamTarget();

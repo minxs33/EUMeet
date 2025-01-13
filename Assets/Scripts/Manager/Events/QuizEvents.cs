@@ -3,6 +3,13 @@ using Newtonsoft.Json.Linq;
 
 public class QuizEvents
 {
+
+    public event Action<String> OnAddSubject;
+    public void AddSubject(string subject) => OnAddSubject?.Invoke(subject);
+    public event Action<int> OnDeleteSubject;
+    public void DeleteSubject(int id) => OnDeleteSubject?.Invoke(id);
+    public event Action<string, int> OnUpdateSubject;
+    public void UpdateSubject(string subject, int id) => OnUpdateSubject?.Invoke(subject, id);
     public event Action<String> OnAddQuiz;
     public void AddQuiz(string title) => OnAddQuiz?.Invoke(title);
 

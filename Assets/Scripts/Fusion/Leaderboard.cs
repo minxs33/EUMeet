@@ -6,6 +6,8 @@ using TMPro;
 using System.Linq;
 using Fusion;
 using UnityEngine.UI;
+using Unity.VisualScripting;
+using UnityEngine.Networking;
 
 public class Leaderboard : NetworkBehaviour
 {
@@ -30,16 +32,6 @@ public class Leaderboard : NetworkBehaviour
         }
     }
 
-    IEnumerator WaitForSpawnedPlayers() {
-        while (gameLogic.spawnedPlayers.Count == 0) {
-            yield return null;
-        }
-        if(HasStateAuthority){
-            Debug.Log("Starting leaderboard");
-            StartLeaderboard();
-        }
-    }
-
     private void StartLeaderboard()
     {
         if (gameLogic == null)
@@ -60,11 +52,13 @@ public class Leaderboard : NetworkBehaviour
             .OrderByDescending(player => player.LeaderboardScore)
             .ToList();
 
+        var playerUid = sortedPlayerList.Select(player => player.Uid).ToList();
         var playerNames = sortedPlayerList.Select(player => player.PlayerName).ToList();
         var playerScores = sortedPlayerList.Select(player => player.LeaderboardScore).ToList();
 
         var leaderboardData = new LeaderboardResponseWrapper
         {
+            playerUids = playerUid,
             playerNames = playerNames,
             playerScores = playerScores
         };
@@ -92,7 +86,6 @@ public class Leaderboard : NetworkBehaviour
             Destroy(child.gameObject);
         }
 
-        // Populate the leaderboard UI using player names and scores
         for (int i = 0; i < playerNames.Count; i++)
         {
             GameObject go = Instantiate(leaderboardPrefab, parentGo.transform);
@@ -111,6 +104,7 @@ public class Leaderboard : NetworkBehaviour
     [System.Serializable]
     public class LeaderboardResponseWrapper
     {
+        public List<uint> playerUids;
         public List<string> playerNames;
         public List<int> playerScores;
     }

@@ -7,27 +7,36 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using ExitGames.Client.Photon.StructWrapping;
+using UnityEngine.Networking;
+using System.Net.Http;
+using System;
 
 public class QuizSync : NetworkBehaviour
 {
     private List<QuizManager.QuestionItem> questions;
     GameLogic gameLogic;
     Leaderboard leaderboard;
+    [Networked] private int currentSubjectID { get; set; }
     [Networked] private int currentQuestionIndex { get; set; } = 0;
     [SerializeField] private GameObject[] questionGo;
 
+    private List<Player> playerList;
     private float questionTimer = 10f;
     private bool isTimerRunning = false;
     private float timeLeft;
     private Coroutine questionTimerCoroutine;
     private char selectedAnswer;
     private int selectedIndex = -1;
-    
 
     private void Start()
     {
-        if (!HasStateAuthority)
+        if(HasStateAuthority)
         {
+            GameLogic gameLogic = FindObjectOfType<GameLogic>();
+            if(!gameLogic){
+                Debug.LogError("GameLogic not found in the scene!");
+            }
+        }else{
             Debug.LogWarning("QuizSync does not have state authority. Ensure it's managed by the host.");
         }
 
@@ -55,10 +64,11 @@ public class QuizSync : NetworkBehaviour
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void RPC_BeginQuiz(string serializedQuestions)
+    public void RPC_BeginQuiz(string serializedQuestions, int subjectId)
     {
         Debug.Log("Begin Quiz");
         questions = JsonUtility.FromJson<QuestionResponseWrapper>(serializedQuestions).questions;
+        currentSubjectID = subjectId;
         
         StartCoroutine(CountDown());
     }
@@ -106,7 +116,6 @@ public class QuizSync : NetworkBehaviour
         while (timeLeft > 0)
         {
             timeLeft -= Time.deltaTime;
-            Debug.Log(timeLeft);
             yield return null;
         }
 
@@ -129,6 +138,7 @@ public class QuizSync : NetworkBehaviour
             Rpc_ToggleLeaderboard();
             yield return new WaitForSeconds(3f);
             Rpc_ToggleLeaderboard();
+            AddPoints();
             EndQuiz();
         }
         else
@@ -157,6 +167,37 @@ public class QuizSync : NetworkBehaviour
     private void Rpc_GetLeaderboard()
     {
         GameEventsManager.instance.QuizEvents.GetLeaderboard();
+    }
+
+     private void AddPoints(){
+        playerList = gameLogic.spawnedPlayers.Values.Select(networkObject => networkObject.GetComponent<Player>()).Where(player => player != null).ToList();
+
+        foreach(var player in playerList){
+            List<IMultipartFormSection> formData = new List<IMultipartFormSection>(){
+                    new MultipartFormDataSection("uniqueID", player.Uid.ToString()),
+                    new MultipartFormDataSection("subject_id", currentSubjectID.ToString()),
+                    new MultipartFormDataSection("points", player.LeaderboardScore.ToString()),
+                };
+            StartCoroutine(StorePointsCoroutine(formData));
+        }
+    }
+
+    private IEnumerator StorePointsCoroutine(List<IMultipartFormSection> formData){
+        UnityWebRequest www = UnityWebRequest.Post("http://172.29.174.196/add-point", formData);
+
+        yield return www.SendWebRequest();
+
+        try{
+            if(www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError){
+                string responseText = www.downloadHandler.text;
+                Debug.Log($"Response text: {responseText}");
+            }else if(www.result == UnityWebRequest.Result.Success){
+                string responseText = www.downloadHandler.text;
+                Debug.Log($"Point added successfully");
+            }
+        }catch(Exception e){
+            Debug.Log(e);
+        }
     }
 
     public void NextQuestion()

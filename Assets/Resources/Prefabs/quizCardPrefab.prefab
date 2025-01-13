@@ -799,10 +799,10 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 0.75686276, b: 0.02745098, a: 1}
-    m_HighlightedColor: {r: 1, g: 0.7921569, b: 0.17254902, a: 1}
-    m_PressedColor: {r: 1, g: 0.8039216, b: 0.22352941, a: 1}
-    m_SelectedColor: {r: 1, g: 0.8039216, b: 0.22352941, a: 1}
+    m_NormalColor: {r: 0.03444285, g: 0.62352943, b: 0.8117647, a: 1}
+    m_HighlightedColor: {r: 0.025854412, g: 0.59946406, b: 0.7830189, a: 1}
+    m_PressedColor: {r: 0.03529412, g: 0.62352943, b: 0.8117647, a: 1}
+    m_SelectedColor: {r: 0.03529412, g: 0.62352943, b: 0.8117647, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -971,10 +971,10 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0.21960786, g: 0.21960786, b: 0.21960786, a: 0}
-    m_HighlightedColor: {r: 1, g: 1, b: 1, a: 0.21176471}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0.46666667}
+    m_NormalColor: {r: 0.83137256, g: 0.6392157, b: 0.4509804, a: 0.39215687}
+    m_HighlightedColor: {r: 0.8679245, g: 0.6797279, b: 0.495372, a: 0.21176471}
+    m_PressedColor: {r: 0.83137256, g: 0.6392157, b: 0.4509804, a: 1}
+    m_SelectedColor: {r: 0.83137256, g: 0.6392157, b: 0.4509804, a: 0.46666667}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -1061,8 +1061,9 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\u200B"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 2e498d1c8094910479dc3e1b768306a4, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 096688b14297d2e4a8ba55d283c53272, type: 2}
+  m_sharedMaterial: {fileID: 6867430312514813500, guid: 096688b14297d2e4a8ba55d283c53272,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

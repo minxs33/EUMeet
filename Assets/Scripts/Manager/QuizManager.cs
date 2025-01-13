@@ -13,15 +13,23 @@ public class QuizManager : MonoBehaviour
 {
     public static QuizManager Instance { get; private set; }
     private int _quizId;
+    public int _subjectId;
+    private Button _selectedSubject;
+    private Button _selectedQuiz;
     public List<QuestionItem> questions;
+    [SerializeField] private GameObject subjectCardPrefab;
+    [SerializeField] private Transform subjectParentTransform;
     [SerializeField] private GameObject quizCardPrefab;
-    [SerializeField] private Transform parentTransform;
+    [SerializeField] private Transform quizParentTransform;
 
     [SerializeField] private GameObject questionCardPrefab;
     [SerializeField] private Transform questionParentTransform;
 
     private void OnEnable(){
-        GameEventsManager.instance.RTCEvents.OnPlayerJoined += StartQuiz;
+        GameEventsManager.instance.RTCEvents.OnPlayerJoined += InitSubject;
+        GameEventsManager.instance.QuizEvents.OnAddSubject += AddSubject;
+        GameEventsManager.instance.QuizEvents.OnUpdateSubject += UpdateSubject;
+        GameEventsManager.instance.QuizEvents.OnDeleteSubject += DeleteSubject;
         GameEventsManager.instance.QuizEvents.OnAddQuiz += AddQuiz;
         GameEventsManager.instance.QuizEvents.OnUpdateQuiz += UpdateQuiz;
         GameEventsManager.instance.QuizEvents.OnAddQuestion += AddQuestion;
@@ -29,21 +37,204 @@ public class QuizManager : MonoBehaviour
     }
 
     private void OnDisable(){
-        GameEventsManager.instance.RTCEvents.OnPlayerJoined -= StartQuiz;
+        GameEventsManager.instance.RTCEvents.OnPlayerJoined -= InitSubject;
+        GameEventsManager.instance.QuizEvents.OnAddSubject -= AddSubject;
+        GameEventsManager.instance.QuizEvents.OnUpdateSubject -= UpdateSubject;
+        GameEventsManager.instance.QuizEvents.OnDeleteSubject -= DeleteSubject;
         GameEventsManager.instance.QuizEvents.OnAddQuiz -= AddQuiz;
         GameEventsManager.instance.QuizEvents.OnUpdateQuiz -= UpdateQuiz;
         GameEventsManager.instance.QuizEvents.OnAddQuestion -= AddQuestion;
         GameEventsManager.instance.QuizEvents.OnUpdateQuestion -= UpdateQuestion;
     }
-    private void StartQuiz()
+
+    // subject
+    private void InitSubject()
     {
-        GetQuiz();
+        // GetQuiz();
+        StartCoroutine(GetSubjectCoroutine());
     }
 
-    private void GetQuiz(){
+    private IEnumerator GetSubjectCoroutine(){
+        UnityWebRequest www = UnityWebRequest.Get("http://172.29.174.196/get-subjects");
+
+        yield return www.SendWebRequest();
+
+        try{
+            
+            if(www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError){
+                string responseText = www.downloadHandler.text;
+                Debug.Log($"Response text: {responseText}");
+            }else if(www.result == UnityWebRequest.Result.Success){
+                string responseText = www.downloadHandler.text;
+                Debug.Log($"Subject recieved successfully");
+
+                SubjectResponse subjectResponse = JsonUtility.FromJson<SubjectResponse>(responseText);
+
+                foreach (Transform child in subjectParentTransform)
+                {
+                    Destroy(child.gameObject);
+                }
+                
+                foreach (SubjectItem subject in subjectResponse.data)
+                {
+                    int currentSubjectID = subject.id;
+                    GameObject subjectCard = Instantiate(subjectCardPrefab, subjectParentTransform);
+
+                    Button selectSubjectButton = subjectCard.transform.Find("SubjectSelect")?.GetComponent<Button>();
+                    selectSubjectButton.GetComponent<SubjectCardID>().Setup(subject.subject_name, subject.id);
+                    Button deleteSubjectButton = subjectCard.transform.Find("DeleteSubjectButton")?.GetComponent<Button>();
+
+                    if(selectSubjectButton != null){
+                        selectSubjectButton.onClick.AddListener(() => {
+                            _subjectId = currentSubjectID;
+                            GetQuiz(_subjectId);
+                            HighlightSelectedSubject(selectSubjectButton);
+                            GameEventsManager.instance.QuizEvents.ToggleQuizSelected(false);
+                        });
+                    }
+
+                    if(deleteSubjectButton != null){
+                        deleteSubjectButton.onClick.AddListener(() => {
+                            DeleteSubject(currentSubjectID);
+                            
+                        });
+                    }else{
+                        Debug.Log("Delete button not found");
+                    }
+                }
+                
+            }
+        }catch(Exception e){
+            Debug.Log(e);
+        }
+    }
+
+    private void HighlightSelectedSubject(Button button)
+    {
+        if (_selectedSubject != null)
+        {
+            Transform previousBackground = _selectedSubject.transform.Find("Background");
+            if (previousBackground != null)
+            {
+                Image previousImage = previousBackground.GetComponent<Image>();
+                if (previousImage != null)
+                {
+                    previousImage.color = Color.white;
+                }
+            }
+        }
+
+        _selectedSubject = button;
+
+        Transform currentBackground = _selectedSubject.transform.Find("Background");
+        if (currentBackground != null)
+        {
+            Image currentImage = currentBackground.GetComponent<Image>();
+            if (currentImage != null)
+            {
+                currentImage.color = new Color(0.8313726f, 0.6392157f, 0.4509804f);
+            }
+        }
+    }
+
+
+    private void AddSubject(string subjectName){
         List<IMultipartFormSection> formData = new List<IMultipartFormSection>
         {
             new MultipartFormDataSection("uniqueID", PlayerPrefs.GetInt("uid").ToString()),
+            new MultipartFormDataSection("subject_name", subjectName),
+        };
+
+        StartCoroutine(AddSubjectCoroutine(formData));
+    }
+
+    private IEnumerator AddSubjectCoroutine(List<IMultipartFormSection> formData){
+        UnityWebRequest www = UnityWebRequest.Post("http://172.29.174.196/add-subject", formData);
+
+        yield return www.SendWebRequest();
+
+        try{
+            
+            if(www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError){
+                string responseText = www.downloadHandler.text;
+                Debug.Log($"Response text: {responseText}");
+            }else if(www.result == UnityWebRequest.Result.Success){
+                string responseText = www.downloadHandler.text;
+                Debug.Log($"Subject added successfully");
+                StartCoroutine(GetSubjectCoroutine());
+            }
+        }catch(Exception e){
+            Debug.Log(e);
+        }
+    }
+
+    private void UpdateSubject(string subjectName, int subjectID){
+        List<IMultipartFormSection> formData = new List<IMultipartFormSection>
+        {
+            new MultipartFormDataSection("id", subjectID.ToString()),
+            new MultipartFormDataSection("subject_name", subjectName),
+        };
+
+        StartCoroutine(UpdateSubjectCoroutine(formData));
+    }
+
+    private IEnumerator UpdateSubjectCoroutine(List<IMultipartFormSection> formData){
+        UnityWebRequest www = UnityWebRequest.Post("http://172.29.174.196/update-subject", formData);
+
+        yield return www.SendWebRequest();
+
+        try{
+            
+            if(www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError){
+                string responseText = www.downloadHandler.text;
+                Debug.Log($"Response text: {responseText}");
+            }else if(www.result == UnityWebRequest.Result.Success){
+                string responseText = www.downloadHandler.text;
+                Debug.Log($"Subject updated successfully");
+                StartCoroutine(GetSubjectCoroutine());
+            }
+        }catch(Exception e){
+            Debug.Log(e);
+        }
+    }
+
+    private void DeleteSubject(int subjectID){
+        List<IMultipartFormSection> formData = new List<IMultipartFormSection>
+        {
+            new MultipartFormDataSection("id", subjectID.ToString()),
+        };
+
+        StartCoroutine(DeleteSubjectCoroutine(formData));
+    }
+
+    private IEnumerator DeleteSubjectCoroutine(List<IMultipartFormSection> formData){
+        UnityWebRequest www = UnityWebRequest.Post("http://172.29.174.196/delete-subject", formData);
+
+        yield return www.SendWebRequest();
+
+        try{
+            
+            if(www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError){
+                string responseText = www.downloadHandler.text;
+                Debug.Log($"Response text: {responseText}");
+            }else if(www.result == UnityWebRequest.Result.Success){
+                string responseText = www.downloadHandler.text;
+                Debug.Log($"Subject deleted successfully");
+                StartCoroutine(GetSubjectCoroutine());
+                GetQuiz(_subjectId);
+            }
+        }catch(Exception e){
+            Debug.Log(e);
+        }
+    }
+
+    // Quiz
+
+    private void GetQuiz(int subjectID){
+        List<IMultipartFormSection> formData = new List<IMultipartFormSection>
+        {
+            new MultipartFormDataSection("uniqueID", PlayerPrefs.GetInt("uid").ToString()),
+            new MultipartFormDataSection("subject_id", subjectID.ToString()),
         };
 
         StartCoroutine(GetQuizList(formData));
@@ -58,13 +249,17 @@ public class QuizManager : MonoBehaviour
             if(www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError){
                 string responseText = www.downloadHandler.text;
                 Debug.Log($"Response text: {responseText}");
+                foreach (Transform child in quizParentTransform)
+                {
+                    Destroy(child.gameObject);
+                }
             }else if(www.result == UnityWebRequest.Result.Success){
                 string responseText = www.downloadHandler.text;
                 Debug.Log($"Quiz recieved successfully");
 
                 QuizResponse quizResponse = JsonUtility.FromJson<QuizResponse>(responseText);
 
-                foreach (Transform child in parentTransform)
+                foreach (Transform child in quizParentTransform)
                 {
                     Destroy(child.gameObject);
                 }
@@ -72,17 +267,18 @@ public class QuizManager : MonoBehaviour
                 foreach (QuizItem quiz in quizResponse.data)
                 {
                     int currentQuizID = quiz.id;
-                    GameObject quizCard = Instantiate(quizCardPrefab, parentTransform);
-                    quizCard.transform.Find("QuizSelect").GetComponent<QuizCardID>().Setup(quiz.title, quiz.id);
+                    GameObject quizCard = Instantiate(quizCardPrefab, quizParentTransform);
 
                     Button selectQuizButton = quizCard.transform.Find("QuizSelect")?.GetComponent<Button>();
+                    selectQuizButton.GetComponent<QuizCardID>().Setup(quiz.title, quiz.id);
                     Button openQuestionButton = quizCard.transform.Find("QuestionButton")?.GetComponent<Button>();
                     Button deleteQuizButton = quizCard.transform.Find("DeleteQuizButton")?.GetComponent<Button>();
 
                     if(selectQuizButton != null){
                         selectQuizButton.onClick.AddListener(() => {
                             GameEventsManager.instance.QuizEvents.ToggleQuizSelected(true);
-                            OpenQuizQuestion(quiz.id);
+                            OpenQuizQuestion(currentQuizID);
+                            HighlightSelectedQuiz(selectQuizButton);
                         });  
                     }
 
@@ -106,9 +302,35 @@ public class QuizManager : MonoBehaviour
             }
 
         }catch(Exception e){
-            
             Debug.Log(e);
-        
+        }
+    }
+
+    private void HighlightSelectedQuiz(Button button)
+    {
+        if (_selectedQuiz != null)
+        {
+            Transform previousBackground = _selectedQuiz.transform.Find("Background");
+            if (previousBackground != null)
+            {
+                Image previousImage = previousBackground.GetComponent<Image>();
+                if (previousImage != null)
+                {
+                    previousImage.color = Color.white;
+                }
+            }
+        }
+
+        _selectedQuiz = button;
+
+        Transform currentBackground = _selectedQuiz.transform.Find("Background");
+        if (currentBackground != null)
+        {
+            Image currentImage = currentBackground.GetComponent<Image>();
+            if (currentImage != null)
+            {
+                currentImage.color = new Color(0.8313726f, 0.6392157f, 0.4509804f);
+            }
         }
     }
 
@@ -116,6 +338,7 @@ public class QuizManager : MonoBehaviour
         List<IMultipartFormSection> formData = new List<IMultipartFormSection>
         {
             new MultipartFormDataSection("uniqueID", PlayerPrefs.GetInt("uid").ToString()),
+            new MultipartFormDataSection("subject_id", _subjectId.ToString()),
             new MultipartFormDataSection("title", title),
         };
 
@@ -135,7 +358,7 @@ public class QuizManager : MonoBehaviour
             }else if(www.result == UnityWebRequest.Result.Success){
                 string responseText = www.downloadHandler.text;
                 Debug.Log($"Success");
-                GetQuiz();
+                GetQuiz(_subjectId);
             }
         }catch(Exception e){
             
@@ -166,7 +389,7 @@ public class QuizManager : MonoBehaviour
             }else if(www.result == UnityWebRequest.Result.Success){
                 string responseText = www.downloadHandler.text;
                 Debug.Log($"Success");
-                GetQuiz();
+                GetQuiz(_subjectId);
             }
         }catch(Exception e){
             
@@ -197,7 +420,7 @@ public class QuizManager : MonoBehaviour
             }else if(www.result == UnityWebRequest.Result.Success){
                 string responseText = www.downloadHandler.text;
                 Debug.Log($"Success");
-                GetQuiz();
+                GetQuiz(_subjectId);
             }
         }catch(Exception e){
             
@@ -363,6 +586,19 @@ public class QuizManager : MonoBehaviour
         }
     }
 
+
+    [System.Serializable]
+    public class SubjectItem
+    {
+        public int id;
+        public string subject_name;
+    }
+
+    [System.Serializable]
+    public class SubjectResponse{
+        public List<SubjectItem> data;
+        public string status;
+    }
 
     [System.Serializable]
     public class QuizItem
