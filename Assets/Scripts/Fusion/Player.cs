@@ -29,9 +29,8 @@ public class Player : NetworkBehaviour
     [Networked] public string PlayerName { get; set; }
     [Networked] public string PlayerGender { get; set; }
     [Networked] public int IsDosen {get; set;}
-    
     [Networked] private Vector2 NetworkedLookRotation { get; set; }
-
+    private List<string> receivedChunks = new List<string>();
     [Networked] public int LeaderboardScore { get; set; } = 0;
     private ChairSync currentChair;
     private LightSync lightTrigger;
@@ -47,11 +46,13 @@ public class Player : NetworkBehaviour
     [Networked] private NetworkBool isJumping {get; set;} = false;
     [Networked] private NetworkBool isSitting {get; set;} = false;
     // quiz stuff
+    private const int ChunkSize = 250;
     QuizSync quizSync;
     Leaderboard leaderboard;
     QuizManager quizManager;
     private List<QuizManager.QuestionItem> questions;
     private int subjectId;
+    private int quizId;
     private void OnEnable() {
         GameEventsManager.instance.QuizEvents.OnStartQuizClicked += StartQuiz;
         GameEventsManager.instance.fusionEvents.onLightToggle += ToggleLight;
@@ -86,29 +87,22 @@ public class Player : NetworkBehaviour
         {
             if (quizManager != null)
             {
-                questions = quizManager.questions;
                 subjectId = quizManager._subjectId;
+                quizId = quizManager._quizId;
 
+                Debug.Log("Started streaming quiz data.");
 
-                string serializedQuestions = JsonUtility.ToJson(new QuestionResponseWrapper
-                {
-                    questions = questions
-                });
-
-                RPC_RequestStartQuiz(serializedQuestions, subjectId);
-                Debug.Log("Start Quiz");
-            }
-            else
-            {
+                RPC_RequestStartQuiz(quizId, subjectId);
+            }else{
                 Debug.LogError("QuizManager not found!");
             }
         }
     }
 
     [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority)]
-    public void RPC_RequestStartQuiz(string serializedQuestions, int subjectId){
+    public void RPC_RequestStartQuiz(int quizId, int subjectId){
         Debug.Log("RPC_RequestStartQuiz");
-        quizSync.RPC_BeginQuiz(serializedQuestions, subjectId);
+        quizSync.Rpc_BeginQuiz(quizId, subjectId);
     }
 
     [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -348,9 +342,9 @@ public class Player : NetworkBehaviour
         camTarget.localRotation = Quaternion.Euler(kcc.GetLookRotation().x, 0f, 0f);
     }
 
-    [System.Serializable]
-    public class QuestionResponseWrapper
-    {
-        public List<QuizManager.QuestionItem> questions;
-    }
+    // [System.Serializable]
+    // public class QuestionResponseWrapper
+    // {
+    //     public List<QuizManager.QuestionItem> questions;
+    // }
 }

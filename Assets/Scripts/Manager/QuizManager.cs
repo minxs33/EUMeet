@@ -12,7 +12,7 @@ using UnityEngine.UI;
 public class QuizManager : MonoBehaviour
 {
     public static QuizManager Instance { get; private set; }
-    private int _quizId;
+    public int _quizId;
     public int _subjectId;
     private Button _selectedSubject;
     private Button _selectedQuiz;
@@ -276,6 +276,7 @@ public class QuizManager : MonoBehaviour
 
                     if(selectQuizButton != null){
                         selectQuizButton.onClick.AddListener(() => {
+                            _quizId = currentQuizID;
                             GameEventsManager.instance.QuizEvents.ToggleQuizSelected(true);
                             OpenQuizQuestion(currentQuizID);
                             HighlightSelectedQuiz(selectQuizButton);
@@ -429,7 +430,7 @@ public class QuizManager : MonoBehaviour
 
     }
 
-    private void OpenQuizQuestion(int id){
+    public void OpenQuizQuestion(int id){
         _quizId = id;
         List<IMultipartFormSection> formData = new List<IMultipartFormSection>
         {
@@ -621,6 +622,7 @@ public class QuizManager : MonoBehaviour
         public string title;
         public List<QuestionItem> questions;
     }
+    
     [System.Serializable]
     public class QuestionItem
     {

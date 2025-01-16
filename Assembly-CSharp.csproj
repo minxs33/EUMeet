@@ -107,6 +107,7 @@
     <Compile Include="Assets\Scripts\QuizCardID.cs" />
     <Compile Include="Assets\Scripts\Manager\QuizManager.cs" />
     <Compile Include="Assets\Scripts\Manager\Events\QuizEvents.cs" />
+    <Compile Include="Assets\Scripts\Manager\RankingManager.cs" />
     <Compile Include="Assets\Scripts\Manager\UIManager\AuthUIManager.cs" />
     <Compile Include="Assets\Scripts\Fusion\QuizSync.cs" />
     <Compile Include="Assets\Scripts\Manager\VoiceManager.cs" />

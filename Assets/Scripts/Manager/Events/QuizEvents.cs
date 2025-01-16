@@ -53,4 +53,10 @@ public class QuizEvents
     public event Action<int> OnCountDownStart;
 
     public void CountDownStart(int num) => OnCountDownStart.Invoke(num);
+
+    public event Action OnRankingModalOpen;
+    public void RankingModalOpen() => OnRankingModalOpen?.Invoke();
+
+    public event Action OnResetRanking;
+    public void ResetRanking() => OnResetRanking?.Invoke();
 }

@@ -282,3 +282,29 @@
 [2025-01-10 16:15:08.024][28240][I][iris_rtc_api_engine.cc:451] api name RtcEngine_enableLocalVideo_5039d15 result 0 outdata {"result":0}
 [2025-01-10 16:19:34.501][28240][I][iris_rtc_api_engine.cc:387] api name RtcEngine_release params "{"sync":false}"
 [2025-01-10 16:19:34.501][28240][I][iris_rtc_api_engine.cc:451] api name RtcEngine_release result 0 outdata {"result":0}
+[2025-01-15 20:31:21.795][15472][I][iris_logger.cc:158] reset logger to Agora Log\agora-iris.log
+[2025-01-15 20:31:21.795][15472][I][iris_logger.cc:160] iris version: 4.4.0-build.6 commit: e2d2d91f4a3af576f31c37ebe87bf51450c58df3 build: 504
+[2025-01-15 20:31:21.796][15472][I][iris_logger.cc:158] reset logger to Agora Log\agora-iris.log
+[2025-01-15 20:31:21.796][15472][I][iris_logger.cc:160] iris version: 4.4.0-build.6 commit: e2d2d91f4a3af576f31c37ebe87bf51450c58df3 build: 504
+[2025-01-15 20:31:24.478][15472][I][iris_logger.cc:158] reset logger to Agora Log\agora-iris.log
+[2025-01-15 20:31:24.478][15472][I][iris_logger.cc:160] iris version: 4.4.0-build.6 commit: e2d2d91f4a3af576f31c37ebe87bf51450c58df3 build: 504
+[2025-01-15 20:31:24.479][15472][I][iris_rtc_api_engine.cc:451] api name RtcEngine_initialize_0320339 result 0 outdata {"result":0}
+[2025-01-15 20:31:24.479][15472][I][iris_rtc_api_engine.cc:387] api name RtcEngine_setAppType params "{"appType":2}"
+[2025-01-15 20:31:24.480][15472][I][iris_rtc_api_engine.cc:451] api name RtcEngine_setAppType result 0 outdata {"result":0}
+[2025-01-15 20:31:24.480][15472][I][iris_rtc_api_engine.cc:387] api name RtcEngine_setParameters_3a2037f params "{"parameters":"{\"rtc.capture_disable_metal_comp\":true}"}"
+[2025-01-15 20:31:24.497][15472][I][iris_rtc_api_engine.cc:451] api name RtcEngine_setParameters_3a2037f result 0 outdata {"result":0}
+[2025-01-15 20:31:24.500][15472][I][iris_rtc_api_engine.cc:387] api name RtcEngine_registerEventHandler_5fc0465 params "{}"
+[2025-01-15 20:31:24.500][15472][I][iris_rtc_api_engine.cc:439] api name RtcEngine_registerEventHandler_5fc0465 extened params "{"event":2051863271344}"
+[2025-01-15 20:31:24.500][15472][I][iris_rtc_api_engine.cc:451] api name RtcEngine_registerEventHandler_5fc0465 result 0 outdata {"result":0}
+[2025-01-15 20:31:24.501][15472][I][iris_rtc_api_engine.cc:387] api name VideoDeviceManager_enumerateVideoDevices params ""
+[2025-01-15 20:31:24.618][15472][I][iris_rtc_api_engine.cc:451] api name VideoDeviceManager_enumerateVideoDevices result 0 outdata {"result":[{"deviceId":"\\\\?\\root#media#0001#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global","deviceName":"DroidCam Source 3"},{"deviceId":"\\\\?\\usb#vid_0408&pid_a061&mi_00#6&18f9f929&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global","deviceName":"HD User Facing"},{"deviceId":"droidcam:2","deviceName":"DroidCam Source 2"},{"deviceId":"OBS Virtual Camera","deviceName":"OBS Virtual Camera"}]}
+[2025-01-15 20:31:24.765][15472][I][iris_rtc_api_engine.cc:385] api name RtcEngine_joinChannel_cdbb747 params "{"token":"007e***************WDMW","channelId":"classroom_screen","uid":991886,"options":{"publishCameraTrack":false,"publishScreenTrack":true,"autoSubscribeAudio":false,"autoSubscribeVideo":true,"enableAudioRecordingOrPlayout":false,"clientRoleType":1}}"
+[2025-01-15 20:31:24.811][15472][I][iris_rtc_api_engine.cc:451] api name RtcEngine_joinChannel_cdbb747 result 0 outdata {"result":0}
+[2025-01-15 20:31:24.813][15472][I][iris_rtc_api_engine.cc:385] api name RtcEngineEx_joinChannelEx_a3cd08c params "{"token":"007e***************L4w=","connection":{"channelId":"classroom","localUid":991885},"options":{"publishCameraTrack":true,"publishMicrophoneTrack":false,"autoSubscribeAudio":false,"autoSubscribeVideo":true,"clientRoleType":1,"channelProfile":1}}"
+[2025-01-15 20:31:24.959][15472][I][iris_rtc_api_engine.cc:451] api name RtcEngineEx_joinChannelEx_a3cd08c result 0 outdata {"result":0}
+[2025-01-15 20:31:24.960][15472][I][iris_rtc_api_engine.cc:387] api name RtcEngine_stopPreview params "{}"
+[2025-01-15 20:31:24.990][15472][I][iris_rtc_api_engine.cc:451] api name RtcEngine_stopPreview result 0 outdata {"result":0}
+[2025-01-15 20:31:24.990][15472][I][iris_rtc_api_engine.cc:387] api name RtcEngine_enableLocalVideo_5039d15 params "{"enabled":false}"
+[2025-01-15 20:31:24.991][15472][I][iris_rtc_api_engine.cc:451] api name RtcEngine_enableLocalVideo_5039d15 result 0 outdata {"result":0}
+[2025-01-15 20:35:20.052][15472][I][iris_rtc_api_engine.cc:387] api name RtcEngine_release params "{"sync":false}"
+[2025-01-15 20:35:20.052][15472][I][iris_rtc_api_engine.cc:451] api name RtcEngine_release result 0 outdata {"result":0}

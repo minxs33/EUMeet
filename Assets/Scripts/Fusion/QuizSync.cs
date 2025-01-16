@@ -10,10 +10,12 @@ using ExitGames.Client.Photon.StructWrapping;
 using UnityEngine.Networking;
 using System.Net.Http;
 using System;
+using static QuizManager;
 
 public class QuizSync : NetworkBehaviour
 {
-    private List<QuizManager.QuestionItem> questions;
+    public static QuizSync Instance { get; private set; }
+    private List<QuestionItem> questions;
     GameLogic gameLogic;
     Leaderboard leaderboard;
     [Networked] private int currentSubjectID { get; set; }
@@ -64,13 +66,41 @@ public class QuizSync : NetworkBehaviour
     }
 
     [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-    public void RPC_BeginQuiz(string serializedQuestions, int subjectId)
+    public void Rpc_BeginQuiz(int quizId, int subjectId)
     {
         Debug.Log("Begin Quiz");
-        questions = JsonUtility.FromJson<QuestionResponseWrapper>(serializedQuestions).questions;
         currentSubjectID = subjectId;
+        GetQuizLocal(quizId);
         
         StartCoroutine(CountDown());
+    }
+
+    private void GetQuizLocal(int quizId){
+        List<IMultipartFormSection> formData = new List<IMultipartFormSection>
+        {
+            new MultipartFormDataSection("quiz_id", quizId.ToString()),
+        };
+
+        StartCoroutine(GetQuizLocal(formData));
+    }
+
+    private IEnumerator GetQuizLocal(List<IMultipartFormSection> formData){
+        UnityWebRequest www = UnityWebRequest.Post("http://172.29.174.196/get-quiz-question", formData);
+        yield return www.SendWebRequest();
+
+        try{
+            if(www.result == UnityWebRequest.Result.ConnectionError || www.result == UnityWebRequest.Result.ProtocolError){
+                string responseText = www.downloadHandler.text;
+                Debug.Log($"Response text: {responseText}");
+            }else if(www.result == UnityWebRequest.Result.Success){
+                string responseText = www.downloadHandler.text;
+                Debug.Log($"Success : {responseText}");
+                QuestionResponse questionResponse = JsonUtility.FromJson<QuestionResponse>(responseText);
+                questions = questionResponse.data.questions;
+            }
+        }catch(Exception e){
+            Debug.Log(e);
+        }
     }
 
     private IEnumerator CountDown(){
@@ -221,23 +251,24 @@ public class QuizSync : NetworkBehaviour
 
     private void DisplayQuestion(int questionIndex)
     {
+        Debug.Log("questions : "+questions);
         if (questionIndex < 0 || questionIndex >= questions.Count)
         {
             Debug.LogError("Invalid question index!");
             return;
         }
 
+
         selectedIndex = -1;
         selectedAnswer = '\0';
 
         var question = questions[questionIndex];
 
-        // Set pertanyaan dan pilihan jawaban
-        questionGo[0].GetComponentInChildren<TMP_Text>().text = question.question;
-        questionGo[1].GetComponentInChildren<TMP_Text>().text = question.a;
-        questionGo[2].GetComponentInChildren<TMP_Text>().text = question.b;
-        questionGo[3].GetComponentInChildren<TMP_Text>().text = question.c;
-        questionGo[4].GetComponentInChildren<TMP_Text>().text = question.d;
+        questionGo[0].GetComponentInChildren<TMP_Text>().text = question.question.ToString();
+        questionGo[1].GetComponentInChildren<TMP_Text>().text = question.a.ToString();
+        questionGo[2].GetComponentInChildren<TMP_Text>().text = question.b.ToString();
+        questionGo[3].GetComponentInChildren<TMP_Text>().text = question.c.ToString();
+        questionGo[4].GetComponentInChildren<TMP_Text>().text = question.d.ToString();
 
         foreach (var go in questionGo)
         {
@@ -312,7 +343,7 @@ public class QuizSync : NetworkBehaviour
     {
         isTimerRunning = false;
         var question = questions[currentQuestionIndex];
-        string correctAnswer = question.correct_answer;
+        string correctAnswer = question.correct_answer.ToString();
 
         for (int i = 1; i <= 4; i++)
         {
@@ -388,11 +419,5 @@ public class QuizSync : NetworkBehaviour
         ResetAllPlayerScores();
 
         GameEventsManager.instance.QuizEvents.EndQuiz();
-    }
-
-    [System.Serializable]
-    public class QuestionResponseWrapper
-    {
-        public List<QuizManager.QuestionItem> questions;
     }
 }

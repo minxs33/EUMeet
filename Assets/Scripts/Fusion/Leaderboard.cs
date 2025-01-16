@@ -1,18 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Photon.Pun;
 using TMPro;
 using System.Linq;
 using Fusion;
 using UnityEngine.UI;
-using Unity.VisualScripting;
-using UnityEngine.Networking;
 
 public class Leaderboard : NetworkBehaviour
 {
     [SerializeField] private GameObject parentGo;
     [SerializeField] private GameObject leaderboardPrefab;
+
 
     private List<Player> sortedPlayerList;
     GameLogic gameLogic;
