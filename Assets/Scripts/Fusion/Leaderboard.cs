@@ -47,8 +47,13 @@ public class Leaderboard : NetworkBehaviour
         sortedPlayerList = gameLogic.spawnedPlayers.Values
             .Select(networkObject => networkObject.GetComponent<Player>())
             .Where(player => player != null)
+            .Where(player => player.IsDosen == 0)
             .OrderByDescending(player => player.LeaderboardScore)
             .ToList();
+
+        foreach(var player in sortedPlayerList){
+            Debug.Log($"Player: {player.PlayerName}, IsDosen: {player.IsDosen}");
+        }
 
         var playerUid = sortedPlayerList.Select(player => player.Uid).ToList();
         var playerNames = sortedPlayerList.Select(player => player.PlayerName).ToList();

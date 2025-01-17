@@ -9,5 +9,6 @@ public class LocalizeDoor : MonoBehaviour
     {
         this.gameObject.SetActive(false);
     }
+
 }
 #endif

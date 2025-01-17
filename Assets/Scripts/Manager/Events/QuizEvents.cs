@@ -38,6 +38,8 @@ public class QuizEvents
     public event Action OnStartQuizClicked;
     public void StartQuizClicked() => OnStartQuizClicked?.Invoke();
 
+    public event Action OnStartQuizSetup;
+    public void StartQuizSetup() => OnStartQuizSetup?.Invoke();
     public event Action OnStartQuiz;
     public void StartQuiz() => OnStartQuiz?.Invoke();
 

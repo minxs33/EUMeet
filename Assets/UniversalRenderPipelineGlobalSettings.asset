@@ -14,15 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   k_AssetVersion: 3
   m_RenderingLayerNames:
-  - Light Layer default
-  - Light Layer 1
-  - Light Layer 2
-  - Light Layer 3
-  - Light Layer 4
-  - Light Layer 5
-  - Light Layer 6
-  - Light Layer 7
-  m_ValidRenderingLayers: 255
+  - Default
+  - Layer 1
+  - Layer 2
+  m_ValidRenderingLayers: 7
   lightLayerName0: Light Layer default
   lightLayerName1: Light Layer 1
   lightLayerName2: Light Layer 2
@@ -31,11 +26,11 @@ MonoBehaviour:
   lightLayerName5: Light Layer 5
   lightLayerName6: Light Layer 6
   lightLayerName7: Light Layer 7
-  m_StripDebugVariants: 1
+  m_StripDebugVariants: 0
   m_StripUnusedPostProcessingVariants: 0
-  m_StripUnusedVariants: 1
+  m_StripUnusedVariants: 0
   m_StripUnusedLODCrossFadeVariants: 1
-  m_StripScreenCoordOverrideVariants: 1
+  m_StripScreenCoordOverrideVariants: 0
   supportRuntimeDebugDisplay: 0
-  m_ShaderVariantLogLevel: 0
+  m_ShaderVariantLogLevel: 2
   m_ExportShaderVariants: 0

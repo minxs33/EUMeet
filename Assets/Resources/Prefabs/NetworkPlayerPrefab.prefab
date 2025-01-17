@@ -252,7 +252,7 @@ Transform:
   m_GameObject: {fileID: 4107784719774834020}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.99, z: 0}
+  m_LocalPosition: {x: 0, y: 2.09, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -327,7 +327,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 250
+  MaxDistance: 500
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -473,6 +473,10 @@ MonoBehaviour:
   kcc: {fileID: 1959625688864458632}
   speed: 5
   jumpImpluse: 8
+  interactionForce: 50
+  interactableLayer:
+    serializedVersion: 2
+    m_Bits: 0
   camTarget: {fileID: 7084875509463299057}
   lookSensitivity: 0.15
   playerNameText: {fileID: 290307525274872699}
@@ -491,6 +495,7 @@ MonoBehaviour:
   _Uid: 0
   _PlayerName: 
   _PlayerGender: 
+  _IsDosen: 0
   _LeaderboardScore: 0
 --- !u!114 &997537190712447257
 MonoBehaviour:
@@ -661,8 +666,8 @@ MonoBehaviour:
         transform: {fileID: 0}
         weight: 0
     m_Offset: {x: 0, y: 0, z: 0}
-    m_MinLimit: -80
-    m_MaxLimit: 80
+    m_MinLimit: 0
+    m_MaxLimit: 0
     m_AimAxis: 4
     m_UpAxis: 2
     m_WorldUpType: 0

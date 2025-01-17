@@ -249,8 +249,6 @@ public class ShareScreenRTCManager : MonoBehaviour
         options.autoSubscribeVideo.SetValue(true);
         options.publishCameraTrack.SetValue(false);
         options.publishScreenTrack.SetValue(true);
-        options.enableAudioRecordingOrPlayout.SetValue(false);
-
         options.clientRoleType.SetValue(CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER);
 
         #if UNITY_ANDROID || UNITY_IPHONE
@@ -258,9 +256,9 @@ public class ShareScreenRTCManager : MonoBehaviour
             options.publishScreenCaptureVideo.SetValue(true);
         #endif
 
-        #if UNITY_EDITOR_WIN || UNITY_EDITOR_OSX || UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX
-            shareScreenEngine.EnableLoopbackRecording(true, "");
-        #endif
+        // #if UNITY_EDITOR_WIN || UNITY_EDITOR_OSX || UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX
+        //     shareScreenEngine.EnableLoopbackRecording(false, "");
+        // #endif
 
         shareScreenEngine.UpdateChannelMediaOptions(options);
 
@@ -416,16 +414,6 @@ public class ShareScreenRTCManager : MonoBehaviour
             {
                 go.transform.localScale = new Vector3(0.1f, -0.1f, 0.1f);
             }
-        }
-
-        var mesh = go.GetComponent<MeshRenderer>();
-        if (mesh != null)
-        {
-            var material = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-            material.EnableKeyword("_EMISSION");
-            material.SetColor("_EmissionColor", Color.white * 2f);
-
-            mesh.material = material;
         }
         
         go.transform.Rotate(-90f, 0.0f, 180f);

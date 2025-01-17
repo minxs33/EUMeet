@@ -68,6 +68,7 @@ public class LobbyUIManager : MonoBehaviour
     bool _isQuizOverlayOpen = false;
     bool _isLeaderboardOpen = false;
     bool _isRankingModalOpen = false;
+    bool _isQuizStarted = false;
     private Coroutine fadeChatCoroutine;
     private FadeAnimation _fadeAnimation;
     private SlideAnimation _slideAnimation;
@@ -109,9 +110,10 @@ public class LobbyUIManager : MonoBehaviour
         GameEventsManager.instance.QuizEvents.OnOpenQuizQuestion += ToggleModalContent;
         GameEventsManager.instance.QuizEvents.OnSetTitleText += SetTitleText;
         GameEventsManager.instance.QuizEvents.OnToggleQuizSelected += ToggleQuizSelected;
+        GameEventsManager.instance.QuizEvents.OnStartQuizSetup += StartQuizSetup;
         GameEventsManager.instance.QuizEvents.OnStartQuiz += StartQuiz;
-        GameEventsManager.instance.QuizEvents.OnToggleLeaderboard += ToggleLeaderboard;
         GameEventsManager.instance.QuizEvents.OnEndQuiz += EndQuiz;
+        GameEventsManager.instance.QuizEvents.OnToggleLeaderboard += ToggleLeaderboard;
         GameEventsManager.instance.QuizEvents.OnCountDownStart += CountDownStart;
         // ranking
         _toggleRankingButton.onClick.AddListener(ToggleRanking);
@@ -148,9 +150,10 @@ public class LobbyUIManager : MonoBehaviour
         GameEventsManager.instance.QuizEvents.OnOpenQuizQuestion -= ToggleModalContent;
         GameEventsManager.instance.QuizEvents.OnSetTitleText -= SetTitleText;
         GameEventsManager.instance.QuizEvents.OnToggleQuizSelected -= ToggleQuizSelected;
+        GameEventsManager.instance.QuizEvents.OnStartQuizSetup -= StartQuizSetup;
         GameEventsManager.instance.QuizEvents.OnStartQuiz -= StartQuiz;
-        GameEventsManager.instance.QuizEvents.OnToggleLeaderboard -= ToggleLeaderboard;
         GameEventsManager.instance.QuizEvents.OnEndQuiz -= EndQuiz;
+        GameEventsManager.instance.QuizEvents.OnToggleLeaderboard -= ToggleLeaderboard;
         GameEventsManager.instance.QuizEvents.OnCountDownStart -= CountDownStart;
         _toggleRankingButton.onClick.RemoveListener(ToggleRanking);
         _closeRankingModalButton.onClick.RemoveListener(ToggleRanking);
@@ -472,8 +475,25 @@ public class LobbyUIManager : MonoBehaviour
         Debug.Log("isQuizModalContentOpen: " + _isQuizModalContentOpen);
     }
 
+    public void StartQuizSetup(){
+        _isShareScreenModalOpen = false;
+        _shareScreenModal.SetActive(false);
+        _isQuizModalOpen = false;
+        _quizModal.SetActive(false);
+        _isRankingModalOpen = false;
+        _rankingModal.SetActive(false);
+    }
+
     public void StartQuiz(){
         // ToggleQuiz();
+        if(_isQuizStarted) return;
+        _isQuizStarted = true;
+        ToggleQuizOverlay();
+        
+    }
+
+    public void EndQuiz(){
+        _isQuizStarted = false;
         ToggleQuizOverlay();
     }
 
@@ -488,12 +508,6 @@ public class LobbyUIManager : MonoBehaviour
             GameEventsManager.instance.QuizEvents?.GetLeaderboard();
         }
     }
-
-    public void EndQuiz(){
-        ToggleQuizOverlay();
-        // TODO: show UI leaderboard
-        // Sound end leaderboard
-    }
     public void SetTitleText(string title) => _quizTitleText.text = title;
 
     public void AddQuestion(){
@@ -504,11 +518,9 @@ public class LobbyUIManager : MonoBehaviour
     public void CountDownStart(int num){
         if (num == 0){
             _CountDownText.gameObject.SetActive(false);
-            // Sound start
         }else{
             _CountDownText.gameObject.SetActive(true);
             _CountDownText.text = num.ToString();
-            // Sound countdown
         }
     }
 

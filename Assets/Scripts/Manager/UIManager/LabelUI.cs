@@ -18,11 +18,11 @@ public class LabelUI : MonoBehaviour
             Transform adjustableChild = null;
             foreach (Transform child in transform)
             {
-                if (child.gameObject.name == "NameTag" && child.gameObject.activeSelf)
+                if (child.gameObject.name.EndsWith("_face") && child.gameObject.activeSelf)
                 {
                     nameTag = child;
                 }
-                else if (child.gameObject.name.EndsWith("_face") && child.gameObject.activeSelf)
+                else if (child.gameObject.name == "NameTag" && child.gameObject.activeSelf)
                 {
                     adjustableChild = child;
                 }

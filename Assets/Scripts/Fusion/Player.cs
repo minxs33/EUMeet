@@ -12,6 +12,8 @@ public class Player : NetworkBehaviour
     [SerializeField] private SimpleKCC kcc;
     [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpImpluse = 8f;
+    [SerializeField] private float interactionForce = 50f;
+    [SerializeField] private LayerMask interactableLayer; 
 
     [SerializeField] private Transform camTarget;
     [SerializeField] private float lookSensitivity = 0.15f;
@@ -30,7 +32,6 @@ public class Player : NetworkBehaviour
     [Networked] public string PlayerGender { get; set; }
     [Networked] public int IsDosen {get; set;}
     [Networked] private Vector2 NetworkedLookRotation { get; set; }
-    private List<string> receivedChunks = new List<string>();
     [Networked] public int LeaderboardScore { get; set; } = 0;
     private ChairSync currentChair;
     private LightSync lightTrigger;
@@ -174,19 +175,34 @@ public class Player : NetworkBehaviour
     {
         this.Uid = uid;
         this.PlayerName = playerName;
-        this.playerNameText.text = playerName;
+        if(IsDosen == 1){
+            this.playerNameText.text = "<color=green>[Dosen]</color> " + playerName;
+        }else{
+            this.playerNameText.text = playerName;
+        }
         this.IsDosen = IsDosen;
         this.PlayerGender = playerGender;
 
-        if(playerGender == "male"){
-            this.characterModel.Find("Male").gameObject.SetActive(true);
-            this.characterHair.Find("Male_Hair").gameObject.SetActive(true);
-        }else{
-            this.characterModel.Find("Female").gameObject.SetActive(true);
-            this.characterHair.Find("Female_Hair").gameObject.SetActive(true);
-        }
+        Rpc_SetCharacterModelState(playerGender);
 
         Debug.Log("UID set to: " + uid + " and Player Name set to: " + playerName);
+    }
+
+    [Rpc(RpcSources.All, RpcTargets.All)]
+    private void Rpc_SetCharacterModelState(string playerGender)
+    {
+        if (playerGender == "male")
+        {
+            characterModel.Find("Male").gameObject.SetActive(true);
+            characterHair.Find("Male_Hair").gameObject.SetActive(true);
+            characterModel.Find("Female").gameObject.SetActive(false);
+            characterHair.Find("Female_Hair").gameObject.SetActive(false);
+        }else{
+            characterModel.Find("Female").gameObject.SetActive(true);
+            characterHair.Find("Female_Hair").gameObject.SetActive(true);
+            characterModel.Find("Male").gameObject.SetActive(false);
+            characterHair.Find("Male_Hair").gameObject.SetActive(false);
+        }
     }
 
     public override void FixedUpdateNetwork()

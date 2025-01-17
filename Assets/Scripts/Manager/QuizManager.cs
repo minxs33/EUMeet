@@ -90,13 +90,14 @@ public class QuizManager : MonoBehaviour
                             GetQuiz(_subjectId);
                             HighlightSelectedSubject(selectSubjectButton);
                             GameEventsManager.instance.QuizEvents.ToggleQuizSelected(false);
+                            SoundManager.PlaySound(SoundType.UI_PRESS, null, 0.5f);
                         });
                     }
 
                     if(deleteSubjectButton != null){
                         deleteSubjectButton.onClick.AddListener(() => {
                             DeleteSubject(currentSubjectID);
-                            
+                            SoundManager.PlaySound(SoundType.UI_CANCEL, null, 0.5f);
                         });
                     }else{
                         Debug.Log("Delete button not found");
@@ -280,6 +281,7 @@ public class QuizManager : MonoBehaviour
                             GameEventsManager.instance.QuizEvents.ToggleQuizSelected(true);
                             OpenQuizQuestion(currentQuizID);
                             HighlightSelectedQuiz(selectQuizButton);
+                            SoundManager.PlaySound(SoundType.UI_PRESS, null, 0.5f);
                         });  
                     }
 
@@ -287,6 +289,7 @@ public class QuizManager : MonoBehaviour
                         openQuestionButton.onClick.AddListener(() => {
                             GameEventsManager.instance.QuizEvents.OpenQuizQuestion();
                             OpenQuizQuestion(quiz.id);
+                            SoundManager.PlaySound(SoundType.UI_PRESS, null, 0.5f);
                         });
                     }else{
                         Debug.Log("Open question button not found");
@@ -295,6 +298,7 @@ public class QuizManager : MonoBehaviour
                     if(deleteQuizButton != null){
                         deleteQuizButton.onClick.AddListener(() => {
                             DeleteQuiz(currentQuizID);
+                            SoundManager.PlaySound(SoundType.UI_CANCEL, null, 0.5f);
                         });
                     }else{
                         Debug.Log("Delete button not found");
@@ -482,7 +486,10 @@ public class QuizManager : MonoBehaviour
                         question.correct_answer
                     );
 
-                    questionCard.transform.Find("DeleteQuestion").GetComponent<Button>().onClick.AddListener(() => DeleteQuestion(question.id));
+                    questionCard.transform.Find("DeleteQuestion").GetComponent<Button>().onClick.AddListener(() => {
+                        DeleteQuestion(question.id);
+                        SoundManager.PlaySound(SoundType.UI_CANCEL, null, 0.5f);
+                    });
                 }
             }
         }

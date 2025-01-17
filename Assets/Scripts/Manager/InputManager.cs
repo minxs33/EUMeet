@@ -9,7 +9,6 @@ using UnityEngine.InputSystem;
 
 public class InputManager : SimulationBehaviour, IBeforeUpdate, INetworkRunnerCallbacks
 {
-
     public Player LocalPlayer;
     public Vector2 AccumulatedMouseDelta => mouseDeltaAccumulator.AccumulatedValue;
     private NetworkInputData accumulatedInput;
@@ -17,6 +16,19 @@ public class InputManager : SimulationBehaviour, IBeforeUpdate, INetworkRunnerCa
     private bool isTyping = false;
     private bool isOverlayActive = false;
     private Vector2Accumulator mouseDeltaAccumulator = new() { SmoothingWindow = 0.025f };
+
+    private void OnEnable() {
+        GameEventsManager.instance.QuizEvents.OnStartQuizSetup += () => {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+            GameEventsManager.instance.UIEvents.ToggleOverlay(true);
+            isOverlayActive = true;
+        };
+    }
+
+    private void OnDisable() {
+        GameEventsManager.instance.QuizEvents.OnStartQuizSetup -= ()=>{};
+    }
     public void BeforeUpdate()
     {
         if(resetInput){

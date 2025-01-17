@@ -71,8 +71,10 @@ public class QuizSync : NetworkBehaviour
         Debug.Log("Begin Quiz");
         currentSubjectID = subjectId;
         GetQuizLocal(quizId);
-        
-        StartCoroutine(CountDown());
+        if(questions != null){
+            GameEventsManager.instance.QuizEvents.StartQuizSetup();
+            StartCoroutine(CountDown());
+        }
     }
 
     private void GetQuizLocal(int quizId){
@@ -110,7 +112,7 @@ public class QuizSync : NetworkBehaviour
             SoundManager.PlaySound(SoundType.QUIZ_START_COUNTDOWN,null,0.5f);
             yield return new WaitForSeconds(1f);
         }
-        SoundManager.PlaySound(SoundType.QUIZ_START, null, 0.5f);
+        // SoundManager.PlaySound(SoundType.QUIZ_START, null, 0.5f);
         GameEventsManager.instance.QuizEvents.CountDownStart(0);
 
         GameEventsManager.instance.QuizEvents.StartQuiz();
@@ -200,7 +202,7 @@ public class QuizSync : NetworkBehaviour
     }
 
      private void AddPoints(){
-        playerList = gameLogic.spawnedPlayers.Values.Select(networkObject => networkObject.GetComponent<Player>()).Where(player => player != null).ToList();
+        playerList = gameLogic.spawnedPlayers.Values.Select(networkObject => networkObject.GetComponent<Player>()).Where(player => player != null).Where(player => player.IsDosen == 0).ToList();
 
         foreach(var player in playerList){
             List<IMultipartFormSection> formData = new List<IMultipartFormSection>(){
@@ -332,9 +334,11 @@ public class QuizSync : NetworkBehaviour
         string correctAnswer = question.correct_answer;
         if (correctAnswer.Equals(selectedAnswer.ToString(), System.StringComparison.OrdinalIgnoreCase))
         {
-            int bonusPoints = Mathf.CeilToInt(timeLeft);
-            int totalScore = 10 + bonusPoints;
-            AddScore(totalScore);
+            if(PlayerPrefs.GetInt("isDosen") != 1){
+                int bonusPoints = Mathf.CeilToInt(timeLeft);
+                int totalScore = 10 + bonusPoints;
+                AddScore(totalScore);
+            }
         }
     }
 
@@ -409,15 +413,13 @@ public class QuizSync : NetworkBehaviour
         currentQuestionIndex = 0;
         questions = null;
 
+        GameEventsManager.instance.QuizEvents.EndQuiz();
+
         foreach (var go in questionGo)
         {
             go.GetComponentInChildren<TMP_Text>().text = string.Empty;
         }
 
-        
-        
         ResetAllPlayerScores();
-
-        GameEventsManager.instance.QuizEvents.EndQuiz();
     }
 }
