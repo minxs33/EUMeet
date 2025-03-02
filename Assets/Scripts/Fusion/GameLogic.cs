@@ -171,7 +171,21 @@ public class GameLogic : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
-        GameEventsManager.instance.levelEvents.LevelLoad("Authenticate");
+        Debug.Log($"NetworkRunner shut down: {shutdownReason}");
+
+        NetworkBehaviour[] allNetworkBehaviours = FindObjectsOfType<NetworkBehaviour>();
+
+        for (int i = allNetworkBehaviours.Length - 1; i >= 0; i--)
+        {
+            NetworkBehaviour netBehaviour = allNetworkBehaviours[i];
+
+            if (netBehaviour.GetComponentInParent<NetworkRunner>() == runner) continue;
+
+            if (netBehaviour != null && netBehaviour.gameObject != null)
+            {
+                Destroy(netBehaviour.gameObject);
+            }
+        }
     }
 
     public void OnUserSimulationMessage(NetworkRunner runner, SimulationMessagePtr message)

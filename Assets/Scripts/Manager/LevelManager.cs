@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Fusion;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,6 +10,7 @@ using UnityEngine.SceneManagement;
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance { get; private set; }
+    private NetworkRunner runner;
     private void OnEnable() {
         GameEventsManager.instance.levelEvents.onLevelLoad += LoadScene;
     }
@@ -18,11 +20,13 @@ public class LevelManager : MonoBehaviour
     }
 
     private void Awake() {
-        if (Instance == null) {
+        if(Instance == null){
             Instance = this;
-            DontDestroyOnLoad(this);
-        } else {
-            Destroy(this);
+            DontDestroyOnLoad(gameObject);
+
+        } else if(Instance != this) {
+            Destroy(gameObject);
+            return;
         }
     }
 
@@ -36,9 +40,8 @@ public class LevelManager : MonoBehaviour
         var scene = SceneManager.LoadSceneAsync(sceneName);
         scene.allowSceneActivation = false;
 
-        // UI event invoke for loading animation soon
-
-        await Task.Delay(500);
+        await Task.Delay(200);
         scene.allowSceneActivation = true;
     }
+
 }

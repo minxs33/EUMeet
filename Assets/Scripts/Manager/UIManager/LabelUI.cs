@@ -3,7 +3,7 @@ using UnityEngine;
 public class LabelUI : MonoBehaviour
 {
     private Camera mainCamera;
-    public float baseSpacing = 0.4f;
+    private float baseSpacing = 0.4f;
 
     private void Start()
     {
@@ -12,54 +12,67 @@ public class LabelUI : MonoBehaviour
 
     private void Update()
     {
-        if (mainCamera != null)
+        if (mainCamera == null) return;
+
+        Transform nameTag = null;
+        Transform adjustableChild = null;
+
+        // Find the NameTag and adjustable child
+        foreach (Transform child in transform)
         {
-            Transform nameTag = null;
-            Transform adjustableChild = null;
-            foreach (Transform child in transform)
+            if (child.gameObject.name.EndsWith("_face") && child.gameObject.activeSelf)
             {
-                if (child.gameObject.name.EndsWith("_face") && child.gameObject.activeSelf)
-                {
-                    nameTag = child;
-                }
-                else if (child.gameObject.name == "NameTag" && child.gameObject.activeSelf)
-                {
-                    adjustableChild = child;
-                }
+                adjustableChild = child;
             }
-
-            // Calculate dynamic spacing based on the adjustable child
-            float dynamicSpacing = baseSpacing;
-            if (adjustableChild != null)
+            else if (child.gameObject.name == "NameTag" && child.gameObject.activeSelf)
             {
-                dynamicSpacing = Mathf.Max(baseSpacing, adjustableChild.localScale.y);
+                nameTag = child;
             }
+        }
 
-            // Set yOffset to 0 initially
-            float yOffset = 0;
+        // Calculate dynamic spacing based on the adjustable child's scale
+        float dynamicSpacing = baseSpacing;
+        if (adjustableChild != null)
+        {
+            dynamicSpacing = Mathf.Max(baseSpacing, adjustableChild.localScale.y);
+        }
 
-            // Ensure NameTag is always at the top
-            if (nameTag != null)
+        // Set yOffset for stacking elements
+        float yOffset = 0;
+
+        // Handle NameTag positioning
+        if (nameTag != null)
+        {
+            nameTag.localPosition = new Vector3(0, yOffset, 0);
+            yOffset += dynamicSpacing;
+
+            // Ensure NameTag always faces the camera
+            nameTag.transform.LookAt(mainCamera.transform);
+            nameTag.transform.Rotate(0, 180, 0);
+        }
+
+        // Position other children (e.g., video feeds)
+        foreach (Transform child in transform)
+        {
+            if (child.gameObject.activeSelf && child != nameTag) // Skip the NameTag
             {
-                nameTag.localPosition = new Vector3(0, yOffset, 0);
-                yOffset += dynamicSpacing; // Move down after the NameTag
-                nameTag.transform.LookAt(mainCamera.transform);
-                nameTag.transform.Rotate(0, 180, 0);
-            }
+                child.localPosition = new Vector3(0, -yOffset, 0);
+                yOffset += dynamicSpacing;
 
-            // Position the other children (video feeds, etc.)
-            foreach (Transform child in transform)
-            {
-                if (child.gameObject.activeSelf && child != nameTag) // Skip the NameTag
-                {
-                    child.localPosition = new Vector3(0, -yOffset, 0);
-                    yOffset += dynamicSpacing; // Increment position for the next element
-
-                    // Make sure all children face the camera
-                    child.transform.LookAt(mainCamera.transform);
-                    child.transform.Rotate(0, 180, 0);
-                }
+                // Ensure child faces the camera
+                child.transform.LookAt(mainCamera.transform);
+                child.transform.Rotate(0, 180, 0);
             }
+        }
+
+        // Set the parent's position based on child visibility
+        if (nameTag != null || adjustableChild != null)
+        {
+            transform.localPosition = new Vector3(transform.localPosition.x, 2.62f, transform.localPosition.z);
+        }
+        else
+        {
+            transform.localPosition = new Vector3(transform.localPosition.x, 2.139f, transform.localPosition.z);
         }
     }
 }

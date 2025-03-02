@@ -26,6 +26,7 @@ public class VideoRTCManager : MonoBehaviour
     private bool isPushingFrames = false;
     private string _selectedWebcamDevice;
     public uint _uid;
+    
 
     #if (UNITY_2018_3_OR_NEWER && UNITY_ANDROID)
         private ArrayList permissionList = new ArrayList() { Permission.Camera, Permission.Microphone };
@@ -48,7 +49,6 @@ public class VideoRTCManager : MonoBehaviour
     private void StartRTC()
     {
         SetupVideoSDKEngine();
-        // Request and join video channel token
         StartCoroutine(GetUserToken(PlayerPrefs.GetInt("uid"), JoinVideoChannel, _channelName));
     }
 
@@ -58,7 +58,6 @@ public class VideoRTCManager : MonoBehaviour
         {
             videoEngine = Agora.Rtc.RtcEngine.CreateAgoraRtcEngineEx();
 
-            // VideoEventHandler handlerVideo = new VideoEventHandler(this);
             deviceManager = videoEngine.GetVideoDeviceManager();
             EventHandler eventHandler = new EventHandler(this);
             RtcEngineContext context = new RtcEngineContext
@@ -70,7 +69,6 @@ public class VideoRTCManager : MonoBehaviour
             };
             
             videoEngine.Initialize(context);
-            // videoEngine.InitEventHandler(handlerVideo);
             videoEngine.InitEventHandler(eventHandler);
             
             Debug.Log("RtcEngine initialized successfully.");
@@ -113,7 +111,6 @@ public class VideoRTCManager : MonoBehaviour
         options.publishCameraTrack.SetValue(true);
         options.autoSubscribeAudio.SetValue(false);
         options.autoSubscribeVideo.SetValue(true);
-        // options.publishCustomVideoTrack.SetValue(true);
         options.channelProfile.SetValue(CHANNEL_PROFILE_TYPE.CHANNEL_PROFILE_LIVE_BROADCASTING);
         options.clientRoleType.SetValue(CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER);
         
@@ -134,14 +131,7 @@ public class VideoRTCManager : MonoBehaviour
             CheckPermissions();
         }
     }
-
-    void OnApplicationQuit()
-    {
-        videoEngine.Dispose();
-        videoEngine = null;
-        Leave();
-    }
-
+    
     private void CheckPermissions() {
     #if (UNITY_2018_3_OR_NEWER && UNITY_ANDROID)
             foreach (string permission in permissionList)
@@ -157,13 +147,11 @@ public class VideoRTCManager : MonoBehaviour
         public void Leave()
     {
         Debug.Log("Leaving "+_channelName);
-        // videoEngine.EnableLocalVideo(false);
         videoEngine.DisableVideo();
         videoEngine.StopPreview();
         videoEngine.StopScreenCapture();
         videoEngine.LeaveChannel();
 
-        // RemoteView.SetEnable(false);
     }
 
     IEnumerator GetUserToken(int uid, Action<string, int> onTokenRecieved, string channelName)
@@ -368,6 +356,14 @@ public class VideoRTCManager : MonoBehaviour
         go.transform.localRotation = Quaternion.identity;
         go.transform.localScale = Vector3.one;
 
+        Material mat = new Material(Shader.Find("Unlit/Texture"));
+        if (mat == null)
+        {
+            Debug.LogError("Unlit/Texture shader not found!");
+            return null;
+        }
+        go.GetComponent<Renderer>().material = mat;
+
         return go.AddComponent<VideoSurface>();
     }
     
@@ -387,7 +383,6 @@ public class VideoRTCManager : MonoBehaviour
 
     internal class EventHandler : IRtcEngineEventHandler
     {
-        // Start is called before the first frame update
         private readonly VideoRTCManager rtcSample;
 
         internal EventHandler(VideoRTCManager rtcSample)
@@ -401,7 +396,6 @@ public class VideoRTCManager : MonoBehaviour
             Debug.LogError("Error: " + err);
         }
 
-        // Callback triggered when the local user successfully joins the channel
         public override void OnJoinChannelSuccess(RtcConnection connection, int elapsed)
         {
             Debug.Log("Successfully joined channel: " + connection.channelId);
@@ -411,27 +405,6 @@ public class VideoRTCManager : MonoBehaviour
         public override void OnUserJoined(RtcConnection connection, uint uid, int elapsed)
         {
             Debug.Log("Remote user joined with channelId: " + connection.channelId);
-            Player[] players = FindObjectsOfType<Player>();
-            foreach (Player player in players)
-            {
-                // if (player.Uid == uid)
-                // {
-                    // var videoFeed = player.gameObject.transform.Find("Visual/face/VideoFeed");
-                    // Debug.Log("Remote user joined with uid: " + uid);
-                    // VideoSurface playerVideoSurface = videoFeed.GetComponent<VideoSurface>();
-                    // MeshRenderer playerMeshRenderer = videoFeed.GetComponent<MeshRenderer>();
-                    // if(playerVideoSurface != null && playerMeshRenderer != null){
-                        // Debug.Log("Setting remote video for player: " + player.PlayerName);
-                        // playerVideoSurface.SetForUser(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
-                        // playerVideoSurface.SetEnable(true);
-                        // playerMeshRenderer.enabled = false;
-                        
-                    // }else{
-                    //     Debug.LogError("VideoSurface not found for player: " + player.PlayerName);
-                    // }
-                    // break;
-                // }
-            }
         }
 
         public override void OnRemoteVideoStateChanged (RtcConnection connection, uint uid, REMOTE_VIDEO_STATE state, REMOTE_VIDEO_STATE_REASON reason, int elapsed)
@@ -447,7 +420,6 @@ public class VideoRTCManager : MonoBehaviour
                     }
                     else if ((int)state == (int)REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_STOPPED)
                     {
-                        // _videoSample.RemoteView.SetEnable(false);
                         ShareScreenRTCManager.DestroyVideoView(uid);
                         Debug.Log($"Remote video for uid={uid} has stopped.");
                     }
@@ -457,20 +429,15 @@ public class VideoRTCManager : MonoBehaviour
                 {
                     
                     if(reason == REMOTE_VIDEO_STATE_REASON.REMOTE_VIDEO_STATE_REASON_REMOTE_UNMUTED || reason == REMOTE_VIDEO_STATE_REASON.REMOTE_VIDEO_STATE_REASON_LOCAL_MUTED){
-                        // var player = rtcSample.GetPlayer(uid);
-                        // var videoFeed = player.transform.Find("Visual/face/VideoFeed");
-                        // MeshRenderer playerMeshRenderer = videoFeed.GetComponent<MeshRenderer>();
 
                         Debug.Log("Setting remote video for uid: "+uid);
                         
                         if(state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_DECODING){
                             rtcSample.MakeVideoView(uid, connection.channelId, VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE);
-                            // playerMeshRenderer.enabled = true;
                             Debug.Log("Turning on video object");
                         
                         }else if(state == REMOTE_VIDEO_STATE.REMOTE_VIDEO_STATE_STOPPED){
                             rtcSample.DestroyVideoView(uid);
-                            // playerMeshRenderer.enabled = false;
                             Debug.Log("Turning off video object");
                         
                         }

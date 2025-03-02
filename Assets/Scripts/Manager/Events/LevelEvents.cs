@@ -8,4 +8,10 @@ public class LevelEvents
         onLevelLoad?.Invoke(sceneName);
     }
 
+    public event Action onLogout;
+
+    public void Logout() {
+        onLogout?.Invoke();
+    }
+
 }

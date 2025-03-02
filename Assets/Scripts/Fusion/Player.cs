@@ -203,6 +203,8 @@ public class Player : NetworkBehaviour
             characterModel.Find("Male").gameObject.SetActive(false);
             characterHair.Find("Male_Hair").gameObject.SetActive(false);
         }
+
+        characterModel.localRotation = kcc.LookRotation;
     }
 
     public override void FixedUpdateNetwork()

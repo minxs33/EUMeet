@@ -45,8 +45,6 @@ public class AuthUIManager : MonoBehaviour
     [SerializeField] private Button Player1;
     [SerializeField] private Button Player2;
 
-
-
     public static AuthUIManager Instance { get; private set; }
 
     private void OnEnable() {
@@ -54,6 +52,7 @@ public class AuthUIManager : MonoBehaviour
         registerPageButton.onClick.AddListener(OpenRegisterPage);
         foreach (Button button in backToMenuButton) button.onClick.AddListener(OpenMenuPage);
         startButton.onClick.AddListener(OpenAuthPanel);
+        exit.onClick.AddListener(()=> Application.Quit());
 
         // Register UI
         GameEventsManager.instance.UIEvents.onRegisterError += RegisterError;
@@ -81,6 +80,7 @@ public class AuthUIManager : MonoBehaviour
         registerPageButton.onClick.RemoveListener(OpenRegisterPage);
         foreach (Button button in backToMenuButton) button.onClick.RemoveListener(OpenMenuPage);
         startButton.onClick.RemoveListener(OpenAuthPanel);
+        exit.onClick.RemoveListener(()=> Application.Quit());
 
         // Register UI
         GameEventsManager.instance.UIEvents.onRegisterError -= RegisterError;

@@ -27,6 +27,7 @@ public class ShareScreenRTCManager : MonoBehaviour
     private IEnumerable<ScreenCaptureSourceInfo> screenSources;
     private ScreenCardID selectedCaptureOptions;
     private uint _uid = 0;
+    private bool isShuttingDown = false;
 
     private void OnEnable() {
         // Screen Share
@@ -48,26 +49,8 @@ public class ShareScreenRTCManager : MonoBehaviour
     {
         SetupVideoSDKEngine();
 
-        // Request and join screen share channel token with different UID
         StartCoroutine(GetUserToken(PlayerPrefs.GetInt("uid") + 1, JoinShareScreenChannel));
     }
-
-    void OnApplicationQuit()
-    {
-        shareScreenEngine.Dispose();
-        shareScreenEngine = null;
-        Leave();
-    }
-
-     public void Leave()
-    {
-        Debug.Log("Leaving "+_channelNameScreen);
-        shareScreenEngine.LeaveChannel();
-        shareScreenEngine.StopScreenCapture();
-        shareScreenEngine.DisableVideo();
-        shareScreenEngine.DisableAudio();
-    }
-
 
      IEnumerator GetUserToken(int uid, Action<string> onTokenRecieved)
     {
@@ -98,9 +81,6 @@ public class ShareScreenRTCManager : MonoBehaviour
         try
         {
             shareScreenEngine = Agora.Rtc.RtcEngine.CreateAgoraRtcEngineEx();
-
-
-            // ShareScreenEventHandler handlerShareScreen = new ShareScreenEventHandler(this);
             
             LogConfig Log = new LogConfig
             {
@@ -136,7 +116,7 @@ public class ShareScreenRTCManager : MonoBehaviour
             options.autoSubscribeVideo.SetValue(true);
             options.publishCameraTrack.SetValue(false);
             options.publishScreenTrack.SetValue(true);
-            options.enableAudioRecordingOrPlayout.SetValue(false);
+            options.enableAudioRecordingOrPlayout.SetValue(true);
 
         #if UNITY_ANDROID || UNITY_IPHONE
                     options.publishScreenCaptureAudio.SetValue(false);
@@ -157,13 +137,12 @@ public class ShareScreenRTCManager : MonoBehaviour
     private void SetupShareScreenConfig(){
         VideoEncoderConfiguration encoder = new VideoEncoderConfiguration{
             dimensions = new VideoDimensions(1280, 720),
-            frameRate = 60,
+            frameRate = 30,
             bitrate = 5000,
             orientationMode = ORIENTATION_MODE.ORIENTATION_MODE_ADAPTIVE
         };
 
         shareScreenEngine.SetVideoEncoderConfiguration(encoder);
-        // shareScreenEngine.EnableAudio();
         shareScreenEngine.EnableVideo();
         shareScreenEngine.SetClientRole(CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER);
     }
@@ -229,7 +208,11 @@ public class ShareScreenRTCManager : MonoBehaviour
             if (selectedCaptureOptions.type == "ScreenCaptureSourceType_Window")
             {
                 var nRet = shareScreenEngine.StartScreenCaptureByWindowId(selectedCaptureOptions.sourceId, default(Rectangle),
-                    new ScreenCaptureParameters { captureMouseCursor = true, frameRate = 30 });
+                    new ScreenCaptureParameters { 
+                            captureMouseCursor = true,
+                            frameRate = 30,
+                             
+                        });
                 Debug.Log("Publishing window capture with sourceId: " + selectedCaptureOptions.sourceId);
             }
             else if (selectedCaptureOptions.type == "ScreenCaptureSourceType_Screen")
@@ -239,10 +222,6 @@ public class ShareScreenRTCManager : MonoBehaviour
                 Debug.Log("Publishing screen capture with sourceId: " + selectedCaptureOptions.sourceId);
             }
         #endif
-
-        // RtcConnection connection = new RtcConnection();
-        // connection.channelId = _channelNameScreen;
-        // connection.localUid = _uid;
 
         ChannelMediaOptions options = new ChannelMediaOptions();
         options.autoSubscribeAudio.SetValue(false);
@@ -255,10 +234,6 @@ public class ShareScreenRTCManager : MonoBehaviour
             options.publishScreenCaptureAudio.SetValue(true);
             options.publishScreenCaptureVideo.SetValue(true);
         #endif
-
-        // #if UNITY_EDITOR_WIN || UNITY_EDITOR_OSX || UNITY_STANDALONE_WIN || UNITY_STANDALONE_OSX
-        //     shareScreenEngine.EnableLoopbackRecording(false, "");
-        // #endif
 
         shareScreenEngine.UpdateChannelMediaOptions(options);
 
@@ -408,13 +383,20 @@ public class ShareScreenRTCManager : MonoBehaviour
         {
             go.transform.SetParent(goParent.transform);
 
-            // Get the parent's bounds to calculate width and height constraints
             var parentRenderer = goParent.GetComponent<Renderer>();
             if (parentRenderer != null)
             {
                 go.transform.localScale = new Vector3(0.1f, -0.1f, 0.1f);
             }
         }
+
+        Material mat = new Material(Shader.Find("Unlit/Texture"));
+        if (mat == null)
+        {
+            Debug.LogError("Unlit/Texture shader not found!");
+            return null;
+        }
+        go.GetComponent<Renderer>().material = mat;
         
         go.transform.Rotate(-90f, 0.0f, 180f);
         go.transform.localPosition = new Vector3(0, 0, -0.51f);

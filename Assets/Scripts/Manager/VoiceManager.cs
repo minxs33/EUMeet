@@ -39,6 +39,4 @@ public class VoiceManager : MonoBehaviour
         Debug.Log("UnMute");
     }
 
-
-    
 }

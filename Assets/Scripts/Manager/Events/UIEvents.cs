@@ -31,4 +31,5 @@ public class UIEvents
     public void ShowGenderPanel() {
         onShowGenderPanel?.Invoke();
     }
+
 }

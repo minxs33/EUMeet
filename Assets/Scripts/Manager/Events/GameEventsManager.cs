@@ -16,6 +16,7 @@ public class GameEventsManager : MonoBehaviour
     public FusionEvents fusionEvents;
     public QuizEvents QuizEvents;
     public SoundEvents soundEvents;
+    public ForumEvents forumEvents;
 
     private void Awake() {
         if(instance == null){
@@ -29,6 +30,8 @@ public class GameEventsManager : MonoBehaviour
             RTCEvents = new RTCEvents();
             QuizEvents = new QuizEvents();
             fusionEvents = new FusionEvents();
+            soundEvents = new SoundEvents();
+            forumEvents = new ForumEvents();
 
         } else if(instance != this) {
             Destroy(gameObject);

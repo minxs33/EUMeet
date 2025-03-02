@@ -35,6 +35,7 @@ public class AuthManager : MonoBehaviour
     public IEnumerator RegisterRoutine(List<IMultipartFormSection> formData)
     {
         UnityWebRequest www = UnityWebRequest.Post("http://172.29.174.196/register", formData);
+        // UnityWebRequest www = UnityWebRequest.Post("http://172.29.174.196/register", formData);
 
         yield return www.SendWebRequest();
 

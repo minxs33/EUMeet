@@ -14,10 +14,12 @@ public class LobbyUIManager : MonoBehaviour
     public static LobbyUIManager Instance { get; private set; }
     [SerializeField] private GameObject _overlay;
     [SerializeField] private GameObject _loadingScreen;
+    [SerializeField] private Button _logoutButton;
     [Header("Chat UI")]
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private GameObject _chatPanel;
     [SerializeField] private TMP_Text _chatText;
+    [SerializeField] private TMP_Dropdown _webCamDropdown;
 
     [Header("Video UI")]
     [SerializeField] private Button _toggleVideoMuteButton;
@@ -60,6 +62,19 @@ public class LobbyUIManager : MonoBehaviour
     [SerializeField] private GameObject _rankingModal;
     [SerializeField] private Button _closeRankingModalButton;
     [SerializeField] private Button _resetRankingButton;
+
+    [Header("Forum UI")]
+    [SerializeField] private Button _toggleForumButton;
+    [SerializeField] private GameObject _forumModal;
+    [SerializeField] private Button _closeForumModalButton;
+    // add forum posts
+    [SerializeField] private Button _toggleAddForumButton;
+    [SerializeField] private GameObject _addForumModal;
+    [SerializeField] private TMP_Dropdown _addForumSubjectDropdown;
+    [SerializeField] private TMP_InputField _addForumTitleInputField;
+    [SerializeField] private TMP_InputField _addForumContentInputField;
+    [SerializeField] private Button _addForumButton;
+    [SerializeField] private Button _closeAddForumModalButton;
     bool _isVoiceMuted = true;
     bool _isVideoMuted = true;
     bool _isShareScreenModalOpen = false;
@@ -68,19 +83,21 @@ public class LobbyUIManager : MonoBehaviour
     bool _isQuizOverlayOpen = false;
     bool _isLeaderboardOpen = false;
     bool _isRankingModalOpen = false;
+    bool _isForumModalOpen = false;
+    bool _isAddForumModalOpen = false;
     bool _isQuizStarted = false;
     private Coroutine fadeChatCoroutine;
     private FadeAnimation _fadeAnimation;
     private SlideAnimation _slideAnimation;
 
     // Camera Source
-    [SerializeField] private TMP_Dropdown _webCamDropdown;
     private WebCamDevice[] _webCamDevices;
 
     private void OnEnable() {
         GameEventsManager.instance.UIEvents.onLocalPlayerJoined += DisableLoading;
         GameEventsManager.instance.UIEvents.onToggleOverlay += ToggleOverlay;
         GameEventsManager.instance.RTCEvents.onChatInputPressed += InputTextSelected;
+        _logoutButton.onClick.AddListener(Logout);
         // Chat
         _inputField.onEndEdit.AddListener(ChatHandler);
         // Audio
@@ -119,13 +136,22 @@ public class LobbyUIManager : MonoBehaviour
         _toggleRankingButton.onClick.AddListener(ToggleRanking);
         _closeRankingModalButton.onClick.AddListener(ToggleRanking);
         _resetRankingButton.onClick.AddListener(GameEventsManager.instance.QuizEvents.ResetRanking);
-        
+
+        // forum
+        _toggleForumButton.onClick.AddListener(ToggleForum);
+        _closeForumModalButton.onClick.AddListener(ToggleForum);
+        // forum add
+        _toggleAddForumButton.onClick.AddListener(ToggleAddForum);
+        _closeAddForumModalButton.onClick.AddListener(ToggleAddForum);
+        _addForumButton.onClick.AddListener(AddForumPost);
+        GameEventsManager.instance.forumEvents.OnAddForumPostSuccess += ToggleAddForum;
     }
 
     private void OnDisable() {
         GameEventsManager.instance.UIEvents.onLocalPlayerJoined -= DisableLoading;
         GameEventsManager.instance.UIEvents.onToggleOverlay -= ToggleOverlay;
         GameEventsManager.instance.RTCEvents.onChatInputPressed -= InputTextSelected;
+        _logoutButton.onClick.RemoveListener(Logout);
         _inputField.onEndEdit.RemoveListener(ChatHandler); 
         _toggleAudioMuteButton.onClick.RemoveListener(ToggleVoice);
         _toggleVideoMuteButton.onClick.RemoveListener(ToggleVideo);
@@ -158,6 +184,12 @@ public class LobbyUIManager : MonoBehaviour
         _toggleRankingButton.onClick.RemoveListener(ToggleRanking);
         _closeRankingModalButton.onClick.RemoveListener(ToggleRanking);
         _resetRankingButton.onClick.RemoveListener(GameEventsManager.instance.QuizEvents.ResetRanking);
+        _toggleForumButton.onClick.RemoveListener(ToggleForum);
+        _closeForumModalButton.onClick.RemoveListener(ToggleForum);
+        _toggleAddForumButton.onClick.RemoveListener(ToggleAddForum);
+        _closeAddForumModalButton.onClick.RemoveListener(ToggleAddForum);
+        _addForumButton.onClick.RemoveListener(AddForumPost);
+        
     }
 
     private void Awake() {
@@ -168,8 +200,10 @@ public class LobbyUIManager : MonoBehaviour
         if(PlayerPrefs.GetInt("isDosen") == 1)
         {
             _toggleQuizButton.gameObject.SetActive(true);
+            _resetRankingButton.gameObject.SetActive(true);
         }else{
             _toggleQuizButton.gameObject.SetActive(false);
+            _resetRankingButton.gameObject.SetActive(false);
         }
     }
 
@@ -208,6 +242,10 @@ public class LobbyUIManager : MonoBehaviour
                 _overlay.SetActive(false);
             });
         }
+    }
+
+    private void Logout(){
+        GameEventsManager.instance.levelEvents?.Logout();
     }
 
     private void ToggleVoice(){
@@ -534,6 +572,41 @@ public class LobbyUIManager : MonoBehaviour
             _isRankingModalOpen = true;
             SoundManager.PlaySound(SoundType.UI_OPEN_POP_UP,null, 0.5f);
             GameEventsManager.instance.QuizEvents?.RankingModalOpen();
+        }
+    }
+
+    // forum
+    private void ToggleForum() {
+        if(_isForumModalOpen){
+            _forumModal.SetActive(false);
+            _isForumModalOpen = false;
+            SoundManager.PlaySound(SoundType.UI_CLOSE_POP_UP,null, 0.5f);
+        }else{
+            _forumModal.SetActive(true);
+            _isForumModalOpen = true;
+            SoundManager.PlaySound(SoundType.UI_OPEN_POP_UP,null, 0.5f);
+            GameEventsManager.instance.forumEvents?.GetSubjects();
+        }
+    }
+
+    private void ToggleAddForum(){
+        if(_isAddForumModalOpen){
+            _addForumModal.SetActive(false);
+            _isAddForumModalOpen = false;
+            SoundManager.PlaySound(SoundType.UI_CLOSE_POP_UP,null, 0.5f);
+        }else{
+            _addForumModal.SetActive(true);
+            _isAddForumModalOpen = true;
+            SoundManager.PlaySound(SoundType.UI_OPEN_POP_UP,null, 0.5f);
+        }
+    }
+
+    private void AddForumPost(){
+        if(_addForumTitleInputField.text.Length > 0 && _addForumContentInputField.text.Length > 0 && _addForumSubjectDropdown.value != 0){
+            GameEventsManager.instance.forumEvents?.AddForumPost(_addForumSubjectDropdown.value, _addForumTitleInputField.text, _addForumContentInputField.text);
+            _addForumTitleInputField.text = "";
+            _addForumContentInputField.text = "";
+            SoundManager.PlaySound(SoundType.UI_PRESS, null, 0.5f);
         }
     }
 }

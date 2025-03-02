@@ -71,10 +71,13 @@ public class QuizSync : NetworkBehaviour
         Debug.Log("Begin Quiz");
         currentSubjectID = subjectId;
         GetQuizLocal(quizId);
-        if(questions != null){
-            GameEventsManager.instance.QuizEvents.StartQuizSetup();
-            StartCoroutine(CountDown());
+        if (questions == null || questions.Count == 0)
+        {
+            Debug.LogError("No questions received!");
+            return;
         }
+        GameEventsManager.instance.QuizEvents.StartQuizSetup();
+        StartCoroutine(CountDown());
     }
 
     private void GetQuizLocal(int quizId){
@@ -83,10 +86,10 @@ public class QuizSync : NetworkBehaviour
             new MultipartFormDataSection("quiz_id", quizId.ToString()),
         };
 
-        StartCoroutine(GetQuizLocal(formData));
+        StartCoroutine(GetQuizLocalCoroutine(formData));
     }
 
-    private IEnumerator GetQuizLocal(List<IMultipartFormSection> formData){
+    private IEnumerator GetQuizLocalCoroutine(List<IMultipartFormSection> formData){
         UnityWebRequest www = UnityWebRequest.Post("http://172.29.174.196/get-quiz-question", formData);
         yield return www.SendWebRequest();
 
@@ -162,8 +165,8 @@ public class QuizSync : NetworkBehaviour
         RPC_ShowAnswer();
 
         yield return new WaitForSeconds(4f);
-
-        if (currentQuestionIndex + 1 >= questions.Count)
+        Debug.Log($"CurrentQuestionIndex: {currentQuestionIndex}, Questions.Count: {questions.Count}");
+        if (currentQuestionIndex >= questions.Count - 1)
         {
             RPC_PlayLeaderboardSound(SoundType.QUIZ_SHOW_LEADERBOARD);
             Rpc_GetLeaderboard();

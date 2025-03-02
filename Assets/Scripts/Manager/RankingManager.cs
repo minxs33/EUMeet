@@ -97,7 +97,7 @@ public class RankingManager : MonoBehaviour
                 Debug.Log($"Response text: {responseText}");
             }else if(www.result == UnityWebRequest.Result.Success){
                 string responseText = www.downloadHandler.text;
-                Debug.Log($"Ranking fetched successfully on subject ID:" + subjectIdMapping[subjectDropdown.value]+ " - "+ responseText);
+                // Debug.Log($"Ranking fetched successfully on subject ID:" + subjectIdMapping[subjectDropdown.value]+ " - "+ responseText);
 
                 RankingResponseWrapper rankingData = JsonUtility.FromJson<RankingResponseWrapper>(responseText);
 
